@@ -15,7 +15,7 @@ function project() {
         class="card methodology-intro"
       >
         <div class="section-title">
-          ¿Qué es el proyecto?
+          Ponderación de la Cuenta Pública
         </div>
 
         <p
