@@ -1,0 +1,12 @@
+/* Archivo índice de estilos. Los estilos están organizados en /css. */
+@import url("css/base.css");
+@import url("css/login.css");
+@import url("css/sidebar.css");
+@import url("css/layout.css");
+@import url("css/dashboard.css");
+@import url("css/project.css");
+@import url("css/catalog-tables.css");
+@import url("css/exercise.css");
+@import url("css/modals.css");
+@import url("css/responsive.css");
+@import url("css/catalog-pdf.css");
