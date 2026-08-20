@@ -322,7 +322,7 @@ function project() {
             type="button"
           >
             <span class="component-label">
-              Control y Transparencia
+              Variables de Control y Transparencia
             </span>
 
             <strong>
@@ -349,7 +349,7 @@ function project() {
             type="button"
           >
             <span class="component-label">
-              Rendición de Cuentas
+              Variable de Rendición de Cuentas
             </span>
 
             <strong>
@@ -397,127 +397,54 @@ function methodologyDetailHtml(
     component === 'control'
   ) {
     return `
-      <div
-        class="
-          methodology-detail-head
-        "
-      >
+      <div class="methodology-detail-head">
         <div>
-
           <small>
             COMPONENTE SELECCIONADO
           </small>
 
           <h3>
-            Control y Transparencia
+            Variables de Control y Transparencia
           </h3>
 
           <p>
-            Distribución de los
+            Estructura jerárquica de los
             6 puntos asignados
             a este componente.
           </p>
-
         </div>
 
         <div class="detail-total">
           6
-
-          <span>
-            pts
-          </span>
+          <span>pts</span>
         </div>
       </div>
 
+      <div class="risk-architecture">
+        ${methodologyRiskGroup(
+          3,
+          'Ley de Disciplina Financiera',
+          `
+            ${methodologyRiskCriterion(
+              0.75,
+              'La información financiera esta presentada de acuerdo a los criterios de disciplina finaciera, de manera completa en su portal de internet. 1er Trimestre'
+            )}
+            ${methodologyRiskCriterion(0.75, '2do Trimestre')}
+            ${methodologyRiskCriterion(0.75, '3er Trimestre')}
+            ${methodologyRiskCriterion(0.75, '4to Trimestre')}
+          `
+        )}
 
-      <div
-        class="
-          methodology-distribution
-        "
-      >
-
-        <div class="distribution-row">
-
-          <div
-            class="
-              distribution-points
-            "
-          >
-            3
-          </div>
-
-          <div
-            class="
-              distribution-info
-            "
-          >
-            <b>
-              Ley de Disciplina
-              Financiera
-            </b>
-
-            <span>
-              Evaluación del
-              cumplimiento trimestral.
-            </span>
-          </div>
-
-          <div
-            class="
-              distribution-bar
-            "
-          >
-            <div
-              style="
-                width:50%;
-              "
-            ></div>
-          </div>
-
-        </div>
-
-
-        <div class="distribution-row">
-
-          <div
-            class="
-              distribution-points
-            "
-          >
-            3
-          </div>
-
-          <div
-            class="
-              distribution-info
-            "
-          >
-            <b>
-              Cuenta Pública
-              en portales
-            </b>
-
-            <span>
-              Publicación y
-              disponibilidad
-              de información.
-            </span>
-          </div>
-
-          <div
-            class="
-              distribution-bar
-            "
-          >
-            <div
-              style="
-                width:50%;
-              "
-            ></div>
-          </div>
-
-        </div>
-
+        ${methodologyRiskGroup(
+          3,
+          'Información de Cuenta Pública en Portales de internet',
+          `
+            ${methodologyRiskCriterion(0.75, '1er Trimestre')}
+            ${methodologyRiskCriterion(0.75, '2do Trimestre')}
+            ${methodologyRiskCriterion(0.75, '3er Trimestre')}
+            ${methodologyRiskCriterion(0.75, '4to Trimestre')}
+          `
+        )}
       </div>
     `;
   }
@@ -527,120 +454,44 @@ function methodologyDetailHtml(
     component === 'accountability'
   ) {
     return `
-      <div
-        class="
-          methodology-detail-head
-        "
-      >
+      <div class="methodology-detail-head">
         <div>
-
           <small>
             COMPONENTE SELECCIONADO
           </small>
 
           <h3>
-            Rendición de Cuentas
+            Variable de Rendición de Cuentas
           </h3>
 
           <p>
-            Distribución de los
-            9 puntos correspondientes
-            a la publicación mensual.
+            Estructura de los 9 puntos
+            correspondientes a la presentación
+            de informes mensuales en tiempo.
           </p>
-
         </div>
 
         <div class="detail-total">
           9
-
-          <span>
-            pts
-          </span>
+          <span>pts</span>
         </div>
       </div>
 
-
-      <div
-        class="
-          accountability-summary
-        "
-      >
-
-        <div
-          class="
-            accountability-number
-          "
-        >
-          12
-        </div>
-
-        <div
-          class="
-            accountability-text
-          "
-        >
-          <b>
-            Meses evaluados
-          </b>
-
-          <span>
-            Cada mes representa
-            0.75 puntos.
-          </span>
-        </div>
-
-        <div
-          class="
-            accountability-formula
-          "
-        >
-          12 × 0.75 = 9 pts
-        </div>
-
-      </div>
-
-
-      <div
-        class="
-          months-methodology
-        "
-      >
-        ${
-          [
-            'Ene',
-            'Feb',
-            'Mar',
-            'Abr',
-            'May',
-            'Jun',
-            'Jul',
-            'Ago',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dic'
-          ]
-            .map(
-              (
-                month
-              ) => `
-                <div>
-                  <b>
-                    ${month}
-                  </b>
-
-                  <span>
-                    0.75
-                  </span>
-                </div>
-              `
-            )
-            .join('')
-        }
+      <div class="risk-architecture">
+        ${methodologyRiskGroup(
+          9,
+          'Presentación de Informes Mensuales en tiempo',
+          `
+            ${[
+              'Enero', 'Febrero', 'Marzo', 'Abril',
+              'Mayo', 'Junio', 'Julio', 'Agosto',
+              'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ].map(month => methodologyRiskCriterion(0.75, month)).join('')}
+          `
+        )}
       </div>
     `;
   }
-
 
   return `
     <div
