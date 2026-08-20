@@ -2,7 +2,42 @@
    11. MÓDULO: NUEVO EJERCICIO
    La captura usa la misma metodología administrada en Catálogo.
    ========================================================= */
+function exerciseEscapeHtml(value=''){
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
+}
+
+function exerciseEscapeAttr(value=''){
+  return exerciseEscapeHtml(value);
+}
+
+function exerciseFormatPoints(value){
+  const number=Number(value)||0;
+  return Number.isInteger(number)
+    ? String(number)
+    : number.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+}
+
+function exerciseChildrenPoints(item){
+  return (item.children||[])
+    .reduce((sum,child)=>sum+(Number(child.points)||0),0);
+}
+
 function newExercise(){
+  if(typeof getMethodologyConfig!=='function'||typeof calc!=='function'||typeof blankExercise!=='function'){
+    $('#app').innerHTML=layout(
+      '<div class="empty">No fue posible cargar el modelo de ponderación. Revisa que <b>js/model.js</b> esté actualizado.</div>',
+      'Nuevo ejercicio de ponderación',
+      'No se pudo inicializar el formulario.'
+    );
+    bindNav();
+    return;
+  }
+
   const cats=store.get('catalogs',{});
   const ents=cats[state.year]||[];
   if(!state.current||state.current.year!==state.year) state.current=blankExercise();
@@ -23,7 +58,7 @@ function newExercise(){
 
   const content=`
     <div class="wizard">
-      ${steps.map((label,index)=>`<div class="step ${state.step===index+1?'active':''}" data-n="${index+1}">${escapeHtml(label)}</div>`).join('')}
+      ${steps.map((label,index)=>`<div class="step ${state.step===index+1?'active':''}" data-n="${index+1}">${exerciseEscapeHtml(label)}</div>`).join('')}
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="fields">
@@ -35,7 +70,7 @@ function newExercise(){
           <label>Ente fiscalizado</label>
           <select id="entity">
             <option value="">Seleccionar ente…</option>
-            ${ents.map(entity=>`<option ${entity.name===x.entity?'selected':''}>${escapeHtml(entity.name)}</option>`).join('')}
+            ${ents.map(entity=>`<option ${entity.name===x.entity?'selected':''}>${exerciseEscapeHtml(entity.name)}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -50,7 +85,7 @@ function newExercise(){
             <div>/ 100</div>
             <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
             <small>Base aplicable</small>
-            <h3>${formatMethodPoints(c.base)} pts</h3>
+            <h3>${exerciseFormatPoints(c.base)} pts</h3>
             <p class="${c.majorOk?'status-ok':'status-bad'}">${c.result}</p>
             <div class="progress"><div style="width:${Math.min(100,c.score)}%"></div></div>
           </aside>
@@ -69,7 +104,7 @@ function newExercise(){
 }
 
 function chk(id,label,value,field=''){
-  return `<label><input type="checkbox" id="${id}" ${field?`data-method-field="${escapeHtmlAttr(field)}"`:''} ${value?'checked':''}> ${escapeHtml(label)}</label>`;
+  return `<label><input type="checkbox" id="${id}" ${field?`data-method-field="${exerciseEscapeAttr(field)}"`:''} ${value?'checked':''}> ${exerciseEscapeHtml(label)}</label>`;
 }
 
 function methodFieldId(path){
@@ -80,8 +115,8 @@ function exerciseMethodItem(item,x){
   if(Array.isArray(item.children)){
     return `<div class="exercise-method-parent">
       <div class="exercise-method-parent-title">
-        <b>${escapeHtml(item.label)}</b>
-        <span>${formatMethodPoints(methodologyChildrenPoints(item))} pts</span>
+        <b>${exerciseEscapeHtml(item.label)}</b>
+        <span>${exerciseFormatPoints(exerciseChildrenPoints(item))} pts</span>
       </div>
       <div class="fields">
         ${item.children.map(child=>exerciseMethodItem(child,x)).join('')}
@@ -89,19 +124,19 @@ function exerciseMethodItem(item,x){
     </div>`;
   }
   if(item.type!=='checkbox'||!item.field) return '';
-  return `<div class="toggle">${chk(methodFieldId(item.field),`${item.label} · ${formatMethodPoints(item.points)} pts`,Boolean(pathValue(x,item.field)),item.field)}</div>`;
+  return `<div class="toggle">${chk(methodFieldId(item.field),`${item.label} · ${exerciseFormatPoints(item.points)} pts`,Boolean(pathValue(x,item.field)),item.field)}</div>`;
 }
 
 function exerciseMethodGroup(group,x){
   if(group.requiresWork&&!x.work){
     return `<div class="exercise-method-group disabled-method-group">
-      <div class="section-title">${escapeHtml(group.name)} · ${formatMethodPoints(methodologyGroupPoints(group))} pts</div>
+      <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
       <p class="subtitle">No aplica para el ente seleccionado.</p>
     </div>`;
   }
   return `<div class="exercise-method-group">
-    <div class="section-title">${escapeHtml(group.name)} · ${formatMethodPoints(methodologyGroupPoints(group))} pts</div>
-    ${group.note?`<p class="subtitle">${escapeHtml(group.note)}</p>`:''}
+    <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
+    ${group.note?`<p class="subtitle">${exerciseEscapeHtml(group.note)}</p>`:''}
     <div class="fields">${(group.items||[]).map(item=>exerciseMethodItem(item,x)).join('')}</div>
   </div>`;
 }
@@ -116,7 +151,7 @@ function stepHtml(x,methodology=getMethodologyConfig()){
       <div class="section-title">Paso 1 de 6 · Criterios mayores</div>
       <div class="fields">
         ${(methodology.majors||[]).map(major=>`<div class="toggle">
-          <h4>${escapeHtml(major.label)}</h4>
+          <h4>${exerciseEscapeHtml(major.label)}</h4>
           ${chk(major.key,'Sí, cumple',Boolean(pathValue(x,major.key)),major.key)}
         </div>`).join('')}
       </div>
@@ -126,7 +161,7 @@ function stepHtml(x,methodology=getMethodologyConfig()){
   if(state.step===2){
     const groups=(risk?.groups||[]).filter(group=>!methodologyItems(group).some(item=>item.type==='ratio'));
     return `<div class="card">
-      <div class="section-title">Paso 2 de 6 · ${escapeHtml(risk?.name||'Variables de Riesgo')}</div>
+      <div class="section-title">Paso 2 de 6 · ${exerciseEscapeHtml(risk?.name||'Variables de Riesgo')}</div>
       ${groups.map(group=>exerciseMethodGroup(group,x)).join('')}
     </div>`;
   }
@@ -136,8 +171,8 @@ function stepHtml(x,methodology=getMethodologyConfig()){
     return `<div class="card">
       <div class="section-title">Paso 3 de 6 · Solventación</div>
       ${ratioGroups.map(group=>`<div class="exercise-method-group">
-        <div class="section-title">${escapeHtml(group.name)} · ${formatMethodPoints(methodologyGroupPoints(group))} pts</div>
-        ${(group.items||[]).map(item=>`<p><b>${escapeHtml(item.label)}</b> · ${formatMethodPoints(item.points)} pts</p>`).join('')}
+        <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
+        ${(group.items||[]).map(item=>`<p><b>${exerciseEscapeHtml(item.label)}</b> · ${exerciseFormatPoints(item.points)} pts</p>`).join('')}
       </div>`).join('')}
       <div class="fields">
         ${numfield('countF','Observaciones fincadas',x.solv.countF)}
@@ -152,14 +187,14 @@ function stepHtml(x,methodology=getMethodologyConfig()){
 
   if(state.step===4){
     return `<div class="card">
-      <div class="section-title">Paso 4 de 6 · ${escapeHtml(control?.name||'Variables de Control y Transparencia')}</div>
+      <div class="section-title">Paso 4 de 6 · ${exerciseEscapeHtml(control?.name||'Variables de Control y Transparencia')}</div>
       ${(control?.groups||[]).map(group=>exerciseMethodGroup(group,x)).join('')}
     </div>`;
   }
 
   if(state.step===5){
     return `<div class="card">
-      <div class="section-title">Paso 5 de 6 · ${escapeHtml(accountability?.name||'Variable de Rendición de Cuentas')}</div>
+      <div class="section-title">Paso 5 de 6 · ${exerciseEscapeHtml(accountability?.name||'Variable de Rendición de Cuentas')}</div>
       ${(accountability?.groups||[]).map(group=>exerciseMethodGroup(group,x)).join('')}
     </div>`;
   }
@@ -169,8 +204,8 @@ function stepHtml(x,methodology=getMethodologyConfig()){
     <div class="section-title">Paso 6 de 6 · Resultado</div>
     <div class="grid2">
       <div>
-        <p><b>Ente:</b> ${escapeHtml(x.entity||'—')}</p>
-        <p><b>Base aplicable:</b> ${formatMethodPoints(c.base)} puntos</p>
+        <p><b>Ente:</b> ${exerciseEscapeHtml(x.entity||'—')}</p>
+        <p><b>Base aplicable:</b> ${exerciseFormatPoints(c.base)} puntos</p>
         <p><b>Puntaje bruto:</b> ${c.raw.toFixed(2)}</p>
         <p><b>Puntaje final:</b> ${c.score.toFixed(2)} / 100</p>
       </div>
@@ -253,3 +288,4 @@ async function saveExercise(final){
     alert('No se pudo guardar en D1: '+error.message);
   }
 }
+
