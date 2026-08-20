@@ -621,13 +621,14 @@ function exerciseItem(
         >
       </div>
 
-      <div class="formula-box">
-        ${exerciseFormat(entry.value || 0)}%
-        × ${exerciseFormat(item.points)}
-        =
-        <b>
-          ${exerciseFormat(calculation.points)} pts
-        </b>
+      <div
+        class="formula-box"
+        data-sevac-formula="${item.key}"
+      >
+        ${exerciseSevacFormulaHtml(
+          calculation,
+          item
+        )}
       </div>
     `;
   } else {
@@ -817,20 +818,14 @@ function ratioItem(
         </div>
       </div>
 
-      <div class="formula-box">
-        ${exerciseMoney(calculation.numerator)}
-        ÷
-        ${exerciseMoney(calculation.denominator)}
-        =
-        <b>${percentage.toFixed(2)}%</b>
-        ·
-        ${percentage.toFixed(2)}%
-        ×
-        ${exerciseFormat(item.points)}
-        =
-        <b>
-          ${exerciseFormat(calculation.points)} pts
-        </b>
+      <div
+        class="formula-box"
+        data-ratio-formula="${item.key}"
+      >
+        ${exerciseRatioFormulaHtml(
+          calculation,
+          item
+        )}
       </div>
 
       <div class="score-controls">
@@ -982,6 +977,104 @@ function resultStep(exercise, methodology) {
   `;
 }
 
+function exerciseRatioFormulaHtml(
+  calculation,
+  item
+) {
+  const percentage =
+    (calculation.ratio || 0) * 100;
+
+  return `
+    ${exerciseMoney(calculation.numerator)}
+    ÷
+    ${exerciseMoney(calculation.denominator)}
+    =
+    <b>${percentage.toFixed(2)}%</b>
+    ·
+    ${percentage.toFixed(2)}%
+    ×
+    ${exerciseFormat(item.points)}
+    =
+    <b>
+      ${exerciseFormat(calculation.points)} pts
+    </b>
+  `;
+}
+
+function exerciseSevacFormulaHtml(
+  calculation,
+  item
+) {
+  const percentage = calculation.percentage || 0;
+
+  return `
+    ${exerciseFormat(percentage)}%
+    ×
+    ${exerciseFormat(item.points)}
+    =
+    <b>
+      ${exerciseFormat(calculation.points)} pts
+    </b>
+  `;
+}
+
+function refreshExerciseCalculations() {
+  const exercise = state.current;
+
+  if (!exercise) {
+    return;
+  }
+
+  const methodology = exerciseMethodology(
+    exercise
+  );
+
+  (methodology.components || [])
+    .forEach(component => {
+      (component.groups || [])
+        .forEach(group => {
+          methodologyItems(group)
+            .forEach(item => {
+              const calculation = itemCalculation(
+                exercise,
+                item,
+                group
+              );
+
+              if (item.type === 'ratio') {
+                const formula = document.querySelector(
+                  `[data-ratio-formula="${item.key}"]`
+                );
+
+                if (formula) {
+                  formula.innerHTML =
+                    exerciseRatioFormulaHtml(
+                      calculation,
+                      item
+                    );
+                }
+              }
+
+              if (item.type === 'sevac') {
+                const formula = document.querySelector(
+                  `[data-sevac-formula="${item.key}"]`
+                );
+
+                if (formula) {
+                  formula.innerHTML =
+                    exerciseSevacFormulaHtml(
+                      calculation,
+                      item
+                    );
+                }
+              }
+            });
+        });
+    });
+
+  refreshCurrentScore();
+}
+
 /* =========================================================
    EVENTOS
    ========================================================= */
@@ -1082,7 +1175,7 @@ function bindNew(entities) {
         Math.min(100, entered)
       );
 
-      newExercise();
+      refreshExerciseCalculations();
     };
   });
 
@@ -1144,7 +1237,7 @@ function bindNew(entities) {
         Number(element.value) || 0
       );
 
-      newExercise();
+      refreshExerciseCalculations();
     };
   });
 
