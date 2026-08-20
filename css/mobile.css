@@ -1,0 +1,826 @@
+/* =========================================================
+   SISTEMA DE PONDERACIÓN UEC
+   RESPONSIVE EXCLUSIVO PARA MÓVIL
+
+   IMPORTANTE:
+   Todo este archivo actúa únicamente en pantallas
+   de 768 px o menos.
+
+   La vista de escritorio NO se modifica.
+   ========================================================= */
+
+
+/* =========================================================
+   1. TABLET PEQUEÑA Y CELULAR
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  /* -------------------------------------------------------
+     BASE
+     ------------------------------------------------------- */
+
+  html,
+  body {
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  body {
+    padding-bottom:
+      calc(
+        72px +
+        env(safe-area-inset-bottom)
+      );
+  }
+
+  #app {
+    width:100%;
+    max-width:100%;
+  }
+
+
+  /* -------------------------------------------------------
+     ESTRUCTURA GENERAL
+     Sidebar de escritorio → navegación inferior
+     ------------------------------------------------------- */
+
+  .shell {
+    display:block;
+    min-height:100vh;
+  }
+
+  .sidebar {
+    position:fixed;
+    z-index:1000;
+
+    top:auto;
+    right:0;
+    bottom:0;
+    left:0;
+
+    width:100%;
+    height:
+      calc(
+        68px +
+        env(safe-area-inset-bottom)
+      );
+
+    display:flex;
+    flex-direction:row;
+    align-items:stretch;
+
+    padding:
+      6px
+      6px
+      calc(
+        6px +
+        env(safe-area-inset-bottom)
+      );
+
+    background:#063F36 !important;
+
+    border-top:
+      1px solid
+      rgba(255,255,255,.12);
+
+    box-shadow:
+      0 -8px 24px
+      rgba(0,0,0,.12);
+  }
+
+  .brand,
+  .sidefoot {
+    display:none !important;
+  }
+
+  .nav {
+    flex:1;
+
+    display:flex;
+    align-items:stretch;
+
+    gap:4px;
+
+    min-width:0;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    scrollbar-width:none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display:none;
+  }
+
+  .nav button {
+    flex:
+      0
+      0
+      88px;
+
+    min-width:88px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    gap:3px;
+
+    padding:
+      6px
+      7px;
+
+    border-radius:8px;
+
+    text-align:center;
+
+    white-space:normal;
+  }
+
+  .nav button span {
+    display:block !important;
+
+    font-size:9px;
+    line-height:1.15;
+
+    overflow-wrap:anywhere;
+  }
+
+  .nav button.active {
+    background:
+      rgba(255,255,255,.15);
+  }
+
+  .sidebar-bottom {
+    flex:
+      0
+      0
+      44px;
+
+    margin:0 0 0 4px;
+
+    justify-content:center;
+  }
+
+  .logout-btn {
+    width:44px;
+    height:100%;
+
+    justify-content:center;
+
+    padding:6px;
+
+    border-radius:8px;
+  }
+
+  .logout-btn span:not(.logout-icon) {
+    display:none !important;
+  }
+
+  .logout-icon {
+    font-size:20px;
+  }
+
+
+  /* -------------------------------------------------------
+     ÁREA PRINCIPAL
+     ------------------------------------------------------- */
+
+  .main {
+    width:100%;
+    min-width:0;
+
+    padding:
+      18px
+      14px
+      28px;
+  }
+
+  .topbar {
+    display:flex;
+    flex-direction:column;
+
+    align-items:stretch;
+
+    gap:14px;
+
+    margin-bottom:18px;
+  }
+
+  .title h1 {
+    margin-bottom:6px;
+
+    font-size:23px;
+    line-height:1.15;
+  }
+
+  .subtitle {
+    font-size:12px;
+    line-height:1.5;
+  }
+
+  .yearbox {
+    width:100%;
+
+    display:flex;
+    justify-content:space-between;
+
+    padding:10px 12px;
+
+    border:
+      1px solid
+      var(--border);
+
+    border-radius:8px;
+
+    background:#fff;
+  }
+
+  .yearbox select {
+    min-width:105px;
+  }
+
+
+  /* -------------------------------------------------------
+     TARJETAS Y GRIDS GENERALES
+     ------------------------------------------------------- */
+
+  .card {
+    padding:15px;
+  }
+
+  .grid4,
+  .grid2,
+  .intro-icons,
+  .catalog-kpis,
+  .architecture,
+  .fields,
+  .formgrid,
+  .methodology-values,
+  .methodology-rules-grid,
+  .methodology-components,
+  .ratio-grid,
+  .result-summary {
+    grid-template-columns:1fr !important;
+  }
+
+  .grid4,
+  .catalog-kpis {
+    gap:10px;
+  }
+
+  .grid2 {
+    gap:12px;
+  }
+
+  .kpi {
+    min-height:88px;
+  }
+
+  .kpi .num {
+    font-size:25px;
+  }
+
+
+  /* -------------------------------------------------------
+     RESUMEN
+     ------------------------------------------------------- */
+
+  .barrow {
+    grid-template-columns:1fr;
+    gap:7px;
+  }
+
+  .barrow > :last-child {
+    text-align:left;
+  }
+
+  .bars {
+    gap:18px;
+  }
+
+  .track {
+    width:100%;
+  }
+
+
+  /* -------------------------------------------------------
+     METODOLOGÍA
+     ------------------------------------------------------- */
+
+  .methodology-intro,
+  .methodology-rule-card,
+  .methodology-adjust-card,
+  .methodology-architecture-card {
+    padding:17px;
+  }
+
+  .methodology-description {
+    font-size:13px;
+    line-height:1.6;
+  }
+
+  .methodology-value {
+    padding:13px;
+  }
+
+  .methodology-architecture-head,
+  .methodology-detail-head {
+    display:flex;
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:10px;
+  }
+
+  .methodology-total,
+  .detail-total {
+    align-self:flex-start;
+  }
+
+  .methodology-component {
+    min-height:auto;
+  }
+
+  .risk-group-head {
+    grid-template-columns:
+      58px
+      minmax(0, 1fr) !important;
+  }
+
+  .risk-group-points {
+    min-height:56px;
+
+    padding:8px;
+
+    font-size:18px;
+  }
+
+  .risk-group-title {
+    padding:
+      11px
+      12px;
+
+    font-size:11px;
+  }
+
+  .risk-group-body {
+    padding:9px;
+  }
+
+  .risk-criterion {
+    grid-template-columns:
+      38px
+      minmax(0, 1fr) !important;
+  }
+
+  .risk-criterion-label,
+  .risk-subitem-label {
+    overflow-wrap:anywhere;
+  }
+
+
+  /* -------------------------------------------------------
+     NUEVO EJERCICIO
+     ------------------------------------------------------- */
+
+  .wizard {
+    width:100%;
+
+    display:flex;
+    justify-content:flex-start;
+
+    gap:5px;
+
+    padding-bottom:5px;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+
+  .wizard::-webkit-scrollbar {
+    display:none;
+  }
+
+  .step {
+    flex:
+      0
+      0
+      104px;
+
+    min-width:104px;
+
+    padding:4px;
+
+    scroll-snap-align:start;
+
+    font-size:9px;
+    line-height:1.25;
+  }
+
+  .step:before {
+    width:27px;
+    height:27px;
+  }
+
+  .formgrid {
+    display:grid;
+
+    gap:12px;
+  }
+
+  .resultcard {
+    position:static;
+
+    width:100%;
+  }
+
+  .exercise-group-head,
+  .score-parent-head,
+  .score-item-head {
+    display:flex;
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:6px;
+  }
+
+  .score-controls {
+    grid-template-columns:1fr !important;
+
+    align-items:stretch;
+  }
+
+  .compact-field input {
+    max-width:none;
+  }
+
+  .apply-control {
+    width:100%;
+
+    justify-content:flex-start;
+
+    padding:
+      2px
+      0
+      4px;
+  }
+
+  .exercise-actions {
+    display:flex;
+    flex-wrap:wrap;
+
+    gap:8px;
+  }
+
+  .exercise-actions .btn {
+    flex:
+      1
+      1
+      130px;
+  }
+
+  .formula-box {
+    overflow-wrap:anywhere;
+  }
+
+  .component-summary > div,
+  .result-metric {
+    gap:8px;
+  }
+
+
+  /* -------------------------------------------------------
+     CATÁLOGO
+     ------------------------------------------------------- */
+
+  .catalog-tabs {
+    width:100%;
+
+    display:flex;
+
+    overflow-x:auto;
+
+    scrollbar-width:none;
+  }
+
+  .catalog-tabs::-webkit-scrollbar {
+    display:none;
+  }
+
+  .catalog-tab {
+    flex:
+      0
+      0
+      auto;
+
+    white-space:nowrap;
+  }
+
+  .catalog-toolbar,
+  .toolbar {
+    display:flex;
+    flex-direction:column;
+
+    align-items:stretch;
+
+    gap:9px;
+  }
+
+  .catalog-toolbar-actions {
+    display:flex;
+    flex-wrap:wrap;
+
+    gap:8px;
+  }
+
+  .catalog-toolbar-actions .btn,
+  .toolbar > .btn {
+    width:100%;
+  }
+
+  .methodology-catalog-head,
+  .methodology-editor-title,
+  .method-editor-row,
+  .methodology-item-row,
+  .methodology-group-editor-head {
+    display:flex;
+    flex-direction:column;
+
+    align-items:stretch;
+
+    gap:9px;
+  }
+
+  .methodology-catalog-total {
+    width:100%;
+    min-width:0;
+  }
+
+  .methodology-editor-section {
+    padding:14px;
+  }
+
+  .methodology-component-total,
+  .method-group-total,
+  .method-item-total {
+    width:100%;
+    min-width:0;
+  }
+
+  .methodology-order-buttons {
+    align-self:flex-start;
+  }
+
+  .methodology-items-editor,
+  .methodology-child-editor {
+    padding-left:0;
+  }
+
+  .methodology-parent-editor {
+    padding:
+      10px
+      8px;
+  }
+
+  .method-group-note-field {
+    margin-left:0;
+  }
+
+  .method-points-field {
+    width:100%;
+    flex:auto;
+  }
+
+  .methodology-editor-actions {
+    right:0;
+    bottom:
+      calc(
+        78px +
+        env(safe-area-inset-bottom)
+      );
+
+    left:0;
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:8px;
+
+    padding:10px;
+  }
+
+  .methodology-editor-actions .btn {
+    width:100%;
+  }
+
+  .entity-editor-grid,
+  .catalog-upload-fields {
+    grid-template-columns:1fr !important;
+  }
+
+
+  /* -------------------------------------------------------
+     TABLAS
+     Nunca se deforman: permiten desplazamiento horizontal.
+     ------------------------------------------------------- */
+
+  .tablewrap {
+    width:100%;
+    max-width:100%;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .table {
+    width:max-content;
+    min-width:100%;
+
+    font-size:11px;
+  }
+
+  .table th,
+  .table td {
+    padding:
+      10px
+      9px;
+
+    white-space:nowrap;
+  }
+
+  .table td:first-child,
+  .table th:first-child {
+    position:sticky;
+    left:0;
+    z-index:2;
+
+    background:#fff;
+  }
+
+  .table th:first-child {
+    background:#fafbfa;
+  }
+
+  .result-actions,
+  .catalog-row-actions {
+    flex-wrap:nowrap;
+  }
+
+  .result-actions .btn,
+  .catalog-row-actions .btn {
+    white-space:nowrap;
+  }
+
+
+  /* -------------------------------------------------------
+     MODALES
+     ------------------------------------------------------- */
+
+  .modal {
+    align-items:end;
+
+    padding:
+      10px
+      10px
+      calc(
+        82px +
+        env(safe-area-inset-bottom)
+      );
+  }
+
+  .modalbox {
+    width:100%;
+    max-width:none;
+    max-height:82vh;
+
+    padding:17px;
+
+    border-radius:
+      14px
+      14px
+      10px
+      10px;
+  }
+
+  .modal-head {
+    gap:10px;
+  }
+
+  .modal-actions {
+    display:flex;
+    flex-wrap:wrap;
+
+    gap:8px;
+  }
+
+  .modal-actions .btn {
+    flex:
+      1
+      1
+      120px;
+  }
+
+
+  /* -------------------------------------------------------
+     CAMPOS Y BOTONES
+     ------------------------------------------------------- */
+
+  input,
+  select,
+  textarea {
+    max-width:100%;
+  }
+
+  input,
+  select,
+  textarea,
+  .btn {
+    min-height:42px;
+  }
+
+  .btn {
+    touch-action:manipulation;
+  }
+
+  textarea {
+    resize:vertical;
+  }
+
+
+  /* -------------------------------------------------------
+     ESTADOS VACÍOS
+     ------------------------------------------------------- */
+
+  .empty {
+    padding:
+      32px
+      15px;
+  }
+}
+
+
+/* =========================================================
+   2. CELULARES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .main {
+    padding:
+      15px
+      11px
+      24px;
+  }
+
+  .title h1 {
+    font-size:21px;
+  }
+
+  .card {
+    padding:13px;
+  }
+
+  .nav button {
+    flex-basis:82px;
+    min-width:82px;
+  }
+
+  .nav button span {
+    font-size:8.5px;
+  }
+
+  .step {
+    flex-basis:96px;
+    min-width:96px;
+  }
+
+  .methodology-editor-actions {
+    grid-template-columns:1fr;
+  }
+
+  .risk-group-head {
+    grid-template-columns:
+      52px
+      minmax(0, 1fr) !important;
+  }
+
+  .risk-group-points {
+    font-size:16px;
+  }
+
+  .bigscore {
+    font-size:34px;
+  }
+}
