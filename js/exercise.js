@@ -574,6 +574,40 @@ function exerciseGroup(exercise, group) {
   `;
 }
 
+
+function exerciseIsSevacItem(item) {
+  const key = String(
+    item?.key || ''
+  ).toLowerCase();
+
+  const label = String(
+    item?.label ||
+    item?.name ||
+    item?.title ||
+    ''
+  ).toLowerCase();
+
+  return (
+    item?.type === 'sevac' ||
+    key.includes('sevac') ||
+    label.includes('sevac') ||
+    label.includes(
+      'sistema de contabilidad completo'
+    )
+  );
+}
+
+function exerciseNormalizedItem(item) {
+  if (!exerciseIsSevacItem(item)) {
+    return item;
+  }
+
+  return {
+    ...item,
+    type: 'sevac'
+  };
+}
+
 function exerciseItem(
   exercise,
   item,
@@ -584,9 +618,12 @@ function exerciseItem(
     item
   );
 
+  const normalizedItem =
+    exerciseNormalizedItem(item);
+
   const calculation = itemCalculation(
     exercise,
-    item,
+    normalizedItem,
     group
   );
 
@@ -606,7 +643,7 @@ function exerciseItem(
 
   let controlHtml = '';
 
-  if (item.type === 'sevac') {
+  if (exerciseIsSevacItem(item)) {
     controlHtml = `
       <div class="field compact-field">
         <label>
@@ -1078,9 +1115,12 @@ function refreshExerciseCalculations() {
         .forEach(group => {
           methodologyItems(group)
             .forEach(item => {
+              const normalizedItem =
+                exerciseNormalizedItem(item);
+
               const calculation = itemCalculation(
                 exercise,
-                item,
+                normalizedItem,
                 group
               );
 
@@ -1098,7 +1138,7 @@ function refreshExerciseCalculations() {
                 }
               }
 
-              if (item.type === 'sevac') {
+              if (exerciseIsSevacItem(item)) {
                 const formula =
                   document.querySelector(
                     `[data-sevac-formula="${item.key}"]`
