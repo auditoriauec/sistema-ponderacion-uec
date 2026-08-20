@@ -1,0 +1,83 @@
+/* =========================================================
+   10. RESPONSIVE: TABLET Y MÓVIL
+   ========================================================= */
+@media(max-width:1000px) {
+  .shell {
+    grid-template-columns:78px 1fr;
+  }
+
+  .brand img {
+    width:52px;
+    height:52px;
+  }
+
+  .nav button span,
+  .sidefoot,
+  .logout-btn span:not(.logout-icon) {
+    display:none;
+  }
+
+  .nav button,
+  .logout-btn {
+    justify-content:center;
+  }
+
+  .logout-btn {
+    padding:12px 8px;
+  }
+
+  .grid4,.intro-icons,.catalog-kpis {
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .architecture {
+    grid-template-columns:1fr 1fr;
+  }
+
+  .formgrid {
+    grid-template-columns:1fr;
+  }
+
+  .resultcard {
+    position:static;
+  }
+
+  .grid2 {
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:650px) {
+  
+
+  .main {
+    padding:18px 14px;
+  }
+
+  .shell {
+    grid-template-columns:64px 1fr;
+  }
+
+  .grid4,.intro-icons,.catalog-kpis,.fields,.architecture {
+    grid-template-columns:1fr;
+  }
+
+  .topbar {
+    flex-direction:column;
+  }
+
+  .barrow {
+    grid-template-columns:120px 1fr 60px;
+  }
+
+  .wizard {
+    overflow:auto;
+  }
+
+  .step {
+    min-width:85px;
+  }
+
+}
+

@@ -1,0 +1,31 @@
+/* =========================================================
+   9. VENTANAS MODALES Y ESTADOS VACÍOS
+   ========================================================= */
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:grid;
+  place-items:center;
+  padding:20px;
+  z-index:10;
+}
+
+.modalbox {
+  width:min(720px,96vw);
+  max-height:88vh;
+  overflow:auto;
+  background:white;
+  border-radius:12px;
+  padding:22px;
+}
+
+.empty {
+  padding:50px 20px;
+  text-align:center;
+  color:var(--muted);
+  border:1px dashed #cfd7d3;
+  border-radius:10px;
+  background:#fbfcfb;
+}
+

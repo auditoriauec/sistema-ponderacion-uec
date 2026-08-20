@@ -1,0 +1,116 @@
+/* =========================================================
+   8. NUEVO EJERCICIO / FORMULARIOS
+   ========================================================= */
+.wizard {
+  display:flex;
+  justify-content:space-between;
+  gap:5px;
+  margin:8px 0 22px;
+}
+
+.step {
+  flex:1;
+  text-align:center;
+  font-size:10px;
+  color:var(--muted);
+  position:relative;
+}
+
+.step:before {
+  content:attr(data-n);
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  border:1px solid #cfd6d2;
+  background:white;
+  margin:0 auto 6px;
+}
+
+.step.active:before {
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+
+.formgrid {
+  display:grid;
+  grid-template-columns:1fr 270px;
+  gap:14px;
+}
+
+.form-main {
+  display:grid;
+  gap:14px;
+}
+
+.fields {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.field {
+  display:grid;
+  gap:6px;
+}
+
+.field label {
+  font-size:11px;
+  font-weight:700;
+}
+
+.field input,
+.field select {
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:white;
+}
+
+.choice {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.toggle {
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px;
+}
+
+.toggle h4 {
+  margin:0 0 8px;
+}
+
+.resultcard {
+  position:sticky;
+  top:25px;
+  height:max-content;
+  text-align:center;
+}
+
+.bigscore {
+  font-size:38px;
+  font-weight:900;
+  color:var(--green);
+}
+
+.progress {
+  height:7px;
+  background:#e7ebe9;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.progress>div {
+  height:100%;
+  background:var(--green);
+}
+
+.hidden {
+  display:none!important;
+}
+

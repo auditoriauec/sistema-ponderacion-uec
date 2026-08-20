@@ -1,0 +1,340 @@
+/* =========================================================
+   CATÁLOGO · CARGA Y REVISIÓN DEL PROGRAMA ANUAL
+   Estas clases pertenecen únicamente al modal que procesa PDF.
+   ========================================================= */
+
+.catalog-upload-modal{
+  width:min(980px,94vw);
+  max-height:90vh;
+  overflow:auto;
+}
+
+.modal-head,
+.catalog-preview-head,
+.modal-actions,
+.pdf-process-box{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.modal-head{
+  padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+
+.modal-close{
+  width:36px;
+  height:36px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fff;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.catalog-upload-fields{
+  margin-top:18px;
+}
+
+.pdf-process-box{
+  margin-top:18px;
+  padding:16px 18px;
+  border:1px solid #e6dbc3;
+  background:#fbf8f0;
+  border-radius:10px;
+}
+
+.pdf-process-box p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.catalog-message{
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.catalog-message.info{
+  background:#f6f8f7;
+}
+
+.catalog-message.loading{
+  background:#f8f5ed;
+  border-color:#dfcfaa;
+}
+
+.catalog-message.success{
+  background:#eef7f2;
+  border-color:#bfdaca;
+  color:#184f38;
+}
+
+.catalog-message.warning{
+  background:#fff8e9;
+  border-color:#ead29b;
+  color:#725214;
+}
+
+.catalog-message.error{
+  background:#fff1f1;
+  border-color:#e7baba;
+  color:#8a2828;
+}
+
+.catalog-preview{
+  margin-top:18px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.catalog-preview-head{
+  padding:16px 18px;
+  border-bottom:1px solid var(--border);
+}
+
+.catalog-preview-table{
+  max-height:360px;
+  overflow:auto;
+}
+
+.catalog-preview-table .table{
+  margin:0;
+}
+
+.catalog-preview-table .candidate-name{
+  width:100%;
+  min-width:320px;
+  padding:9px 10px;
+  border:1px solid transparent;
+  border-radius:7px;
+  background:#fafafa;
+  font:inherit;
+}
+
+.catalog-preview-table .candidate-name:focus{
+  outline:none;
+  border-color:#b9a46f;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(185,164,111,.12);
+}
+
+.catalog-check-col{
+  width:74px;
+  text-align:center;
+}
+
+.catalog-action-col{
+  width:72px;
+  text-align:center;
+}
+
+.icon-btn{
+  width:30px;
+  height:30px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:#fff;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+
+.icon-btn.danger:hover{
+  background:#fff1f1;
+  border-color:#dfb4b4;
+  color:#a32929;
+}
+
+.modal-actions{
+  margin-top:18px;
+  justify-content:flex-end;
+}
+
+@media (max-width:760px){
+  .modal-head,
+  .catalog-preview-head,
+  .pdf-process-box{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .catalog-preview-table .candidate-name{
+    min-width:230px;
+  }
+}
+
+
+/* =========================================================
+   CATÁLOGO · EDICIÓN, AUDITORÍAS Y OCR
+   ========================================================= */
+.catalog-toolbar{
+  justify-content:flex-start;
+}
+
+.catalog-toolbar-actions,
+.preview-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.catalog-main-table{
+  min-width:980px;
+}
+
+.catalog-entity-cell{
+  min-width:280px;
+  font-weight:700;
+}
+
+.catalog-row-actions{
+  white-space:nowrap;
+  min-width:150px;
+}
+
+.mini-btn{
+  padding:7px 10px;
+  font-size:11px;
+}
+
+.danger-btn{
+  color:#962f2f;
+  border-color:#dfbcbc;
+}
+
+.danger-btn:hover{
+  background:#fff1f1;
+}
+
+.audit-yes,
+.audit-no{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:11px;
+}
+
+.audit-yes{
+  color:#17603f;
+  background:#eaf6ef;
+}
+
+.audit-no{
+  color:#6d7471;
+  background:#f0f2f1;
+}
+
+.catalog-editor-modal{
+  width:min(760px,94vw);
+}
+
+.entity-editor-grid{
+  display:grid;
+  grid-template-columns:1.6fr 1fr;
+  gap:14px;
+  margin-top:18px;
+}
+
+.audit-flags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.audit-flags label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:11px 13px;
+  background:#fafbfa;
+  font-size:12px;
+  font-weight:700;
+}
+
+.editor-audit-flags{
+  margin-top:16px;
+}
+
+.catalog-preview-table{
+  max-height:430px;
+}
+
+.catalog-preview-table .table{
+  min-width:1120px;
+}
+
+.catalog-preview-table .candidate-name{
+  min-width:300px;
+}
+
+.catalog-preview-table .candidate-type{
+  width:190px;
+  padding:9px 8px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:#fff;
+  font:inherit;
+}
+
+.candidate-flag{
+  width:105px;
+  text-align:center!important;
+}
+
+.candidate-flag input,
+.catalog-check-col input{
+  width:17px;
+  height:17px;
+  accent-color:var(--green);
+}
+
+.ocr-progress-wrap{
+  margin-top:10px;
+}
+
+.ocr-progress-track{
+  height:7px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#e8ecea;
+}
+
+.ocr-progress-track>div{
+  width:0;
+  height:100%;
+  border-radius:999px;
+  background:var(--green);
+  transition:width .2s ease;
+}
+
+.ocr-progress-wrap small{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+}
+
+@media(max-width:760px){
+  .entity-editor-grid{
+    grid-template-columns:1fr;
+  }
+
+  .catalog-toolbar-actions,
+  .preview-actions{
+    width:100%;
+  }
+}

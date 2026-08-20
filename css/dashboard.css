@@ -1,0 +1,92 @@
+/* =========================================================
+   5. TARJETAS, KPIs Y GRÁFICAS
+   ========================================================= */
+.grid4 {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.card {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  box-shadow:0 1px 0 rgba(0,0,0,.01);
+  padding:18px;
+  overflow:hidden;
+}
+
+.kpi {
+  display:flex;
+  gap:14px;
+  align-items:center;
+  min-height:104px;
+}
+
+.ico {
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#eff4f2;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  color:var(--green);
+}
+
+.kpi .num {
+  font-size:28px;
+  font-weight:800;
+  margin-top:4px;
+}
+
+.kpi small {
+  color:var(--muted);
+}
+
+.grid2 {
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+.section-title {
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+.bars {
+  display:grid;
+  gap:20px;
+}
+
+.barrow {
+  display:grid;
+  grid-template-columns:165px 1fr 76px;
+  gap:12px;
+  align-items:center;
+  font-size:13px;
+}
+
+.track {
+  height:8px;
+  background:#e8ecea;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.fill {
+  height:100%;
+  background:var(--green);
+  border-radius:20px;
+}
+
+.insight {
+  margin-top:14px;
+  border:1px solid #e2cda8;
+  background:#fffaf2;
+  padding:14px 16px;
+  border-radius:9px;
+}
+

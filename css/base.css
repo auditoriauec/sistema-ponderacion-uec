@@ -1,0 +1,46 @@
+/* =========================================================
+   1. PALETA INSTITUCIONAL
+   Cambia aquí los colores globales de toda la app.
+   ========================================================= */
+:root {
+  --green:#082402;
+  --green2:#103D01;
+  --gold:#d5b677;
+  --cream:#f4ead5;
+
+  --bg:#f6f7f5;
+  --text:#17211f;
+  --muted:#6f7875;
+  --border:#e2e6e3;
+
+  --red:#cf3e36;
+  --ok:#0d7a52;
+
+  --shadow:
+    0 10px 30px
+    rgba(22,45,38,.08);
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+
+  font-family:
+    Tahoma,
+    Verdana,
+    Arial,
+    sans-serif;
+
+  background:var(--bg);
+  color:var(--text);
+}
+
+button,
+input,
+select {
+  font:inherit;
+}
+

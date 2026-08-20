@@ -1,0 +1,287 @@
+/* =========================================================
+   2. PANTALLA DE INICIO
+   ========================================================= */
+
+.login {
+  position:relative;
+  width:100vw;
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  overflow:hidden;
+
+  background:#063F36;
+}
+
+
+/* Capa muy ligera para mejorar lectura del contenido */
+.login-overlay {
+  position:absolute;
+  inset:0;
+
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(255,255,255,.035) 0%,
+      rgba(255,255,255,0) 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.015) 0%,
+      rgba(0,0,0,.10) 100%
+    );
+
+  pointer-events:none;
+}
+
+
+/* Contenedor central */
+.login-content {
+  position:relative;
+  z-index:2;
+
+  width:100%;
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:40px 24px;
+}
+
+
+/* Bloque institucional */
+.login-panel {
+  width:100%;
+  max-width:560px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  text-align:center;
+  color:#ffffff;
+}
+
+
+/* Logo */
+.login-logo {
+  display:block;
+
+  width:150px;
+  height:150px;
+
+  object-fit:contain;
+
+  margin:0 0 30px;
+}
+
+
+/* Grupo del título */
+.login-title {
+  width:100%;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  margin-bottom:25px;
+}
+
+
+/* Primera y tercera línea */
+.login-title-small {
+  font-size:25px;
+  line-height:1.15;
+
+  font-weight:500;
+
+  letter-spacing:4px;
+
+  color:#ffffff;
+}
+
+
+/* PONDERACIÓN */
+.login-title-main {
+  margin:4px 0 5px;
+
+  font-size:50px;
+  line-height:1.05;
+
+  font-weight:800;
+
+  letter-spacing:2px;
+
+  color:#C9A961;
+}
+
+
+/* Subtítulo */
+.login-subtitle {
+  margin:0 0 35px;
+
+  font-size:15px;
+  line-height:1.7;
+
+  font-weight:400;
+
+  letter-spacing:.3px;
+
+  color:rgba(255,255,255,.82);
+}
+
+
+/* Botón principal */
+.enter {
+  width:300px;
+  min-height:54px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+
+  padding:0 28px;
+
+  border:0;
+  border-radius:9px;
+
+  background:#C9A961;
+
+  color:#102A25;
+
+  font-size:14px;
+  font-weight:800;
+
+  letter-spacing:2px;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.20);
+
+  transition:
+    background .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+
+.enter:hover {
+  background:#B9974F;
+
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 13px 30px rgba(0,0,0,.25);
+}
+
+
+.enter:active {
+  transform:translateY(0);
+}
+
+
+/* Flecha del botón */
+.enter-arrow {
+  font-size:21px;
+  line-height:1;
+
+  font-weight:500;
+
+  transform:translateY(-1px);
+}
+
+
+/* Texto debajo del botón */
+.login-access {
+  margin:17px 0 0;
+
+  font-size:11px;
+  line-height:1.4;
+
+  font-weight:400;
+
+  letter-spacing:.5px;
+
+  color:rgba(255,255,255,.66);
+}
+
+
+/* =========================================================
+   RESPONSIVE DE PANTALLA DE INICIO
+   ========================================================= */
+
+@media(max-width:700px) {
+
+  .login-content {
+    padding:30px 20px;
+  }
+
+  .login-panel {
+    max-width:430px;
+  }
+
+  .login-logo {
+    width:125px;
+    height:125px;
+
+    margin-bottom:26px;
+  }
+
+  .login-title-small {
+    font-size:18px;
+    letter-spacing:3px;
+  }
+
+  .login-title-main {
+    font-size:38px;
+  }
+
+  .login-subtitle {
+    font-size:13px;
+    margin-bottom:30px;
+  }
+
+  .enter {
+    width:min(300px, 90vw);
+  }
+}
+
+
+@media(max-height:700px) {
+
+  .login-content {
+    padding-top:25px;
+    padding-bottom:25px;
+  }
+
+  .login-logo {
+    width:120px;
+    height:120px;
+
+    margin-bottom:20px;
+  }
+
+  .login-title {
+    margin-bottom:18px;
+  }
+
+  .login-title-main {
+    font-size:43px;
+  }
+
+  .login-title-small {
+    font-size:21px;
+  }
+
+  .login-subtitle {
+    margin-bottom:25px;
+  }
+}
+

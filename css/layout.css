@@ -1,0 +1,40 @@
+/* =========================================================
+   4. ENCABEZADO Y ÁREA PRINCIPAL
+   ========================================================= */
+.main {
+  padding:26px 30px 40px;
+  min-width:0;
+}
+
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:start;
+  margin-bottom:20px;
+}
+
+.title h1 {
+  margin:0 0 5px;
+  font-size:28px;
+}
+
+.subtitle {
+  color:var(--muted);
+  font-size:13px;
+}
+
+.yearbox {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+}
+
+.yearbox select {
+  padding:9px 34px 9px 10px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:white;
+}
+

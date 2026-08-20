@@ -1,0 +1,128 @@
+/* =========================================================
+   3. ESTRUCTURA GENERAL + MENÚ LATERAL
+   ========================================================= */
+.shell {
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:250px 1fr;
+}
+
+.sidebar {
+  background:#063F36 !important;
+
+  color:#ffffff;
+
+  padding:
+    20px
+    14px;
+
+  display:flex;
+  flex-direction:column;
+
+  position:sticky;
+  top:0;
+
+  height:100vh;
+}
+
+.brand {
+  text-align:center;
+  padding:2px 8px 18px;
+}
+
+.brand img {
+  width:112px;
+  height:112px;
+  object-fit:contain;
+}
+
+.nav {
+  display:grid;
+  gap:8px;
+}
+
+.nav button {
+  display:flex;
+  align-items:center;
+
+  gap:10px;
+
+  padding:
+    12px
+    13px;
+
+  border:0;
+  border-radius:8px;
+
+  background:transparent;
+
+  color:#ffffff;
+
+  text-align:left;
+
+  cursor:pointer;
+}
+
+.nav button.active,
+.nav button:hover {
+  background:
+    rgba(255,255,255,.13);
+}
+
+.sidebar-bottom {
+  margin-top:auto;
+
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.logout-btn {
+  width:100%;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  padding:12px 13px;
+
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;
+
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.78);
+
+  text-align:left;
+  cursor:pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease,
+    border-color .2s ease;
+}
+
+.logout-btn:hover {
+  background:rgba(255,255,255,.11);
+  border-color:rgba(255,255,255,.20);
+  color:#ffffff;
+}
+
+.logout-icon {
+  flex:0 0 auto;
+
+  font-size:18px;
+  line-height:1;
+
+  color:var(--gold);
+}
+
+.sidefoot {
+  border-top:1px solid rgba(255,255,255,.18);
+
+  padding:16px 8px 0;
+
+  font-size:11px;
+  line-height:1.4;
+  color:rgba(255,255,255,.72);
+}
+
