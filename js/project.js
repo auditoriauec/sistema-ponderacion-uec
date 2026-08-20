@@ -1,258 +1,38 @@
 /* =========================================================
-   6. MÓDULO: PROYECTO DE PONDERACIÓN
-   Contenido informativo/metodológico del proyecto.
+   6. MÓDULO: METODOLOGÍA
+   La estructura se obtiene del Catálogo del modelo.
    ========================================================= */
+
 function project() {
-  const detail =
-    methodologyDetailHtml(
-      methodologyComponent
-    );
+  const methodology = getMethodologyConfig();
+  const components = methodology.components || [];
+  const total = methodologyTotal(methodology);
+
+  ensureMethodologyComponent(
+    components
+  );
+
+  const detail = methodologyDetailHtml(
+    methodologyComponent,
+    methodology
+  );
 
   const content = `
     <div class="methodology-page">
 
-      <section
-        class="card methodology-intro"
-      >
-        <div class="section-title">
-          Ponderación de la Cuenta Pública
-        </div>
-
-        <p
-          class="methodology-description"
-        >
-          El modelo traduce el cumplimiento
-          normativo de cada ente fiscalizado
-          en una calificación única, objetiva
-          y trazable.
-
-          Sirve como base técnica para la CVASEBCS para
-          determinar la aprobación de la Cuenta Pública.
-        </p>
-
-        <div class="methodology-values">
-
-          <div class="methodology-value">
-            <div
-              class="methodology-value-icon"
-            >
-              ◎
-            </div>
-
-            <div>
-              <b>
-                Objetividad
-              </b>
-
-              <span>
-                Reglas explícitas
-                de puntuación.
-              </span>
-            </div>
-          </div>
-
-          <div class="methodology-value">
-            <div
-              class="methodology-value-icon"
-            >
-              ≋
-            </div>
-
-            <div>
-              <b>
-                Comparabilidad
-              </b>
-
-              <span>
-                Escala común
-                de 100 puntos.
-              </span>
-            </div>
-          </div>
-
-          <div class="methodology-value">
-            <div
-              class="methodology-value-icon"
-            >
-              ⌘
-            </div>
-
-            <div>
-              <b>
-                Trazabilidad
-              </b>
-
-              <span>
-                Cada resultado se vincula
-                con evidencia.
-              </span>
-            </div>
-          </div>
-
-          <div class="methodology-value">
-            <div
-              class="methodology-value-icon"
-            >
-              △
-            </div>
-
-            <div>
-              <b>
-                Alerta temprana
-              </b>
-
-              <span>
-                Criterios mayores
-                independientes del puntaje.
-              </span>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
+      ${methodologyIntroHtml()}
 
       <div class="methodology-rules-grid">
-
-        <section
-          class="card methodology-rule-card"
-        >
-          <div class="section-title">
-            Criterios mayores
-          </div>
-
-          <div class="major-rule">
-
-            <div class="major-rule-number">
-              01
-            </div>
-
-            <div>
-              <b>
-                Entrega de Cuenta Pública
-                en tiempo
-              </b>
-
-              <span>
-                Verificación independiente
-                del puntaje obtenido.
-              </span>
-            </div>
-
-          </div>
-
-          <div class="major-rule">
-
-            <div class="major-rule-number">
-              02
-            </div>
-
-            <div>
-              <b>
-                Sistema Contable
-                Armonizado
-              </b>
-
-              <span>
-                Criterio obligatorio
-                para la aprobación.
-              </span>
-            </div>
-
-          </div>
-
-          <div class="methodology-alert">
-
-            <b>
-              Regla de aprobación
-            </b>
-
-            <span>
-              Si cualquiera de los criterios
-              mayores obtiene "NO", la cuenta
-              se clasifica como NO APROBADA,
-              independientemente del puntaje.
-            </span>
-
-          </div>
-        </section>
-
-
-        <section
-          class="card methodology-adjust-card"
-        >
-          <div class="section-title">
-            Metodología de ajuste
-          </div>
-
-          <div class="adjust-row">
-
-            <div class="adjust-number">
-              100
-            </div>
-
-            <div>
-              <b>
-                Ente con obra pública
-              </b>
-
-              <span>
-                Base aplicable
-                de 100 puntos.
-              </span>
-            </div>
-
-          </div>
-
-          <div class="adjust-row">
-
-            <div class="adjust-number">
-              94
-            </div>
-
-            <div>
-              <b>
-                Ente sin obra pública
-              </b>
-
-              <span>
-                Base aplicable
-                de 94 puntos.
-              </span>
-            </div>
-
-          </div>
-
-          <div class="methodology-formula">
-
-            <small>
-              PUNTAJE FINAL
-            </small>
-
-            <b>
-              (Puntos obtenidos × 100)
-              ÷ Base aplicable
-            </b>
-
-          </div>
-        </section>
-
+        ${methodologyMajorsHtml(methodology)}
+        ${methodologyAdjustmentHtml(total)}
       </div>
 
-
       <section
-        class="
-          card
-          methodology-architecture-card
-        "
+        class="card methodology-architecture-card"
       >
-
         <div
-          class="
-            methodology-architecture-head
-          "
+          class="methodology-architecture-head"
         >
-
           <div>
             <div class="section-title">
               Arquitectura del modelo
@@ -267,101 +47,20 @@ function project() {
 
           <div class="methodology-total">
             <strong>
-              100
+              ${formatMethodPoints(total)}
             </strong>
 
             <span>
               puntos
             </span>
           </div>
-
         </div>
-
 
         <div class="methodology-components">
-
-          <button
-            class="
-              methodology-component
-              ${
-                methodologyComponent ===
-                'risk'
-                  ? 'active'
-                  : ''
-              }
-            "
-            data-methodology="risk"
-            type="button"
-          >
-            <span class="component-label">
-              Variables de Riesgo
-            </span>
-
-            <strong>
-              85
-            </strong>
-
-            <small>
-              puntos
-            </small>
-          </button>
-
-
-          <button
-            class="
-              methodology-component
-              ${
-                methodologyComponent ===
-                'control'
-                  ? 'active'
-                  : ''
-              }
-            "
-            data-methodology="control"
-            type="button"
-          >
-            <span class="component-label">
-              Variables de Control y Transparencia
-            </span>
-
-            <strong>
-              6
-            </strong>
-
-            <small>
-              puntos
-            </small>
-          </button>
-
-
-          <button
-            class="
-              methodology-component
-              ${
-                methodologyComponent ===
-                'accountability'
-                  ? 'active'
-                  : ''
-              }
-            "
-            data-methodology="accountability"
-            type="button"
-          >
-            <span class="component-label">
-              Variable de Rendición de Cuentas
-            </span>
-
-            <strong>
-              9
-            </strong>
-
-            <small>
-              puntos
-            </small>
-          </button>
-
+          ${methodologyComponentsHtml(
+            components
+          )}
         </div>
-
 
         <div
           class="methodology-detail"
@@ -369,155 +68,392 @@ function project() {
         >
           ${detail}
         </div>
-
       </section>
 
     </div>
   `;
 
-  $('#app').innerHTML =
-    layout(
-      content,
-      'Metodología',
-      'Estructura, criterios y '
-        + 'distribución del modelo '
-        + 'de ponderación.',
-      false
-    );
+  $('#app').innerHTML = layout(
+    content,
+    'Metodología',
+    'Estructura, criterios y '
+      + 'distribución del modelo '
+      + 'de ponderación.',
+    false
+  );
 
   bindNav();
   bindMethodology();
 }
 
-function methodologyDetailHtml(
-  component
+
+/* =========================================================
+   INTRODUCCIÓN
+   ========================================================= */
+
+function methodologyIntroHtml() {
+  return `
+    <section
+      class="card methodology-intro"
+    >
+      <div class="section-title">
+        ¿Qué es el proyecto?
+      </div>
+
+      <p class="methodology-description">
+        El modelo traduce el cumplimiento
+        normativo de cada ente fiscalizado
+        en una calificación única, objetiva
+        y trazable.
+
+        Sirve como base técnica para
+        determinar la aprobación de la
+        Cuenta Pública.
+      </p>
+
+      <div class="methodology-values">
+
+        ${methodologyValueHtml(
+          '◎',
+          'Objetividad',
+          'Reglas explícitas de puntuación.'
+        )}
+
+        ${methodologyValueHtml(
+          '≋',
+          'Comparabilidad',
+          'Escala común del modelo vigente.'
+        )}
+
+        ${methodologyValueHtml(
+          '⌘',
+          'Trazabilidad',
+          'Cada resultado se vincula con evidencia.'
+        )}
+
+        ${methodologyValueHtml(
+          '△',
+          'Alerta temprana',
+          'Criterios mayores independientes del puntaje.'
+        )}
+
+      </div>
+    </section>
+  `;
+}
+
+function methodologyValueHtml(
+  icon,
+  title,
+  text
 ) {
-  if (
-    component === 'control'
-  ) {
-    return `
-      <div class="methodology-detail-head">
-        <div>
-          <small>
-            COMPONENTE SELECCIONADO
-          </small>
-
-          <h3>
-            Variables de Control y Transparencia
-          </h3>
-
-          <p>
-            Estructura jerárquica de los
-            6 puntos asignados
-            a este componente.
-          </p>
-        </div>
-
-        <div class="detail-total">
-          6
-          <span>pts</span>
-        </div>
+  return `
+    <div class="methodology-value">
+      <div class="methodology-value-icon">
+        ${icon}
       </div>
 
-      <div class="risk-architecture">
-        ${methodologyRiskGroup(
-          3,
-          'Ley de Disciplina Financiera',
-          `
-            ${methodologyRiskCriterion(
-              0.75,
-              'La información financiera esta presentada de acuerdo a los criterios de disciplina finaciera, de manera completa en su portal de internet. 1er Trimestre'
-            )}
-            ${methodologyRiskCriterion(0.75, '2do Trimestre')}
-            ${methodologyRiskCriterion(0.75, '3er Trimestre')}
-            ${methodologyRiskCriterion(0.75, '4to Trimestre')}
-          `
-        )}
+      <div>
+        <b>
+          ${methodologyEscape(title)}
+        </b>
 
-        ${methodologyRiskGroup(
-          3,
-          'Información de Cuenta Pública en Portales de internet',
-          `
-            ${methodologyRiskCriterion(0.75, '1er Trimestre')}
-            ${methodologyRiskCriterion(0.75, '2do Trimestre')}
-            ${methodologyRiskCriterion(0.75, '3er Trimestre')}
-            ${methodologyRiskCriterion(0.75, '4to Trimestre')}
-          `
-        )}
+        <span>
+          ${methodologyEscape(text)}
+        </span>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
 
-  if (
-    component === 'accountability'
-  ) {
-    return `
-      <div class="methodology-detail-head">
-        <div>
-          <small>
-            COMPONENTE SELECCIONADO
-          </small>
+/* =========================================================
+   CRITERIOS MAYORES
+   ========================================================= */
 
-          <h3>
-            Variable de Rendición de Cuentas
-          </h3>
+function methodologyMajorsHtml(
+  methodology
+) {
+  const majors = methodology.majors || [];
 
-          <p>
-            Estructura de los 9 puntos
-            correspondientes a la presentación
-            de informes mensuales en tiempo.
-          </p>
-        </div>
-
-        <div class="detail-total">
-          9
-          <span>pts</span>
-        </div>
-      </div>
-
-      <div class="risk-architecture">
-        ${methodologyRiskGroup(
-          9,
-          'Presentación de Informes Mensuales en tiempo',
-          `
-            ${[
-              'Enero', 'Febrero', 'Marzo', 'Abril',
-              'Mayo', 'Junio', 'Julio', 'Agosto',
-              'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-            ].map(month => methodologyRiskCriterion(0.75, month)).join('')}
-          `
-        )}
-      </div>
-    `;
-  }
+  const rows = majors
+    .map(
+      (
+        major,
+        index
+      ) => methodologyMajorRowHtml(
+        major,
+        index
+      )
+    )
+    .join('');
 
   return `
-    <div
-      class="
-        methodology-detail-head
-      "
+    <section
+      class="card methodology-rule-card"
     >
-      <div>
+      <div class="section-title">
+        Criterios mayores
+      </div>
 
+      ${rows}
+
+      <div class="methodology-alert">
+        <b>
+          Regla de aprobación
+        </b>
+
+        <span>
+          Si cualquiera de los criterios
+          mayores obtiene "NO", la cuenta
+          se clasifica como NO APROBADA,
+          independientemente del puntaje.
+        </span>
+      </div>
+    </section>
+  `;
+}
+
+function methodologyMajorRowHtml(
+  major,
+  index
+) {
+  const number = String(
+    index + 1
+  ).padStart(
+    2,
+    '0'
+  );
+
+  return `
+    <div class="major-rule">
+      <div class="major-rule-number">
+        ${number}
+      </div>
+
+      <div>
+        <b>
+          ${methodologyEscape(
+            major.label || ''
+          )}
+        </b>
+
+        <span>
+          ${methodologyEscape(
+            major.description
+              || 'Criterio obligatorio para la aprobación.'
+          )}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   METODOLOGÍA DE AJUSTE
+   ========================================================= */
+
+function methodologyAdjustmentHtml(
+  total
+) {
+  return `
+    <section
+      class="card methodology-adjust-card"
+    >
+      <div class="section-title">
+        Metodología de ajuste
+      </div>
+
+      <div class="adjust-row">
+        <div class="adjust-number">
+          ${formatMethodPoints(total)}
+        </div>
+
+        <div>
+          <b>
+            Base metodológica total
+          </b>
+
+          <span>
+            Suma máxima definida
+            en el Catálogo.
+          </span>
+        </div>
+      </div>
+
+      <div class="adjust-row">
+        <div class="adjust-number">
+          −
+        </div>
+
+        <div>
+          <b>
+            Conceptos no aplicables
+          </b>
+
+          <span>
+            Sus puntos se retiran
+            de la base aplicable.
+          </span>
+        </div>
+      </div>
+
+      <div class="methodology-formula">
+        <small>
+          PUNTAJE FINAL
+        </small>
+
+        <b>
+          (Puntos obtenidos × 100)
+          ÷ Base aplicable
+        </b>
+      </div>
+    </section>
+  `;
+}
+
+
+/* =========================================================
+   COMPONENTES
+   ========================================================= */
+
+function ensureMethodologyComponent(
+  components
+) {
+  const exists = components.some(
+    (
+      component
+    ) => component.key === methodologyComponent
+  );
+
+  if (
+    !exists
+    && components.length
+  ) {
+    methodologyComponent =
+      components[0].key;
+  }
+}
+
+function methodologyComponentsHtml(
+  components
+) {
+  return components
+    .map(
+      (
+        component
+      ) => methodologyComponentButtonHtml(
+        component
+      )
+    )
+    .join('');
+}
+
+function methodologyComponentButtonHtml(
+  component
+) {
+  const active =
+    methodologyComponent === component.key
+      ? 'active'
+      : '';
+
+  const points =
+    methodologyComponentPoints(
+      component
+    );
+
+  return `
+    <button
+      class="methodology-component ${active}"
+      data-methodology="${methodologyEscapeAttr(
+        component.key
+      )}"
+      type="button"
+    >
+      <span class="component-label">
+        ${methodologyEscape(
+          component.name || ''
+        )}
+      </span>
+
+      <strong>
+        ${formatMethodPoints(points)}
+      </strong>
+
+      <small>
+        puntos
+      </small>
+    </button>
+  `;
+}
+
+
+/* =========================================================
+   DETALLE DEL COMPONENTE
+   ========================================================= */
+
+function methodologyDetailHtml(
+  componentKey,
+  methodology = getMethodologyConfig()
+) {
+  const component = (
+    methodology.components || []
+  ).find(
+    (
+      item
+    ) => item.key === componentKey
+  );
+
+  if (!component) {
+    return `
+      <div class="risk-group-note">
+        No hay información disponible
+        para este componente.
+      </div>
+    `;
+  }
+
+  const points =
+    methodologyComponentPoints(
+      component
+    );
+
+  const groups = (
+    component.groups || []
+  )
+    .map(
+      (
+        group
+      ) => methodologyGroupHtml(
+        group
+      )
+    )
+    .join('');
+
+  return `
+    <div class="methodology-detail-head">
+      <div>
         <small>
           COMPONENTE SELECCIONADO
         </small>
 
         <h3>
-          Variables de Riesgo
+          ${methodologyEscape(
+            component.name || ''
+          )}
         </h3>
 
         <p>
-          Estructura jerárquica de los
-          85 puntos de mayor ponderación
-          del modelo.
+          ${methodologyEscape(
+            component.description
+              || 'Distribución de criterios y puntajes del componente.'
+          )}
         </p>
-
       </div>
 
       <div class="detail-total">
-        85
+        ${formatMethodPoints(points)}
 
         <span>
           pts
@@ -525,155 +461,88 @@ function methodologyDetailHtml(
       </div>
     </div>
 
-
     <div class="risk-architecture">
-
-      ${methodologyRiskGroup(
-        6,
-        'Cuenta Pública conforme a LFyRC',
-        `
-          ${methodologyRiskCriterion(
-            1,
-            'La documentación presentada cumple con los requisitos de transparencia y veracidad exigidos por la LFyRC y LGCG.'
-          )}
-
-          ${methodologyRiskCriterion(
-            1,
-            'La cuenta pública incluye todos los elementos requeridos por la ley, como estados financieros, presupuestales y programáticos como lo indica la normativa vigente.'
-          )}
-
-          ${methodologyRiskCriterion(
-            4,
-            'La cuenta pública está libre de omisiones significativas o irregularidades que puedan afectar su integridad y fiabilidad.',
-            [
-              ['0.2', 'Conciliación de inventarios'],
-              ['0.4', 'Modificaciones presupuestales'],
-              ['1.6', 'Manual de administración de remuneraciones, vigente y autorizado'],
-              ['1.6', 'Conciliaciones bancarias'],
-              ['0.2', 'Relación de proveedores']
-            ]
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        1,
-        'Informe de Avance de Gestión Financiera Art.12 LFRCBCS',
-        `
-          <div class="risk-group-note">
-            A más tardar el 31 de agosto.
-          </div>
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        7,
-        'Sistema de Contabilidad Completo (SEvAC) (Anual)',
-        `
-          ${methodologyRiskCriterion(
-            7,
-            'Sistema de Contabilidad Completo (SEvAC)'
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        5,
-        'Ley de Adquisiciones y Servicios',
-        `
-          ${methodologyRiskCriterion(
-            1,
-            'Procedimiento de Adquisición con evidencias / Expediente Técnico'
-          )}
-
-          ${methodologyRiskCriterion(
-            4,
-            'Programa Anual de adquisiciones'
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        6,
-        'Obra Pública',
-        `
-          ${methodologyRiskCriterion(
-            2.5,
-            'Programa Anual de Obras Públicas aprobado'
-          )}
-
-          ${methodologyRiskCriterion(
-            1,
-            'Expedientes unitarios debidamente integrado'
-          )}
-
-          ${methodologyRiskCriterion(
-            2.5,
-            'Obras pagadas NO ejecutadas'
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        10,
-        'Reincidencia en:',
-        `
-          ${methodologyRiskCriterion(
-            1,
-            'Sistema contable armonizado'
-          )}
-
-          ${methodologyRiskCriterion(
-            2,
-            'Programa anual de adquisiciones, arrendamiento y servicios'
-          )}
-
-          ${methodologyRiskCriterion(
-            3,
-            'Manual de remuneraciones y tabulador de sueldos'
-          )}
-
-          ${methodologyRiskCriterion(
-            1,
-            'Procedimientos de contratacion justificando la excepcion a licitación pública'
-          )}
-
-          ${methodologyRiskCriterion(
-            3,
-            'Levantamiento fisico del inventario de bienes muebles e inmuebles'
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        15,
-        '% de Cantidad Observaciones Solventadas',
-        `
-          ${methodologyRiskCriterion(
-            15,
-            'Porcentaje que resulte de dividir la cantidad de observaciones solventadas entre el total de observaciones fincadas. (proporción)'
-          )}
-        `
-      )}
-
-      ${methodologyRiskGroup(
-        35,
-        '% de Importe de Observaciones Solventadas',
-        `
-          ${methodologyRiskCriterion(
-            5,
-            'Ingreso'
-          )}
-
-          ${methodologyRiskCriterion(
-            30,
-            'Egreso'
-          )}
-        `
-      )}
-
+      ${groups}
     </div>
   `;
+}
+
+
+/* =========================================================
+   GRUPOS, CRITERIOS Y DESGLOSES
+   ========================================================= */
+
+function methodologyGroupHtml(
+  group
+) {
+  const points =
+    methodologyGroupPoints(
+      group
+    );
+
+  const items = (
+    group.items || []
+  )
+    .map(
+      (
+        item
+      ) => methodologyItemHtml(
+        item
+      )
+    )
+    .join('');
+
+  const note = group.note
+    ? `
+        <div class="risk-group-note">
+          ${methodologyEscape(group.note)}
+        </div>
+      `
+    : '';
+
+  return methodologyRiskGroup(
+    points,
+    group.name || '',
+    `${items}${note}`
+  );
+}
+
+function methodologyItemHtml(
+  item
+) {
+  const children =
+    Array.isArray(item.children)
+      ? item.children
+      : [];
+
+  if (children.length) {
+    const points =
+      methodologyChildrenPoints(
+        item
+      );
+
+    const subitems = children.map(
+      (
+        child
+      ) => [
+        formatMethodPoints(
+          child.points
+        ),
+        child.label || ''
+      ]
+    );
+
+    return methodologyRiskCriterion(
+      points,
+      item.label || '',
+      subitems
+    );
+  }
+
+  return methodologyRiskCriterion(
+    Number(item.points) || 0,
+    item.label || ''
+  );
 }
 
 function methodologyRiskGroup(
@@ -681,29 +550,36 @@ function methodologyRiskGroup(
   title,
   content = ''
 ) {
+  const pointLabel =
+    Number(points) === 1
+      ? 'punto'
+      : 'puntos';
+
   return `
     <section class="risk-group">
-
       <div class="risk-group-head">
         <div class="risk-group-points">
-          ${points}
+          ${formatMethodPoints(points)}
 
           <span>
-            ${points === 1 ? 'punto' : 'puntos'}
+            ${pointLabel}
           </span>
         </div>
 
         <div class="risk-group-title">
-          ${title}
+          ${methodologyEscape(title)}
         </div>
       </div>
 
       ${
         content
-          ? `<div class="risk-group-body">${content}</div>`
+          ? `
+              <div class="risk-group-body">
+                ${content}
+              </div>
+            `
           : ''
       }
-
     </section>
   `;
 }
@@ -713,68 +589,102 @@ function methodologyRiskCriterion(
   label,
   subitems = []
 ) {
+  const children = subitems.length
+    ? `
+        <div class="risk-subitems">
+          ${
+            subitems
+              .map(
+                (
+                  [
+                    subPoints,
+                    subLabel
+                  ]
+                ) => `
+                  <div class="risk-subitem">
+                    <span
+                      class="risk-subitem-points"
+                    >
+                      ${methodologyEscape(
+                        subPoints
+                      )}
+                    </span>
+
+                    <span
+                      class="risk-subitem-label"
+                    >
+                      ${methodologyEscape(
+                        subLabel
+                      )}
+                    </span>
+                  </div>
+                `
+              )
+              .join('')
+          }
+        </div>
+      `
+    : '';
+
   return `
     <div class="risk-criterion">
-
       <div class="risk-criterion-points">
-        ${points}
+        ${formatMethodPoints(points)}
       </div>
 
       <div class="risk-criterion-content">
         <div class="risk-criterion-label">
-          ${label}
+          ${methodologyEscape(label)}
         </div>
 
-        ${
-          subitems.length
-            ? `
-              <div class="risk-subitems">
-                ${
-                  subitems
-                    .map(
-                      ([subPoints, subLabel]) => `
-                        <div class="risk-subitem">
-                          <span class="risk-subitem-points">
-                            ${subPoints}
-                          </span>
-
-                          <span class="risk-subitem-label">
-                            ${subLabel}
-                          </span>
-                        </div>
-                      `
-                    )
-                    .join('')
-                }
-              </div>
-            `
-            : ''
-        }
+        ${children}
       </div>
-
     </div>
   `;
 }
 
+
+/* =========================================================
+   NAVEGACIÓN ENTRE COMPONENTES
+   ========================================================= */
+
 function bindMethodology() {
-  const buttons =
-    $$(
-      '.methodology-component'
-    );
+  const buttons = $$ (
+    '.methodology-component'
+  );
 
   buttons.forEach(
     (
       button
     ) => {
+      button.onclick = () => {
+        methodologyComponent =
+          button.dataset.methodology;
 
-      button.onclick =
-        () => {
-
-          methodologyComponent =
-            button.dataset.methodology;
-
-          project();
-        };
+        project();
+      };
     }
   );
+}
+
+
+/* =========================================================
+   UTILIDADES LOCALES
+   ========================================================= */
+
+function methodologyEscape(
+  value = ''
+) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function methodologyEscapeAttr(
+  value = ''
+) {
+  return methodologyEscape(value);
 }
