@@ -967,6 +967,60 @@ function resultStep(exercise, methodology) {
     ? 'status-ok'
     : 'status-bad';
 
+const notApplicableItems = [];
+
+(methodology.components || [])
+  .forEach(component => {
+    (component.groups || [])
+      .forEach(group => {
+        methodologyItems(group)
+          .forEach(item => {
+            const itemCalc = itemCalculation(
+              exercise,
+              item,
+              group
+            );
+
+            if (!itemCalc.applicable) {
+              notApplicableItems.push({
+                name: item.label,
+                points: Number(item.points) || 0
+              });
+            }
+          });
+      });
+  });
+
+const notApplicableHtml =
+  notApplicableItems.length
+    ? `
+      <div class="not-applicable-summary">
+
+        <div class="not-applicable-title">
+          Variables no aplicables:
+        </div>
+
+        <ul>
+          ${notApplicableItems
+            .map(item => `
+              <li>
+                <span>
+                  ${exerciseEscapeHtml(item.name)}
+                </span>
+
+                <b>
+                  ${exerciseFormat(item.points)}
+                  pts
+                </b>
+              </li>
+            `)
+            .join('')}
+        </ul>
+
+      </div>
+    `
+    : '';
+   
   const componentsHtml = (methodology.components || [])
     .map(component => {
       const componentResult =
@@ -1015,6 +1069,8 @@ function resultStep(exercise, methodology) {
             <b>Base aplicable:</b>
             ${exerciseFormat(calculation.base)} pts
           </p>
+          
+${notApplicableHtml}
 
           <p>
             <b>Puntaje obtenido:</b>
