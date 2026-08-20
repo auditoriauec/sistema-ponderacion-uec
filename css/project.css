@@ -876,3 +876,230 @@
   }
 
 }
+
+/* =========================================================
+   ARQUITECTURA JERÁRQUICA · VARIABLES DE RIESGO
+   ========================================================= */
+
+.risk-architecture {
+  display:grid;
+  gap:12px;
+}
+
+.risk-group {
+  overflow:hidden;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:10px;
+
+  background:#ffffff;
+}
+
+.risk-group-head {
+  display:grid;
+
+  grid-template-columns:
+    78px
+    minmax(0, 1fr);
+
+  align-items:stretch;
+
+  border-bottom:
+    1px solid
+    var(--border);
+}
+
+.risk-group-points {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  min-height:64px;
+
+  padding:10px;
+
+  background:
+    rgba(11,79,69,.07);
+
+  color:var(--green);
+
+  font-size:22px;
+  font-weight:900;
+}
+
+.risk-group-points span {
+  margin-top:2px;
+
+  font-size:8px;
+  font-weight:800;
+
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+
+.risk-group-title {
+  display:flex;
+  align-items:center;
+
+  padding:
+    14px
+    16px;
+
+  color:var(--text);
+
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
+
+.risk-group-body {
+  display:grid;
+  gap:8px;
+
+  padding:12px;
+
+  background:#fbfcfb;
+}
+
+.risk-criterion {
+  display:grid;
+
+  grid-template-columns:
+    42px
+    minmax(0, 1fr);
+
+  gap:10px;
+
+  align-items:flex-start;
+
+  padding:10px;
+
+  border:
+    1px solid
+    rgba(17, 42, 35, .09);
+
+  border-radius:8px;
+
+  background:#ffffff;
+}
+
+.risk-criterion-points {
+  width:38px;
+  min-height:34px;
+
+  display:grid;
+  place-items:center;
+
+  padding:4px;
+
+  border-radius:7px;
+
+  background:
+    rgba(11,79,69,.09);
+
+  color:var(--green);
+
+  font-size:12px;
+  font-weight:900;
+}
+
+.risk-criterion-label {
+  padding-top:3px;
+
+  font-size:10.5px;
+  font-weight:700;
+  line-height:1.55;
+}
+
+.risk-subitems {
+  display:grid;
+  gap:5px;
+
+  margin-top:10px;
+  padding-top:9px;
+
+  border-top:
+    1px solid
+    var(--border);
+}
+
+.risk-subitem {
+  display:grid;
+
+  grid-template-columns:
+    42px
+    minmax(0, 1fr);
+
+  gap:8px;
+
+  align-items:center;
+
+  padding:
+    6px
+    8px;
+
+  border-radius:6px;
+
+  background:#f5f8f6;
+}
+
+.risk-subitem-points {
+  color:var(--green);
+
+  font-size:10px;
+  font-weight:900;
+}
+
+.risk-subitem-label {
+  color:var(--muted);
+
+  font-size:9.5px;
+  font-weight:600;
+  line-height:1.4;
+}
+
+.risk-group-note {
+  padding:
+    9px
+    10px;
+
+  border-radius:7px;
+
+  background:
+    rgba(11,79,69,.06);
+
+  color:var(--muted);
+
+  font-size:9.5px;
+  font-weight:700;
+}
+
+@media (max-width:700px) {
+  .risk-group-head {
+    grid-template-columns:
+      64px
+      minmax(0, 1fr);
+  }
+
+  .risk-group-points {
+    min-height:58px;
+
+    font-size:19px;
+  }
+
+  .risk-group-title {
+    padding:
+      12px
+      13px;
+  }
+
+  .risk-criterion {
+    grid-template-columns:
+      38px
+      minmax(0, 1fr);
+  }
+}
