@@ -189,6 +189,26 @@ function methodologyComponentPoints(component){
   return (component.groups||[]).reduce((sum,group)=>sum+methodologyGroupPoints(group),0);
 }
 
+function methodologyChildrenPoints(item){
+  if(!item || !Array.isArray(item.children)){
+    return Number(item && item.points)||0;
+  }
+
+  return item.children.reduce(
+    (sum,child)=>sum+(Number(child.points)||0),
+    0
+  );
+}
+
+function formatMethodPoints(value){
+  const number=Number(value)||0;
+
+  return number.toLocaleString('es-MX',{
+    minimumFractionDigits:0,
+    maximumFractionDigits:2
+  });
+}
+
 function methodologyTotal(config=getMethodologyConfig()){
   return (config.components||[]).reduce((sum,component)=>sum+methodologyComponentPoints(component),0);
 }
