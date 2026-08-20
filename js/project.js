@@ -97,7 +97,7 @@ function methodologyIntroHtml() {
       class="card methodology-intro"
     >
       <div class="section-title">
-        ¿Qué es el proyecto?
+        Ponderación de la Cuenta Pública
       </div>
 
       <p class="methodology-description">
@@ -106,8 +106,7 @@ function methodologyIntroHtml() {
         en una calificación única, objetiva
         y trazable.
 
-        Sirve como base técnica para
-        determinar la aprobación de la
+        Sirve como base técnica para la CVASEBCS para determinar la aprobación de la
         Cuenta Pública.
       </p>
 
