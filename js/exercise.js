@@ -1673,9 +1673,9 @@ function exercisePrintPreview(exercise) {
       size: A4 portrait;
 
       margin:
-        10mm
+        12mm
         9mm
-        20mm
+        14mm
         9mm;
     }
 
@@ -1687,7 +1687,6 @@ function exercisePrintPreview(exercise) {
 
     body {
       font-family:
-        "Segoe UI",
         Arial,
         Helvetica,
         sans-serif;
@@ -1696,46 +1695,48 @@ function exercisePrintPreview(exercise) {
 
       background: #eef1f0;
 
-      font-size: 9.2px;
+      font-size: 10px;
 
-      line-height: 1.35;
+      line-height: 1.4;
 
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+
+      text-rendering: geometricPrecision;
     }
 
     .report {
-  width: 210mm;
-  min-height: 297mm;
+      width: 210mm;
+      min-height: 297mm;
 
-  margin: 24px auto;
+      margin: 24px auto;
 
-  padding:
-    10mm
-    9mm
-    20mm
-    9mm;
+      padding:
+        10mm
+        9mm
+        14mm
+        9mm;
 
-  background: #ffffff;
+      background: #ffffff;
 
-  box-shadow:
-    0 4px 24px
-    rgba(0, 0, 0, 0.12);
-}
+      box-shadow:
+        0 4px 24px
+        rgba(0, 0, 0, 0.12);
+    }
 
-    /* ================================
+    /* ========================================
        ENCABEZADO PRINCIPAL
-       ================================ */
+       ======================================== */
 
     .hero {
       display: grid;
 
       grid-template-columns:
-        108px
+        100px
         minmax(0, 1fr)
-        250px;
+        230px;
 
-      gap: 18px;
+      gap: 16px;
 
       align-items: center;
 
@@ -1750,8 +1751,8 @@ function exercisePrintPreview(exercise) {
     }
 
     .logo {
-      width: 102px;
-      height: 102px;
+      width: 96px;
+      height: 96px;
 
       object-fit: contain;
 
@@ -1767,13 +1768,13 @@ function exercisePrintPreview(exercise) {
 
       color: #064c3f;
 
-      font-size: 27px;
+      font-size: 26px;
 
-      line-height: 0.98;
+      line-height: 1;
 
       font-weight: 800;
 
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
 
       text-transform: uppercase;
     }
@@ -1785,7 +1786,7 @@ function exercisePrintPreview(exercise) {
     .main-title .gold {
       color: #b48a3a;
 
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
     .entity-data {
@@ -1793,13 +1794,13 @@ function exercisePrintPreview(exercise) {
 
       align-items: stretch;
 
-      margin-top: 20px;
+      margin-top: 18px;
     }
 
     .data-item {
-      padding-right: 18px;
+      padding-right: 16px;
 
-      margin-right: 18px;
+      margin-right: 16px;
 
       border-right:
         1px solid #d7c9ad;
@@ -1809,6 +1810,7 @@ function exercisePrintPreview(exercise) {
       border-right: none;
 
       padding-right: 0;
+
       margin-right: 0;
     }
 
@@ -1840,23 +1842,23 @@ function exercisePrintPreview(exercise) {
       font-weight: 700;
     }
 
-    /* ================================
-       TARJETA DE CALIFICACIÓN
-       ================================ */
+    /* ========================================
+       CALIFICACIÓN GLOBAL
+       ======================================== */
 
     .score-card {
       overflow: hidden;
 
       border:
-        1px solid #d3ddd9;
+        1px solid #cbd8d3;
 
-      border-radius: 10px;
+      border-radius: 9px;
 
       background: #ffffff;
 
       box-shadow:
-        0 3px 10px
-        rgba(0, 54, 44, 0.10);
+        0 2px 7px
+        rgba(0, 54, 44, 0.08);
     }
 
     .score-card-title {
@@ -1878,13 +1880,13 @@ function exercisePrintPreview(exercise) {
     }
 
     .global-score {
-      padding: 12px 10px 6px;
+      padding: 12px 10px 7px;
 
       color: #064c3f;
 
       text-align: center;
 
-      font-size: 37px;
+      font-size: 36px;
 
       line-height: 1;
 
@@ -1943,7 +1945,7 @@ function exercisePrintPreview(exercise) {
     .score-meta-item:first-child {
       border-right:
         1px solid
-        rgba(255,255,255,.25);
+        rgba(255, 255, 255, 0.25);
     }
 
     .score-meta-label {
@@ -1957,7 +1959,7 @@ function exercisePrintPreview(exercise) {
 
       text-transform: uppercase;
 
-      opacity: .88;
+      opacity: 0.9;
     }
 
     .score-meta-value {
@@ -1970,9 +1972,9 @@ function exercisePrintPreview(exercise) {
       font-weight: 800;
     }
 
-    /* ================================
-       TÍTULO DE DETALLE
-       ================================ */
+    /* ========================================
+       TÍTULO DE SECCIÓN
+       ======================================== */
 
     .section-title {
       display: flex;
@@ -1998,7 +2000,8 @@ function exercisePrintPreview(exercise) {
       width: 27px;
       height: 27px;
 
-      flex: 0 0 27px;
+      flex:
+        0 0 27px;
 
       border-radius: 50%;
 
@@ -2025,9 +2028,9 @@ function exercisePrintPreview(exercise) {
       letter-spacing: 0.25px;
     }
 
-    /* ================================
+    /* ========================================
        TABLA
-       ================================ */
+       ======================================== */
 
     table {
       width: 100%;
@@ -2069,23 +2072,19 @@ function exercisePrintPreview(exercise) {
       display: table-header-group;
     }
 
-    tfoot {
-      display: table-row-group;
-    }
-
     th {
       padding: 7px 5px;
 
       border:
-        1px solid #d4ddd9;
+        1px solid #becbc6;
 
       background: #075244;
 
       color: #ffffff;
 
-      font-size: 8px;
+      font-size: 8.6px;
 
-      line-height: 1.15;
+      line-height: 1.2;
 
       font-weight: 800;
 
@@ -2100,11 +2099,11 @@ function exercisePrintPreview(exercise) {
       padding: 6px 6px;
 
       border:
-        1px solid #d4ddd9;
+        1px solid #c4cfcb;
 
       background: #ffffff;
 
-      color: #273a34;
+      color: #1f312b;
 
       vertical-align: top;
 
@@ -2112,15 +2111,31 @@ function exercisePrintPreview(exercise) {
 
       overflow: visible;
 
-      overflow-wrap: anywhere;
+      overflow-wrap: break-word;
 
       word-break: normal;
 
-      hyphens: auto;
+      hyphens: none;
+
+      font-size: 9.5px;
+
+      line-height: 1.4;
+
+      font-weight: 500;
     }
 
     tbody tr:nth-child(even) td {
       background: #fafcfb;
+    }
+
+    tbody tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    tbody td {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
 
     .number-cell {
@@ -2134,36 +2149,80 @@ function exercisePrintPreview(exercise) {
     .obtained-cell {
       color: #064c3f;
 
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .note-cell {
-      font-size: 8.7px;
+      font-size: 9.5px;
 
-      line-height: 1.35;
+      line-height: 1.4;
+    }
+
+    /* ========================================
+       ENCABEZADO REPETIDO POR PÁGINA
+       ======================================== */
+
+    .page-data-row th {
+      padding:
+        6px
+        9px;
+
+      background: #f7f9f8;
+
+      color: #064c3f;
+
+      border-top:
+        2px solid #b48a3a;
+
+      border-bottom:
+        1px solid #becbc6;
+
+      font-size: 7.5px;
+
+      line-height: 1.2;
+
+      letter-spacing: 0.2px;
+
+      text-transform: uppercase;
+    }
+
+    .page-data-left {
+      text-align: left;
+    }
+
+    .page-data-right {
+      text-align: right;
+    }
+
+    .page-data-row strong {
+      margin-left: 4px;
+
+      font-size: 8px;
+
+      color: #17352f;
     }
 
     /*
-      Evita que una fila se corte
-      entre dos páginas.
+      En la primera página no necesitamos
+      que la franja de ente y ejercicio
+      llame demasiado la atención.
     */
-    tbody tr {
-      page-break-inside: avoid;
-      break-inside: avoid;
+
+    .first-page-data {
+      display: none;
     }
 
-    tbody td {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
+    /* ========================================
+       TOTAL
+       ======================================== */
 
-    /* ================================
-       TOTAL AL FINAL DE LA TABLA
-       ================================ */
+    tfoot {
+      display: table-row-group;
+    }
 
     .total-row td {
-      padding-top: 8px;
-      padding-bottom: 8px;
+      padding-top: 9px;
+      padding-bottom: 9px;
 
       border-top:
         2px solid #075244;
@@ -2173,6 +2232,9 @@ function exercisePrintPreview(exercise) {
       color: #064c3f;
 
       font-weight: 800;
+
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
 
     .total-label {
@@ -2191,9 +2253,9 @@ function exercisePrintPreview(exercise) {
       white-space: nowrap;
     }
 
-    /* ================================
-       ACLARACIÓN DE CALIFICACIÓN
-       ================================ */
+    /* ========================================
+       NOTA DE NORMALIZACIÓN
+       ======================================== */
 
     .calculation-note {
       margin-top: 10px;
@@ -2207,9 +2269,9 @@ function exercisePrintPreview(exercise) {
 
       color: #394a44;
 
-      font-size: 8.8px;
+      font-size: 9px;
 
-      line-height: 1.45;
+      line-height: 1.5;
 
       page-break-inside: avoid;
       break-inside: avoid;
@@ -2229,51 +2291,9 @@ function exercisePrintPreview(exercise) {
       font-weight: 800;
     }
 
-    /* ================================
-       PIE REPETIDO EN TODAS LAS HOJAS
-       ================================ */
-
-    .print-footer {
-      position: fixed;
-
-      left: 0;
-      right: 0;
-      bottom: -15mm;
-
-      height: 11mm;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: space-between;
-
-      padding: 0 8mm;
-
-      border-top:
-        2px solid #b48a3a;
-
-      background: #075244;
-
-      color: #ffffff;
-
-      font-size: 7.5px;
-
-      font-weight: 700;
-
-      text-transform: uppercase;
-
-      letter-spacing: 0.25px;
-    }
-
-    .footer-separator {
-      margin: 0 7px;
-
-      color: #c9aa6a;
-    }
-
-    /* ================================
+    /* ========================================
        BOTÓN
-       ================================ */
+       ======================================== */
 
     .print-button {
       display: block;
@@ -2300,32 +2320,77 @@ function exercisePrintPreview(exercise) {
       cursor: pointer;
     }
 
-    /* ================================
+    /* ========================================
        IMPRESIÓN
-       ================================ */
+       ======================================== */
 
     @media print {
-    
-    .report {
-    width: 100%;
-    min-height: auto;
 
-    margin: 0;
-
-    padding: 0;
-
-    box-shadow: none;
-  }
-      .print-button {
-        display: none !important;
+      html,
+      body {
+        width: 100%;
+        height: auto;
       }
 
       body {
         background: #ffffff;
+
+        font-family:
+          Arial,
+          Helvetica,
+          sans-serif;
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .report {
+        width: 100%;
+        min-height: auto;
+
+        margin: 0;
+
+        padding: 0;
+
+        box-shadow: none;
+      }
+
+      .print-button {
+        display: none !important;
       }
 
       .score-card {
         box-shadow: none;
+      }
+
+      /*
+        El navegador repetirá automáticamente
+        el THEAD cuando la tabla pase
+        a una nueva hoja.
+      */
+
+      thead {
+        display: table-header-group;
+      }
+
+      /*
+        Mantiene las filas completas.
+      */
+
+      tr,
+      td,
+      th {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /*
+        Evita espacios artificiales
+        antes de una tabla nueva.
+      */
+
+      table {
+        page-break-before: auto;
       }
     }
   `;
@@ -2352,21 +2417,25 @@ function exercisePrintPreview(exercise) {
       </head>
 
       <body>
+
         <div class="report">
 
           <section class="hero">
 
             <div class="logo-wrap">
+
               <img
                 class="logo"
                 src="${logoUrl}"
                 alt="UEC ASE"
               >
+
             </div>
 
             <div class="title-area">
 
               <h1 class="main-title">
+
                 <span>
                   Resumen de
                 </span>
@@ -2378,11 +2447,13 @@ function exercisePrintPreview(exercise) {
                 <span class="gold">
                   de Cuenta Pública
                 </span>
+
               </h1>
 
               <div class="entity-data">
 
                 <div class="data-item">
+
                   <span class="data-label">
                     Ente fiscalizado
                   </span>
@@ -2390,9 +2461,11 @@ function exercisePrintPreview(exercise) {
                   <span class="data-value">
                     ${entityName}
                   </span>
+
                 </div>
 
                 <div class="data-item">
+
                   <span class="data-label">
                     Ejercicio fiscal
                   </span>
@@ -2400,9 +2473,11 @@ function exercisePrintPreview(exercise) {
                   <span class="data-value">
                     ${exerciseYear}
                   </span>
+
                 </div>
 
               </div>
+
             </div>
 
             <div class="score-card">
@@ -2413,6 +2488,7 @@ function exercisePrintPreview(exercise) {
 
               <div class="global-score">
                 ${scoreText}
+
                 <small>
                   / 100
                 </small>
@@ -2429,6 +2505,7 @@ function exercisePrintPreview(exercise) {
               <div class="score-meta">
 
                 <div class="score-meta-item">
+
                   <span class="score-meta-label">
                     Base aplicable
                   </span>
@@ -2436,9 +2513,11 @@ function exercisePrintPreview(exercise) {
                   <span class="score-meta-value">
                     ${baseText}
                   </span>
+
                 </div>
 
                 <div class="score-meta-item">
+
                   <span class="score-meta-label">
                     Puntaje obtenido
                   </span>
@@ -2446,9 +2525,11 @@ function exercisePrintPreview(exercise) {
                   <span class="score-meta-value">
                     ${obtainedText}
                   </span>
+
                 </div>
 
               </div>
+
             </div>
 
           </section>
@@ -2460,7 +2541,7 @@ function exercisePrintPreview(exercise) {
             </div>
 
             <h2>
-              Detalle metodológico
+              Desglose de Puntaje
             </h2>
 
           </div>
@@ -2477,7 +2558,35 @@ function exercisePrintPreview(exercise) {
             </colgroup>
 
             <thead>
+
+              <tr class="page-data-row">
+
+                <th colspan="3">
+
+                  <div class="page-data-left">
+                    Ente fiscalizado:
+                    <strong>
+                      ${entityName}
+                    </strong>
+                  </div>
+
+                </th>
+
+                <th colspan="3">
+
+                  <div class="page-data-right">
+                    Ejercicio fiscal:
+                    <strong>
+                      ${exerciseYear}
+                    </strong>
+                  </div>
+
+                </th>
+
+              </tr>
+
               <tr>
+
                 <th>
                   Variable
                 </th>
@@ -2501,7 +2610,9 @@ function exercisePrintPreview(exercise) {
                 <th>
                   Nota
                 </th>
+
               </tr>
+
             </thead>
 
             <tbody>
@@ -2509,6 +2620,7 @@ function exercisePrintPreview(exercise) {
             </tbody>
 
             <tfoot>
+
               <tr class="total-row">
 
                 <td
@@ -2526,6 +2638,7 @@ function exercisePrintPreview(exercise) {
                 </td>
 
               </tr>
+
             </tfoot>
 
           </table>
@@ -2536,16 +2649,15 @@ function exercisePrintPreview(exercise) {
               Nota sobre la calificación global:
             </strong>
 
-            El puntaje obtenido corresponde a
-            la suma de los puntos alcanzados
-            únicamente en los rubros aplicables.
+            El puntaje obtenido corresponde a la suma
+            de los puntos alcanzados únicamente en los
+            rubros aplicables.
 
-            La calificación global puede ser
-            diferente al puntaje obtenido porque
-            se normaliza proporcionalmente sobre
-            una escala de 100, tomando como
-            referencia la base aplicable del
-            ejercicio.
+            La calificación global puede ser diferente
+            al puntaje obtenido porque se normaliza
+            proporcionalmente sobre una escala de 100,
+            tomando como referencia la base aplicable
+            del ejercicio.
 
             <span class="calculation-formula">
               ${formulaText}
@@ -2562,33 +2674,22 @@ function exercisePrintPreview(exercise) {
 
         </div>
 
-        <footer class="print-footer">
-
-          <div>
-            Ente:
-            ${entityName}
-          </div>
-
-          <div>
-            Ejercicio fiscal:
-            ${exerciseYear}
-          </div>
-
-        </footer>
-
         <script>
           window.addEventListener(
             'load',
             () => {
+
               setTimeout(
                 () => window.print(),
                 500
               );
+
             }
           );
         <\/script>
 
       </body>
+
     </html>
   `;
 
