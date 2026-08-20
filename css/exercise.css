@@ -1,21 +1,18 @@
 /* =========================================================
-   8. NUEVO EJERCICIO / FORMULARIOS
-   ========================================================= */
+NUEVO EJERCICIO · CAPTURA Y AUDITORÍA DE PONDERACIÓN    ========================================================= */
 .wizard {
   display:flex;
   justify-content:space-between;
   gap:5px;
-  margin:8px 0 22px;
+  margin:8px 0 22px
 }
-
 .step {
   flex:1;
   text-align:center;
   font-size:10px;
   color:var(--muted);
-  position:relative;
+  position:relative
 }
-
 .step:before {
   content:attr(data-n);
   display:grid;
@@ -25,116 +22,240 @@
   border-radius:50%;
   border:1px solid #cfd6d2;
   background:white;
-  margin:0 auto 6px;
+  margin:0 auto 6px
 }
-
 .step.active:before {
   background:var(--green);
   color:white;
-  border-color:var(--green);
+  border-color:var(--green)
 }
-
 .formgrid {
   display:grid;
-  grid-template-columns:1fr 270px;
-  gap:14px;
+  grid-template-columns:minmax(0,1fr) 270px;
+  gap:14px
 }
-
 .form-main {
   display:grid;
-  gap:14px;
+  gap:14px
 }
-
 .fields {
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px
 }
-
 .field {
   display:grid;
-  gap:6px;
+  gap:6px
 }
-
 .field label {
   font-size:11px;
-  font-weight:700;
+  font-weight:700
 }
-
-.field input,
-.field select {
+.field input,.field select,.major-select,.note-input {
+  width:100%;
+  box-sizing:border-box;
   padding:10px;
   border:1px solid var(--border);
   border-radius:7px;
   background:white;
+  font:inherit
 }
-
-.choice {
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.toggle {
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:14px;
-}
-
-.toggle h4 {
-  margin:0 0 8px;
-}
-
 .resultcard {
   position:sticky;
   top:25px;
   height:max-content;
-  text-align:center;
+  text-align:center
 }
-
 .bigscore {
   font-size:38px;
   font-weight:900;
-  color:var(--green);
+  color:var(--green)
 }
-
 .progress {
   height:7px;
   background:#e7ebe9;
   border-radius:10px;
-  overflow:hidden;
+  overflow:hidden
 }
-
 .progress>div {
   height:100%;
-  background:var(--green);
+  background:var(--green)
 }
-
 .hidden {
-  display:none!important;
+  display:none!important
 }
-
-
-/* Metodología dinámica dentro de Nuevo ejercicio */
-.exercise-method-group{
+.exercise-actions {
+  display:flex;
+  justify-content:space-between;
+  margin-top:14px
+}
+.exercise-help {
+  margin:4px 0 18px;
+  color:var(--muted);
+  line-height:1.55
+}
+.exercise-method-group {
   margin-top:18px;
-  padding-top:16px;
-  border-top:1px solid var(--border);
+  padding-top:18px;
+  border-top:1px solid var(--border)
 }
-.exercise-method-group:first-of-type{margin-top:10px;}
-.exercise-method-parent{
-  grid-column:1/-1;
+.exercise-group-head {
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:12px
+}
+.exercise-group-head h3 {
+  margin:0;
+  font-size:14px
+}
+.exercise-group-head span,.score-parent-head span {
+  font-weight:800;
+  color:var(--green);
+  white-space:nowrap
+}
+.score-list {
+  display:grid;
+  gap:10px
+}
+.score-parent {
   padding:12px;
   border:1px solid var(--border);
-  border-radius:8px;
-  background:#fafbfa;
+  border-radius:9px;
+  background:#fafbfa
 }
-.exercise-method-parent-title{
+.score-parent-head {
   display:flex;
   justify-content:space-between;
   gap:16px;
   margin-bottom:10px;
-  font-size:12px;
+  font-size:12px
 }
-.exercise-method-parent-title span{color:var(--green);font-weight:800;white-space:nowrap;}
-.disabled-method-group{opacity:.65;}
+.score-item {
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fff
+}
+.score-item-head {
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:11px;
+  font-size:12px;
+  line-height:1.45
+}
+.max-pill {
+  padding:4px 7px;
+  border-radius:999px;
+  background:#eef5f1;
+  color:var(--green);
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap
+}
+.score-controls {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:end
+}
+.compact-field input {
+  max-width:190px
+}
+.apply-control {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:700;
+  padding-bottom:10px
+}
+.note-input {
+  margin-top:10px;
+  min-height:64px;
+  resize:vertical
+}
+.formula-box {
+  margin-top:8px;
+  padding:9px 11px;
+  border-radius:7px;
+  background:#f4f7f5;
+  font-size:11px;
+  line-height:1.5
+}
+.ratio-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+.item-not-applicable {
+  opacity:.58;
+  background:#f6f6f6
+}
+.na-banner {
+  margin-bottom:10px;
+  padding:9px 11px;
+  border-radius:7px;
+  background:#f3f3f3;
+  color:var(--muted);
+  font-size:11px
+}
+.disabled-method-group {
+  opacity:.7
+}
+.result-metric {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 0;
+  border-top:1px solid var(--border);
+  text-align:left
+}
+.result-summary {
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:25px;
+  align-items:center
+}
+.component-summary {
+  display:grid;
+  gap:8px;
+  margin:18px 0
+}
+.component-summary>div {
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:9px 0;
+  border-bottom:1px solid var(--border)
+}
+.result-actions {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap
+}
+@media(max-width:900px) {
+  .formgrid {
+    grid-template-columns:1fr
+  }
+  .resultcard {
+    position:static
+  }
+  .fields,.ratio-grid {
+    grid-template-columns:1fr
+  }
+  .score-controls {
+    grid-template-columns:1fr
+  }
+  .result-summary {
+    grid-template-columns:1fr
+  }
+  .wizard {
+    overflow-x:auto
+  }
+  .step {
+    min-width:95px
+  }
