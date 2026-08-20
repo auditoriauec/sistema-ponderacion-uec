@@ -5,6 +5,9 @@
      usa OCR en el navegador.
    - Permite revisar, editar y eliminar entes guardados.
    ========================================================= */
+let catalogSection = 'entities';
+let catalogMethodDraft = null;
+
 const CATALOG_TYPES = [
   'Poder Ejecutivo',
   'Poder Legislativo',
@@ -51,12 +54,18 @@ function yesNoBadge(value){
 }
 
 function catalog(){
+  if(catalogSection==='methodology'){
+    methodologyCatalog();
+    return;
+  }
+
   const catalogs = store.get('catalogs',{});
   const arr = (catalogs[state.year] || []).map(normalizeCatalogRecord);
   const exercises = store.get('exercises',[]).filter(x=>x.year===state.year);
   const finalizedExercises = exercises.filter(x=>x.status==='Finalizado');
 
   let c = `
+    ${catalogTabsHtml()}
     <div class="toolbar catalog-toolbar">
       <div class="catalog-toolbar-actions">
         <button class="btn primary" id="uploadBtn">＋ Cargar Programa Anual de Auditorías</button>
@@ -125,6 +134,7 @@ function catalog(){
   );
 
   bindNav();
+  bindCatalogTabs();
   $('#uploadBtn').onclick = uploadModal;
   $('#manualEntityBtn').onclick = () => entityEditorModal();
 
@@ -982,3 +992,279 @@ function escapeHtmlAttr(value=''){
   return escapeHtml(value);
 }
 
+
+/* =========================================================
+   CATÁLOGO · MODELO DE PONDERACIÓN
+   Fuente maestra para Metodología y Nuevo ejercicio.
+   ========================================================= */
+function catalogTabsHtml(){
+  return `<div class="catalog-tabs">
+    <button class="catalog-tab ${catalogSection==='entities'?'active':''}" data-catalog-section="entities" type="button">Entes fiscalizados</button>
+    <button class="catalog-tab ${catalogSection==='methodology'?'active':''}" data-catalog-section="methodology" type="button">Modelo de ponderación</button>
+  </div>`;
+}
+
+function bindCatalogTabs(){
+  $$('[data-catalog-section]').forEach(button=>{
+    button.onclick=()=>{
+      catalogSection=button.dataset.catalogSection;
+      if(catalogSection==='methodology') catalogMethodDraft=getMethodologyConfig();
+      catalog();
+    };
+  });
+}
+
+function methodologyCatalog(){
+  if(!catalogMethodDraft) catalogMethodDraft=getMethodologyConfig();
+  const config=catalogMethodDraft;
+  const total=methodologyTotal(config);
+  const totalClass=Math.abs(total-100)<0.001?'ok':'warning';
+
+  const content=`
+    ${catalogTabsHtml()}
+    <div class="methodology-catalog-head card">
+      <div>
+        <div class="section-title">Modelo de ponderación</div>
+        <p class="subtitle">Administra aquí nombres, puntajes y orden. Al guardar, los cambios se reflejan automáticamente en Metodología, Nuevo ejercicio y el cálculo.</p>
+      </div>
+      <div class="methodology-catalog-total ${totalClass}">
+        <strong id="methodCatalogTotal">${formatMethodPoints(total)}</strong>
+        <span>puntos totales</span>
+      </div>
+    </div>
+
+    <section class="card methodology-editor-section">
+      <div class="methodology-editor-title">
+        <div>
+          <div class="section-title">Criterios mayores</div>
+          <p class="subtitle">No suman puntos, pero determinan la aprobación de la Cuenta Pública.</p>
+        </div>
+      </div>
+      <div class="methodology-major-editor">
+        ${(config.majors||[]).map((major,index)=>`
+          <div class="method-editor-row">
+            <span class="method-editor-index">${String(index+1).padStart(2,'0')}</span>
+            <div class="field method-editor-grow">
+              <label>Nombre del criterio</label>
+              <input data-major-label="${index}" value="${escapeHtmlAttr(major.label)}">
+            </div>
+            <div class="field method-editor-grow">
+              <label>Descripción</label>
+              <input data-major-description="${index}" value="${escapeHtmlAttr(major.description||'')}">
+            </div>
+          </div>`).join('')}
+      </div>
+    </section>
+
+    ${(config.components||[]).map((component,componentIndex)=>methodologyComponentEditor(component,componentIndex)).join('')}
+
+    <div class="methodology-editor-actions">
+      <button class="btn" id="methodReset">Restaurar modelo original</button>
+      <button class="btn primary" id="methodSave">Guardar modelo de ponderación</button>
+    </div>
+  `;
+
+  $('#app').innerHTML=layout(
+    content,
+    'Catálogo',
+    'Administra entes fiscalizados y la estructura maestra del modelo de ponderación.'
+  );
+  bindNav();
+  bindCatalogTabs();
+  bindMethodologyCatalog();
+}
+
+function methodologyComponentEditor(component,componentIndex){
+  return `<section class="card methodology-editor-section">
+    <div class="methodology-editor-title">
+      <div class="field method-component-name">
+        <label>Nombre de la variable</label>
+        <input data-component-name="${componentIndex}" value="${escapeHtmlAttr(component.name)}">
+      </div>
+      <div class="methodology-component-total">
+        <strong>${formatMethodPoints(methodologyComponentPoints(component))}</strong>
+        <span>pts</span>
+      </div>
+    </div>
+
+    <div class="methodology-group-editor-list">
+      ${(component.groups||[]).map((group,groupIndex)=>methodologyGroupEditor(group,componentIndex,groupIndex,component.groups.length)).join('')}
+    </div>
+  </section>`;
+}
+
+function methodologyGroupEditor(group,componentIndex,groupIndex,groupCount){
+  const path=`${componentIndex}.${groupIndex}`;
+  return `<div class="methodology-group-editor">
+    <div class="methodology-group-editor-head">
+      <div class="methodology-order-buttons">
+        <button class="mini-order-btn" data-move-group="${path}" data-direction="-1" ${groupIndex===0?'disabled':''} title="Subir">↑</button>
+        <button class="mini-order-btn" data-move-group="${path}" data-direction="1" ${groupIndex===groupCount-1?'disabled':''} title="Bajar">↓</button>
+      </div>
+      <div class="field method-editor-grow">
+        <label>Rubro</label>
+        <input data-group-name="${path}" value="${escapeHtmlAttr(group.name)}">
+      </div>
+      <div class="method-group-total">${formatMethodPoints(methodologyGroupPoints(group))} pts</div>
+    </div>
+    ${group.note!==undefined?`<div class="field method-group-note-field"><label>Nota</label><input data-group-note="${path}" value="${escapeHtmlAttr(group.note||'')}"></div>`:''}
+    <div class="methodology-items-editor">
+      ${(group.items||[]).map((item,itemIndex)=>methodologyItemEditor(item,componentIndex,groupIndex,itemIndex,group.items.length)).join('')}
+    </div>
+  </div>`;
+}
+
+function methodologyItemEditor(item,componentIndex,groupIndex,itemIndex,itemCount){
+  const path=`${componentIndex}.${groupIndex}.${itemIndex}`;
+  if(Array.isArray(item.children)){
+    return `<div class="methodology-parent-editor">
+      <div class="methodology-item-row parent-row">
+        <div class="methodology-order-buttons">
+          <button class="mini-order-btn" data-move-item="${path}" data-direction="-1" ${itemIndex===0?'disabled':''}>↑</button>
+          <button class="mini-order-btn" data-move-item="${path}" data-direction="1" ${itemIndex===itemCount-1?'disabled':''}>↓</button>
+        </div>
+        <div class="field method-editor-grow"><label>Criterio</label><input data-item-label="${path}" value="${escapeHtmlAttr(item.label)}"></div>
+        <div class="method-item-total">${formatMethodPoints(methodologyChildrenPoints(item))} pts</div>
+      </div>
+      <div class="methodology-child-editor">
+        ${item.children.map((child,childIndex)=>methodologyLeafEditor(child,`${path}.${childIndex}`,childIndex,item.children.length,true)).join('')}
+      </div>
+    </div>`;
+  }
+  return methodologyLeafEditor(item,path,itemIndex,itemCount,false);
+}
+
+function methodologyLeafEditor(item,path,index,count,isChild){
+  return `<div class="methodology-item-row ${isChild?'child-row':''}">
+    <div class="methodology-order-buttons">
+      <button class="mini-order-btn" data-move-${isChild?'child':'item'}="${path}" data-direction="-1" ${index===0?'disabled':''}>↑</button>
+      <button class="mini-order-btn" data-move-${isChild?'child':'item'}="${path}" data-direction="1" ${index===count-1?'disabled':''}>↓</button>
+    </div>
+    <div class="field method-editor-grow">
+      <label>${isChild?'Subcriterio':'Criterio'}</label>
+      <input data-${isChild?'child':'item'}-label="${path}" value="${escapeHtmlAttr(item.label)}">
+    </div>
+    <div class="field method-points-field">
+      <label>Puntos</label>
+      <input type="number" min="0" step="0.05" data-${isChild?'child':'item'}-points="${path}" value="${Number(item.points)||0}">
+    </div>
+  </div>`;
+}
+
+function methodPathIndexes(value){
+  return String(value).split('.').map(Number);
+}
+
+function methodGroupAt(config,path){
+  const [componentIndex,groupIndex]=methodPathIndexes(path);
+  return config.components[componentIndex].groups[groupIndex];
+}
+
+function methodItemAt(config,path){
+  const [componentIndex,groupIndex,itemIndex]=methodPathIndexes(path);
+  return config.components[componentIndex].groups[groupIndex].items[itemIndex];
+}
+
+function bindMethodologyCatalog(){
+  const config=catalogMethodDraft;
+
+  $$('[data-major-label]').forEach(input=>input.oninput=()=>{config.majors[+input.dataset.majorLabel].label=input.value;});
+  $$('[data-major-description]').forEach(input=>input.oninput=()=>{config.majors[+input.dataset.majorDescription].description=input.value;});
+  $$('[data-component-name]').forEach(input=>input.oninput=()=>{config.components[+input.dataset.componentName].name=input.value;});
+
+  $$('[data-group-name]').forEach(input=>input.oninput=()=>{methodGroupAt(config,input.dataset.groupName).name=input.value;});
+  $$('[data-group-note]').forEach(input=>input.oninput=()=>{methodGroupAt(config,input.dataset.groupNote).note=input.value;});
+
+  $$('[data-item-label]').forEach(input=>input.oninput=()=>{methodItemAt(config,input.dataset.itemLabel).label=input.value;});
+  $$('[data-item-points]').forEach(input=>input.oninput=()=>{methodItemAt(config,input.dataset.itemPoints).points=+input.value||0;refreshMethodologyEditorTotals();});
+
+  $$('[data-child-label]').forEach(input=>input.oninput=()=>{
+    const [c,g,i,ch]=methodPathIndexes(input.dataset.childLabel);
+    config.components[c].groups[g].items[i].children[ch].label=input.value;
+  });
+  $$('[data-child-points]').forEach(input=>input.oninput=()=>{
+    const [c,g,i,ch]=methodPathIndexes(input.dataset.childPoints);
+    config.components[c].groups[g].items[i].children[ch].points=+input.value||0;
+    refreshMethodologyEditorTotals();
+  });
+
+  $$('[data-move-group]').forEach(button=>button.onclick=()=>{
+    const [c,g]=methodPathIndexes(button.dataset.moveGroup);
+    moveArrayItem(config.components[c].groups,g,g+(+button.dataset.direction));
+    methodologyCatalog();
+  });
+  $$('[data-move-item]').forEach(button=>button.onclick=()=>{
+    const [c,g,i]=methodPathIndexes(button.dataset.moveItem);
+    const items=config.components[c].groups[g].items;
+    moveArrayItem(items,i,i+(+button.dataset.direction));
+    methodologyCatalog();
+  });
+  $$('[data-move-child]').forEach(button=>button.onclick=()=>{
+    const [c,g,i,ch]=methodPathIndexes(button.dataset.moveChild);
+    const children=config.components[c].groups[g].items[i].children;
+    moveArrayItem(children,ch,ch+(+button.dataset.direction));
+    methodologyCatalog();
+  });
+
+  $('#methodReset').onclick=()=>{
+    if(!confirm('¿Restaurar los nombres, puntajes y orden originales del modelo?')) return;
+    catalogMethodDraft=clone(DEFAULT_METHODOLOGY);
+    methodologyCatalog();
+  };
+
+  $('#methodSave').onclick=async()=>{
+    const total=methodologyTotal(config);
+    if(Math.abs(total-100)>0.001){
+      const proceed=confirm(`El modelo suma ${formatMethodPoints(total)} puntos, no 100. ¿Deseas guardarlo de todos modos?`);
+      if(!proceed) return;
+    }
+    const button=$('#methodSave');
+    button.disabled=true;
+    button.textContent='Guardando…';
+    try{
+      await store.set('methodology',config);
+      catalogMethodDraft=clone(config);
+      alert('Modelo de ponderación actualizado. Los cambios ya se reflejan en Metodología y Nuevo ejercicio.');
+      methodologyCatalog();
+    }catch(error){
+      button.disabled=false;
+      button.textContent='Guardar modelo de ponderación';
+      alert('No se pudo guardar el modelo en D1: '+error.message);
+    }
+  };
+}
+
+function moveArrayItem(array,from,to){
+  if(to<0||to>=array.length||from===to) return;
+  const [item]=array.splice(from,1);
+  array.splice(to,0,item);
+}
+
+function refreshMethodologyEditorTotals(){
+  const total=methodologyTotal(catalogMethodDraft);
+  const totalNode=$('#methodCatalogTotal');
+  if(totalNode) totalNode.textContent=formatMethodPoints(total);
+  const totalBox=document.querySelector('.methodology-catalog-total');
+  if(totalBox){
+    totalBox.classList.toggle('ok',Math.abs(total-100)<0.001);
+    totalBox.classList.toggle('warning',Math.abs(total-100)>=0.001);
+  }
+  document.querySelectorAll('.methodology-editor-section').forEach((section,index)=>{
+    if(index===0) return;
+    const component=catalogMethodDraft.components[index-1];
+    const node=section.querySelector('.methodology-component-total strong');
+    if(node) node.textContent=formatMethodPoints(methodologyComponentPoints(component));
+    section.querySelectorAll('.methodology-group-editor').forEach((groupNode,groupIndex)=>{
+      const group=component.groups[groupIndex];
+      const groupTotal=groupNode.querySelector('.method-group-total');
+      if(groupTotal) groupTotal.textContent=`${formatMethodPoints(methodologyGroupPoints(group))} pts`;
+      groupNode.querySelectorAll('.methodology-parent-editor').forEach(parentNode=>{
+        const itemInput=parentNode.querySelector('[data-item-label]');
+        if(!itemInput) return;
+        const item=methodItemAt(catalogMethodDraft,itemInput.dataset.itemLabel);
+        const itemTotal=parentNode.querySelector('.method-item-total');
+        if(itemTotal) itemTotal.textContent=`${formatMethodPoints(methodologyChildrenPoints(item))} pts`;
+      });
+    });
+  });
+}
