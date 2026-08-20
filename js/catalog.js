@@ -1007,8 +1007,27 @@ function catalogTabsHtml(){
 function bindCatalogTabs(){
   $$('[data-catalog-section]').forEach(button=>{
     button.onclick=()=>{
-      catalogSection=button.dataset.catalogSection;
-      if(catalogSection==='methodology') catalogMethodDraft=getMethodologyConfig();
+      const nextSection=button.dataset.catalogSection;
+
+      if(nextSection==='methodology'){
+        catalogSection='methodology';
+        catalogMethodDraft=null;
+
+        try{
+          methodologyCatalog();
+        }catch(error){
+          console.error('No se pudo abrir Modelo de ponderación:',error);
+          alert(
+            'No se pudo abrir Modelo de ponderación. '
+            +'Verifica que js/model.js también esté actualizado. '
+            +'Detalle: '+(error?.message||error)
+          );
+        }
+        return;
+      }
+
+      catalogSection='entities';
+      catalogMethodDraft=null;
       catalog();
     };
   });
