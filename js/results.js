@@ -1,6 +1,6 @@
 /* =========================================================
    9. MÓDULO: RESULTADOS
-   Consulta, verifica, reabre y exporta ejercicios guardados.
+   Consulta, verifica, reabre, elimina y exporta ejercicios.
    ========================================================= */
 
 function results() {
@@ -22,7 +22,7 @@ function results() {
   $('#app').innerHTML = layout(
     content,
     'Resultados de Ponderación',
-    'Consulta, verifica o edita los ejercicios guardados.'
+    'Consulta, verifica, edita o elimina ejercicios guardados.'
   );
 
   bindNav();
@@ -90,7 +90,9 @@ function resultRows(items) {
             <b>
               ${exerciseEscapeHtml(item.entity || '—')}
             </b>
+
             <br>
+
             <small>
               ${exerciseEscapeHtml(item.type || '')}
             </small>
@@ -139,6 +141,15 @@ function resultRows(items) {
                 )}"
               >
                 PDF
+              </button>
+
+              <button
+                class="btn result-delete"
+                data-entity="${exerciseEscapeHtml(
+                  item.entity || ''
+                )}"
+              >
+                Eliminar
               </button>
             </div>
           </td>
@@ -236,12 +247,10 @@ function bindResultsExport(all) {
 function bindResultActions(all) {
   $$('.result-edit').forEach(button => {
     button.onclick = () => {
-      const item = all.find(result => {
-        return (
-          result.entity === button.dataset.entity &&
-          result.year === state.year
-        );
-      });
+      const item = findResultExercise(
+        all,
+        button.dataset.entity
+      );
 
       if (!item) {
         return;
@@ -263,19 +272,96 @@ function bindResultActions(all) {
 
   $$('.result-pdf').forEach(button => {
     button.onclick = () => {
-      const item = all.find(result => {
-        return (
-          result.entity === button.dataset.entity &&
-          result.year === state.year
-        );
-      });
+      const item = findResultExercise(
+        all,
+        button.dataset.entity
+      );
 
-      if (item) {
-        exercisePrintPreview(
-          clone(item)
-        );
+      if (!item) {
+        return;
       }
+
+      exercisePrintPreview(
+        clone(item)
+      );
+    };
+  });
+
+  $$('.result-delete').forEach(button => {
+    button.onclick = async () => {
+      const item = findResultExercise(
+        all,
+        button.dataset.entity
+      );
+
+      if (!item) {
+        return;
+      }
+
+      await deleteExercise(item);
     };
   });
 }
 
+function findResultExercise(
+  items,
+  entity
+) {
+  return items.find(item => {
+    return (
+      item.entity === entity &&
+      item.year === state.year
+    );
+  });
+}
+
+async function deleteExercise(exercise) {
+  const message =
+    '¿Seguro que deseas eliminar el ejercicio de ' +
+    `"${exercise.entity}" del ejercicio fiscal ` +
+    `${exercise.year}?\n\n` +
+    'Esta acción eliminará el ejercicio guardado.';
+
+  const confirmed = confirm(message);
+
+  if (!confirmed) {
+    return;
+  }
+
+  const all = clone(
+    store.get('exercises', [])
+  );
+
+  const remaining = all.filter(item => {
+    return !(
+      item.year === exercise.year &&
+      item.entity === exercise.entity
+    );
+  });
+
+  try {
+    await store.set(
+      'exercises',
+      remaining
+    );
+
+    if (
+      state.current &&
+      state.current.year === exercise.year &&
+      state.current.entity === exercise.entity
+    ) {
+      state.current = null;
+    }
+
+    alert(
+      'Ejercicio eliminado correctamente.'
+    );
+
+    results();
+  } catch (error) {
+    alert(
+      'No se pudo eliminar el ejercicio: ' +
+      error.message
+    );
+  }
+}
