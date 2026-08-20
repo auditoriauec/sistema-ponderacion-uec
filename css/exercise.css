@@ -114,3 +114,27 @@
   display:none!important;
 }
 
+
+/* Metodología dinámica dentro de Nuevo ejercicio */
+.exercise-method-group{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+.exercise-method-group:first-of-type{margin-top:10px;}
+.exercise-method-parent{
+  grid-column:1/-1;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#fafbfa;
+}
+.exercise-method-parent-title{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:10px;
+  font-size:12px;
+}
+.exercise-method-parent-title span{color:var(--green);font-weight:800;white-space:nowrap;}
+.disabled-method-group{opacity:.65;}
