@@ -1,291 +1,1502 @@
 /* =========================================================
    11. MÓDULO: NUEVO EJERCICIO
-   La captura usa la misma metodología administrada en Catálogo.
+   Captura puntaje obtenido, aplicabilidad y notas.
    ========================================================= */
-function exerciseEscapeHtml(value=''){
+
+function exerciseEscapeHtml(value = '') {
   return String(value)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'",'&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
-function exerciseEscapeAttr(value=''){
-  return exerciseEscapeHtml(value);
+function exerciseFormat(value) {
+  return (Number(value) || 0).toLocaleString(
+    'es-MX',
+    {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }
+  );
 }
 
-function exerciseFormatPoints(value){
-  const number=Number(value)||0;
-  return Number.isInteger(number)
-    ? String(number)
-    : number.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+function exerciseMoney(value) {
+  return (Number(value) || 0).toLocaleString(
+    'es-MX',
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
 }
 
-function exerciseChildrenPoints(item){
-  return (item.children||[])
-    .reduce((sum,child)=>sum+(Number(child.points)||0),0);
+function exerciseItemId(key, suffix) {
+  const safeKey = String(key)
+    .replace(/[^a-z0-9]/gi, '_');
+
+  return `ass_${safeKey}_${suffix}`;
 }
 
-function newExercise(){
-  if(typeof getMethodologyConfig!=='function'||typeof calc!=='function'||typeof blankExercise!=='function'){
-    $('#app').innerHTML=layout(
-      '<div class="empty">No fue posible cargar el modelo de ponderación. Revisa que <b>js/model.js</b> esté actualizado.</div>',
-      'Nuevo ejercicio de ponderación',
-      'No se pudo inicializar el formulario.'
-    );
-    bindNav();
-    return;
+function ensureExerciseCurrent() {
+  if (
+    !state.current ||
+    state.current.year !== state.year
+  ) {
+    state.current = blankExercise();
   }
 
-  const cats=store.get('catalogs',{});
-  const ents=cats[state.year]||[];
-  if(!state.current||state.current.year!==state.year) state.current=blankExercise();
-  const x=state.current;
-  const c=calc(x);
-  const methodology=getMethodologyConfig();
-  const risk=methodology.components.find(component=>component.key==='risk');
-  const control=methodology.components.find(component=>component.key==='control');
-  const accountability=methodology.components.find(component=>component.key==='accountability');
-  const steps=[
+  if (!state.current.assessment) {
+    state.current.assessment = {};
+  }
+
+  if (!state.current.methodologySnapshot) {
+    state.current.methodologySnapshot = clone(
+      getMethodologyConfig()
+    );
+  }
+
+  return state.current;
+}
+
+/* =========================================================
+   RENDER PRINCIPAL
+   ========================================================= */
+
+function newExercise() {
+  const catalogs = store.get('catalogs', {});
+  const entities = catalogs[state.year] || [];
+  const exercise = ensureExerciseCurrent();
+  const calculation = calc(exercise);
+  const methodology = exerciseMethodology(exercise);
+
+  const risk = methodology.components.find(
+    component => component.key === 'risk'
+  );
+
+  const control = methodology.components.find(
+    component => component.key === 'control'
+  );
+
+  const accountability = methodology.components.find(
+    component => component.key === 'accountability'
+  );
+
+  const steps = [
     'Criterios mayores',
-    risk?.name||'Variables de Riesgo',
+    risk?.name || 'Variables de Riesgo',
     'Solventación',
-    control?.name||'Variables de Control y Transparencia',
-    accountability?.name||'Variable de Rendición de Cuentas',
+    control?.name || 'Variables de Control y Transparencia',
+    accountability?.name || 'Variable de Rendición de Cuentas',
     'Resultado'
   ];
 
-  const content=`
-    <div class="wizard">
-      ${steps.map((label,index)=>`<div class="step ${state.step===index+1?'active':''}" data-n="${index+1}">${exerciseEscapeHtml(label)}</div>`).join('')}
+  const wizardHtml = steps
+    .map((label, index) => {
+      const active = state.step === index + 1
+        ? 'active'
+        : '';
+
+      return `
+        <div
+          class="step ${active}"
+          data-n="${index + 1}"
+        >
+          ${exerciseEscapeHtml(label)}
+        </div>
+      `;
+    })
+    .join('');
+
+  const yearsHtml = years()
+    .map(year => {
+      const selected = year === state.year
+        ? 'selected'
+        : '';
+
+      return `
+        <option ${selected}>
+          ${year}
+        </option>
+      `;
+    })
+    .join('');
+
+  const entitiesHtml = entities
+    .map(entity => {
+      const selected = entity.name === exercise.entity
+        ? 'selected'
+        : '';
+
+      return `
+        <option ${selected}>
+          ${exerciseEscapeHtml(entity.name)}
+        </option>
+      `;
+    })
+    .join('');
+
+  const emptyHtml = `
+    <div class="empty">
+      Primero carga el catálogo de entes para
+      ${state.year} desde el módulo Catálogo.
     </div>
-    <div class="card" style="margin-bottom:14px">
+  `;
+
+  const formHtml = `
+    <div class="formgrid">
+      <div class="form-main">
+        ${stepHtml(exercise, methodology)}
+      </div>
+
+      ${exerciseResultCard(calculation)}
+    </div>
+
+    <div class="exercise-actions">
+      <button
+        class="btn"
+        id="prev"
+      >
+        Anterior
+      </button>
+
+      <div>
+        <button
+          class="btn"
+          id="draft"
+        >
+          Guardar borrador
+        </button>
+
+        <button
+          class="btn primary"
+          id="next"
+        >
+          ${
+            state.step === 6
+              ? 'Guardar ejercicio'
+              : 'Siguiente →'
+          }
+        </button>
+      </div>
+    </div>
+  `;
+
+  const content = `
+    <div class="wizard">
+      ${wizardHtml}
+    </div>
+
+    <div
+      class="card"
+      style="margin-bottom:14px"
+    >
       <div class="fields">
         <div class="field">
-          <label>Ejercicio fiscal</label>
-          <select id="newYear">${years().map(year=>`<option ${year===state.year?'selected':''}>${year}</option>`).join('')}</select>
+          <label>
+            Ejercicio fiscal
+          </label>
+
+          <select id="newYear">
+            ${yearsHtml}
+          </select>
         </div>
+
         <div class="field">
-          <label>Ente fiscalizado</label>
+          <label>
+            Ente fiscalizado
+          </label>
+
           <select id="entity">
-            <option value="">Seleccionar ente…</option>
-            ${ents.map(entity=>`<option ${entity.name===x.entity?'selected':''}>${exerciseEscapeHtml(entity.name)}</option>`).join('')}
+            <option value="">
+              Seleccionar ente…
+            </option>
+
+            ${entitiesHtml}
           </select>
         </div>
       </div>
     </div>
-    ${!ents.length
-      ?`<div class="empty">Primero carga el catálogo de entes para ${state.year} desde el módulo Catálogo.</div>`
-      :`<div class="formgrid">
-          <div class="form-main">${stepHtml(x,methodology)}</div>
-          <aside class="card resultcard">
-            <div class="section-title">Resultado actual</div>
-            <div class="bigscore">${c.score.toFixed(2)}</div>
-            <div>/ 100</div>
-            <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
-            <small>Base aplicable</small>
-            <h3>${exerciseFormatPoints(c.base)} pts</h3>
-            <p class="${c.majorOk?'status-ok':'status-bad'}">${c.result}</p>
-            <div class="progress"><div style="width:${Math.min(100,c.score)}%"></div></div>
-          </aside>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:14px">
-          <button class="btn" id="prev">Anterior</button>
-          <div>
-            <button class="btn" id="draft">Guardar borrador</button>
-            <button class="btn primary" id="next">${state.step===6?'Finalizar ejercicio':'Siguiente →'}</button>
-          </div>
-        </div>`}`;
 
-  $('#app').innerHTML=layout(content,'Nuevo ejercicio de ponderación','Capture las variables para calcular la ponderación.');
+    ${
+      !entities.length
+        ? emptyHtml
+        : formHtml
+    }
+  `;
+
+  const title = exercise.status === 'Finalizado'
+    ? 'Consultar / editar ejercicio'
+    : 'Nuevo ejercicio de ponderación';
+
+  const subtitle =
+    'Puntajes máximos desde Catálogo · ' +
+    'Captura del puntaje realmente obtenido.';
+
+  $('#app').innerHTML = layout(
+    content,
+    title,
+    subtitle
+  );
+
   bindNav();
-  bindNew(ents);
+  bindNew(entities);
 }
 
-function chk(id,label,value,field=''){
-  return `<label><input type="checkbox" id="${id}" ${field?`data-method-field="${exerciseEscapeAttr(field)}"`:''} ${value?'checked':''}> ${exerciseEscapeHtml(label)}</label>`;
-}
+function exerciseResultCard(calculation) {
+  const resultClass = calculation.majorOk
+    ? 'status-ok'
+    : 'status-bad';
 
-function methodFieldId(path){
-  return 'mf_'+String(path).replace(/[^a-z0-9]+/gi,'_');
-}
+  const progress = Math.min(
+    100,
+    calculation.score
+  );
 
-function exerciseMethodItem(item,x){
-  if(Array.isArray(item.children)){
-    return `<div class="exercise-method-parent">
-      <div class="exercise-method-parent-title">
-        <b>${exerciseEscapeHtml(item.label)}</b>
-        <span>${exerciseFormatPoints(exerciseChildrenPoints(item))} pts</span>
+  return `
+    <aside class="card resultcard">
+      <div class="section-title">
+        Resultado actual
       </div>
+
+      <div class="bigscore">
+        ${calculation.score.toFixed(2)}
+      </div>
+
+      <div>/ 100</div>
+
+      <div class="result-metric">
+        <small>
+          Puntaje obtenido
+        </small>
+
+        <b>
+          ${exerciseFormat(calculation.raw)} pts
+        </b>
+      </div>
+
+      <div class="result-metric">
+        <small>
+          Base aplicable
+        </small>
+
+        <b>
+          ${exerciseFormat(calculation.base)} pts
+        </b>
+      </div>
+
+      <p class="${resultClass}">
+        ${calculation.result}
+      </p>
+
+      <div class="progress">
+        <div style="width:${progress}%"></div>
+      </div>
+    </aside>
+  `;
+}
+
+/* =========================================================
+   PASOS DEL EJERCICIO
+   ========================================================= */
+
+function stepHtml(exercise, methodology) {
+  const risk = methodology.components.find(
+    component => component.key === 'risk'
+  );
+
+  const control = methodology.components.find(
+    component => component.key === 'control'
+  );
+
+  const accountability = methodology.components.find(
+    component => component.key === 'accountability'
+  );
+
+  if (state.step === 1) {
+    return majorStep(
+      exercise,
+      methodology
+    );
+  }
+
+  if (state.step === 2) {
+    return componentStep(
+      exercise,
+      risk,
+      false
+    );
+  }
+
+  if (state.step === 3) {
+    return solvencyStep(
+      exercise,
+      risk
+    );
+  }
+
+  if (state.step === 4) {
+    return componentStep(
+      exercise,
+      control,
+      false
+    );
+  }
+
+  if (state.step === 5) {
+    return componentStep(
+      exercise,
+      accountability,
+      false
+    );
+  }
+
+  return resultStep(
+    exercise,
+    methodology
+  );
+}
+
+function majorStep(exercise, methodology) {
+  const majorsHtml = (methodology.majors || [])
+    .map(major => {
+      const currentValue = exercise[major.key] !== false;
+      const yesSelected = currentValue
+        ? 'selected'
+        : '';
+      const noSelected = !currentValue
+        ? 'selected'
+        : '';
+      const note = exercise.majorNotes?.[major.key] || '';
+
+      return `
+        <div class="score-item">
+          <div class="score-item-head">
+            <b>
+              ${exerciseEscapeHtml(major.label)}
+            </b>
+
+            <span class="max-pill">
+              Criterio mayor
+            </span>
+          </div>
+
+          <select
+            class="major-select"
+            data-major="${major.key}"
+          >
+            <option
+              value="true"
+              ${yesSelected}
+            >
+              Sí cumple
+            </option>
+
+            <option
+              value="false"
+              ${noSelected}
+            >
+              No cumple
+            </option>
+          </select>
+
+          <textarea
+            class="note-input"
+            data-major-note="${major.key}"
+            placeholder="Nota / justificación"
+          >${exerciseEscapeHtml(note)}</textarea>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <div class="card">
+      <div class="section-title">
+        Paso 1 de 6 · Criterios mayores
+      </div>
+
+      <p class="exercise-help">
+        Los criterios mayores no suman puntos.
+        Si alguno no cumple, la Cuenta Pública
+        queda no aprobada por criterio mayor.
+      </p>
+
       <div class="fields">
-        ${item.children.map(child=>exerciseMethodItem(child,x)).join('')}
-      </div>
-    </div>`;
-  }
-  if(item.type!=='checkbox'||!item.field) return '';
-  return `<div class="toggle">${chk(methodFieldId(item.field),`${item.label} · ${exerciseFormatPoints(item.points)} pts`,Boolean(pathValue(x,item.field)),item.field)}</div>`;
-}
-
-function exerciseMethodGroup(group,x){
-  if(group.requiresWork&&!x.work){
-    return `<div class="exercise-method-group disabled-method-group">
-      <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
-      <p class="subtitle">No aplica para el ente seleccionado.</p>
-    </div>`;
-  }
-  return `<div class="exercise-method-group">
-    <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
-    ${group.note?`<p class="subtitle">${exerciseEscapeHtml(group.note)}</p>`:''}
-    <div class="fields">${(group.items||[]).map(item=>exerciseMethodItem(item,x)).join('')}</div>
-  </div>`;
-}
-
-function stepHtml(x,methodology=getMethodologyConfig()){
-  const risk=methodology.components.find(component=>component.key==='risk');
-  const control=methodology.components.find(component=>component.key==='control');
-  const accountability=methodology.components.find(component=>component.key==='accountability');
-
-  if(state.step===1){
-    return `<div class="card">
-      <div class="section-title">Paso 1 de 6 · Criterios mayores</div>
-      <div class="fields">
-        ${(methodology.majors||[]).map(major=>`<div class="toggle">
-          <h4>${exerciseEscapeHtml(major.label)}</h4>
-          ${chk(major.key,'Sí, cumple',Boolean(pathValue(x,major.key)),major.key)}
-        </div>`).join('')}
-      </div>
-    </div>`;
-  }
-
-  if(state.step===2){
-    const groups=(risk?.groups||[]).filter(group=>!methodologyItems(group).some(item=>item.type==='ratio'));
-    return `<div class="card">
-      <div class="section-title">Paso 2 de 6 · ${exerciseEscapeHtml(risk?.name||'Variables de Riesgo')}</div>
-      ${groups.map(group=>exerciseMethodGroup(group,x)).join('')}
-    </div>`;
-  }
-
-  if(state.step===3){
-    const ratioGroups=(risk?.groups||[]).filter(group=>methodologyItems(group).some(item=>item.type==='ratio'));
-    return `<div class="card">
-      <div class="section-title">Paso 3 de 6 · Solventación</div>
-      ${ratioGroups.map(group=>`<div class="exercise-method-group">
-        <div class="section-title">${exerciseEscapeHtml(group.name)} · ${exerciseFormatPoints(methodologyGroupPoints(group))} pts</div>
-        ${(group.items||[]).map(item=>`<p><b>${exerciseEscapeHtml(item.label)}</b> · ${exerciseFormatPoints(item.points)} pts</p>`).join('')}
-      </div>`).join('')}
-      <div class="fields">
-        ${numfield('countF','Observaciones fincadas',x.solv.countF)}
-        ${numfield('countS','Observaciones solventadas',x.solv.countS)}
-        ${numfield('inF','Importe fincado · Ingreso',x.solv.inF)}
-        ${numfield('inS','Importe solventado · Ingreso',x.solv.inS)}
-        ${numfield('outF','Importe fincado · Egreso',x.solv.outF)}
-        ${numfield('outS','Importe solventado · Egreso',x.solv.outS)}
-      </div>
-    </div>`;
-  }
-
-  if(state.step===4){
-    return `<div class="card">
-      <div class="section-title">Paso 4 de 6 · ${exerciseEscapeHtml(control?.name||'Variables de Control y Transparencia')}</div>
-      ${(control?.groups||[]).map(group=>exerciseMethodGroup(group,x)).join('')}
-    </div>`;
-  }
-
-  if(state.step===5){
-    return `<div class="card">
-      <div class="section-title">Paso 5 de 6 · ${exerciseEscapeHtml(accountability?.name||'Variable de Rendición de Cuentas')}</div>
-      ${(accountability?.groups||[]).map(group=>exerciseMethodGroup(group,x)).join('')}
-    </div>`;
-  }
-
-  const c=calc(x);
-  return `<div class="card">
-    <div class="section-title">Paso 6 de 6 · Resultado</div>
-    <div class="grid2">
-      <div>
-        <p><b>Ente:</b> ${exerciseEscapeHtml(x.entity||'—')}</p>
-        <p><b>Base aplicable:</b> ${exerciseFormatPoints(c.base)} puntos</p>
-        <p><b>Puntaje bruto:</b> ${c.raw.toFixed(2)}</p>
-        <p><b>Puntaje final:</b> ${c.score.toFixed(2)} / 100</p>
-      </div>
-      <div>
-        <div class="bigscore">${c.score.toFixed(2)}</div>
-        <div class="${c.result==='APROBADA'?'status-ok':'status-bad'}">${c.result}</div>
+        ${majorsHtml}
       </div>
     </div>
-  </div>`;
+  `;
 }
 
-function numfield(id,label,value){
-  return `<div class="field"><label>${label}</label><input type="number" min="0" step="0.01" id="${id}" value="${value||0}"></div>`;
+function componentStep(
+  exercise,
+  component,
+  ratiosOnly
+) {
+  if (!component) {
+    return `
+      <div class="empty">
+        Componente no disponible.
+      </div>
+    `;
+  }
+
+  const groups = (component.groups || [])
+    .filter(group => {
+      const hasRatio = methodologyItems(group)
+        .some(item => item.type === 'ratio');
+
+      return ratiosOnly
+        ? hasRatio
+        : !hasRatio;
+    });
+
+  const groupsHtml = groups
+    .map(group => exerciseGroup(
+      exercise,
+      group
+    ))
+    .join('');
+
+  return `
+    <div class="card">
+      <div class="section-title">
+        ${exerciseEscapeHtml(component.name)}
+      </div>
+
+      <p class="exercise-help">
+        El puntaje del Catálogo es el máximo.
+        Captura el puntaje realmente obtenido.
+        “No aplica” retira ese máximo de la base
+        de ponderación.
+      </p>
+
+      ${groupsHtml}
+    </div>
+  `;
 }
 
-function setPathValue(object,path,value){
-  const keys=String(path).split('.');
-  let target=object;
-  for(let i=0;i<keys.length-1;i++) target=target[keys[i]];
-  target[keys[keys.length-1]]=value;
+function exerciseGroup(exercise, group) {
+  const forcedNotApplicable =
+    group.requiresWork &&
+    !exercise.work;
+
+  const groupClass = forcedNotApplicable
+    ? 'disabled-method-group'
+    : '';
+
+  const noteHtml = group.note
+    ? `
+      <small>
+        ${exerciseEscapeHtml(group.note)}
+      </small>
+    `
+    : '';
+
+  const warningHtml = forcedNotApplicable
+    ? `
+      <div class="na-banner">
+        No aplica: el ente no tiene Obra Pública.
+        Estos puntos se excluyen de la base.
+      </div>
+    `
+    : '';
+
+  const itemsHtml = (group.items || [])
+    .map(item => {
+      if (!Array.isArray(item.children)) {
+        return exerciseItem(
+          exercise,
+          item,
+          group
+        );
+      }
+
+      const childrenHtml = item.children
+        .map(child => exerciseItem(
+          exercise,
+          child,
+          group
+        ))
+        .join('');
+
+      return `
+        <div class="score-parent">
+          <div class="score-parent-head">
+            <b>
+              ${exerciseEscapeHtml(item.label)}
+            </b>
+
+            <span>
+              ${exerciseFormat(
+                methodologyChildrenPoints(item)
+              )} pts
+            </span>
+          </div>
+
+          ${childrenHtml}
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <section
+      class="exercise-method-group ${groupClass}"
+    >
+      <div class="exercise-group-head">
+        <div>
+          <h3>
+            ${exerciseEscapeHtml(group.name)}
+          </h3>
+
+          ${noteHtml}
+        </div>
+
+        <span>
+          ${exerciseFormat(
+            methodologyGroupPoints(group)
+          )} pts máx.
+        </span>
+      </div>
+
+      ${warningHtml}
+
+      <div class="score-list">
+        ${itemsHtml}
+      </div>
+    </section>
+  `;
 }
 
-function bindNew(ents){
-  const x=state.current;
-  $('#newYear').onchange=event=>{
-    state.year=+event.target.value;
-    state.current=blankExercise();
+function exerciseItem(
+  exercise,
+  item,
+  group
+) {
+  const entry = assessmentEntry(
+    exercise,
+    item
+  );
+
+  const calculation = itemCalculation(
+    exercise,
+    item,
+    group
+  );
+
+  const forcedNotApplicable =
+    group.requiresWork &&
+    !exercise.work;
+
+  const applicable = calculation.applicable;
+
+  if (item.type === 'ratio') {
+    return ratioItem(
+      exercise,
+      item,
+      group
+    );
+  }
+
+  let controlHtml = '';
+
+  if (item.type === 'sevac') {
+    controlHtml = `
+      <div class="field compact-field">
+        <label>
+          Resultado SEvAC (%)
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          data-ass-value="${item.key}"
+          value="${entry.value ?? 0}"
+          ${!applicable ? 'disabled' : ''}
+        >
+      </div>
+
+      <div class="formula-box">
+        ${exerciseFormat(entry.value || 0)}%
+        × ${exerciseFormat(item.points)}
+        =
+        <b>
+          ${exerciseFormat(calculation.points)} pts
+        </b>
+      </div>
+    `;
+  } else {
+    controlHtml = `
+      <div class="field compact-field">
+        <label>
+          Puntaje obtenido
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          max="${Number(item.points) || 0}"
+          step="0.01"
+          data-ass-points="${item.key}"
+          value="${Number(entry.points) || 0}"
+          ${!applicable ? 'disabled' : ''}
+        >
+      </div>
+    `;
+  }
+
+  const itemClass = !applicable
+    ? 'item-not-applicable'
+    : '';
+
+  const checked = entry.applicable !== false
+    ? 'checked'
+    : '';
+
+  const disabled = forcedNotApplicable
+    ? 'disabled'
+    : '';
+
+  return `
+    <div class="score-item ${itemClass}">
+      <div class="score-item-head">
+        <b>
+          ${exerciseEscapeHtml(item.label)}
+        </b>
+
+        <span class="max-pill">
+          Máx. ${exerciseFormat(item.points)}
+        </span>
+      </div>
+
+      <div class="score-controls">
+        ${controlHtml}
+
+        <label class="apply-control">
+          <input
+            type="checkbox"
+            data-ass-applicable="${item.key}"
+            ${checked}
+            ${disabled}
+          >
+          Aplica
+        </label>
+      </div>
+
+      <textarea
+        class="note-input"
+        data-ass-note="${item.key}"
+        placeholder="Nota / justificación / número de observación"
+      >${exerciseEscapeHtml(entry.note || '')}</textarea>
+    </div>
+  `;
+}
+
+/* =========================================================
+   CÁLCULOS DE SOLVENTACIÓN
+   ========================================================= */
+
+function ratioItem(
+  exercise,
+  item,
+  group
+) {
+  const entry = assessmentEntry(
+    exercise,
+    item
+  );
+
+  const calculation = itemCalculation(
+    exercise,
+    item,
+    group
+  );
+
+  let labels;
+  let ids;
+
+  if (item.ratioKind === 'count') {
+    labels = [
+      'Observaciones fincadas',
+      'Observaciones solventadas'
+    ];
+
+    ids = [
+      'countF',
+      'countS'
+    ];
+  } else if (item.ratioKind === 'income') {
+    labels = [
+      'Importe fincado · Ingreso',
+      'Importe solventado · Ingreso'
+    ];
+
+    ids = [
+      'inF',
+      'inS'
+    ];
+  } else {
+    labels = [
+      'Importe fincado · Egreso',
+      'Importe solventado · Egreso'
+    ];
+
+    ids = [
+      'outF',
+      'outS'
+    ];
+  }
+
+  const percentage =
+    (calculation.ratio || 0) * 100;
+
+  const itemClass = !calculation.applicable
+    ? 'item-not-applicable'
+    : '';
+
+  const disabled = !calculation.applicable
+    ? 'disabled'
+    : '';
+
+  const checked = entry.applicable !== false
+    ? 'checked'
+    : '';
+
+  return `
+    <div class="score-item ${itemClass}">
+      <div class="score-item-head">
+        <b>
+          ${exerciseEscapeHtml(item.label)}
+        </b>
+
+        <span class="max-pill">
+          Máx. ${exerciseFormat(item.points)}
+        </span>
+      </div>
+
+      <div class="ratio-grid">
+        <div class="field compact-field">
+          <label>
+            ${labels[0]}
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            id="${ids[0]}"
+            value="${pathValue(
+              exercise,
+              item.denominator
+            ) || 0}"
+            ${disabled}
+          >
+        </div>
+
+        <div class="field compact-field">
+          <label>
+            ${labels[1]}
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            id="${ids[1]}"
+            value="${pathValue(
+              exercise,
+              item.numerator
+            ) || 0}"
+            ${disabled}
+          >
+        </div>
+      </div>
+
+      <div class="formula-box">
+        ${exerciseMoney(calculation.numerator)}
+        ÷
+        ${exerciseMoney(calculation.denominator)}
+        =
+        <b>${percentage.toFixed(2)}%</b>
+        ·
+        ${percentage.toFixed(2)}%
+        ×
+        ${exerciseFormat(item.points)}
+        =
+        <b>
+          ${exerciseFormat(calculation.points)} pts
+        </b>
+      </div>
+
+      <div class="score-controls">
+        <label class="apply-control">
+          <input
+            type="checkbox"
+            data-ass-applicable="${item.key}"
+            ${checked}
+          >
+          Aplica
+        </label>
+      </div>
+
+      <textarea
+        class="note-input"
+        data-ass-note="${item.key}"
+        placeholder="Nota / justificación"
+      >${exerciseEscapeHtml(entry.note || '')}</textarea>
+    </div>
+  `;
+}
+
+function solvencyStep(exercise, risk) {
+  const groups = (risk?.groups || [])
+    .filter(group => {
+      return methodologyItems(group)
+        .some(item => item.type === 'ratio');
+    });
+
+  const groupsHtml = groups
+    .map(group => exerciseGroup(
+      exercise,
+      group
+    ))
+    .join('');
+
+  return `
+    <div class="card">
+      <div class="section-title">
+        Paso 3 de 6 · Solventación
+      </div>
+
+      <p class="exercise-help">
+        Estas variables se calculan automáticamente
+        con las mismas fórmulas del Excel.
+        Puedes ver la operación completa antes
+        de guardar.
+      </p>
+
+      ${groupsHtml}
+    </div>
+  `;
+}
+
+/* =========================================================
+   RESUMEN FINAL
+   ========================================================= */
+
+function resultStep(exercise, methodology) {
+  const calculation = calc(exercise);
+
+  const resultClass = calculation.result === 'APROBADA'
+    ? 'status-ok'
+    : 'status-bad';
+
+  const componentsHtml = (methodology.components || [])
+    .map(component => {
+      const componentResult =
+        calculation.components[component.key] || {
+          raw: 0,
+          base: 0
+        };
+
+      return `
+        <div>
+          <span>
+            ${exerciseEscapeHtml(component.name)}
+          </span>
+
+          <b>
+            ${exerciseFormat(componentResult.raw)}
+            /
+            ${exerciseFormat(componentResult.base)}
+          </b>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <div class="card">
+      <div class="section-title">
+        Paso 6 de 6 · Resumen de la ponderación
+      </div>
+
+      <div class="result-summary">
+        <div>
+          <p>
+            <b>Ente:</b>
+            ${exerciseEscapeHtml(exercise.entity || '—')}
+          </p>
+
+          <p>
+            <b>Base metodológica original:</b>
+            ${exerciseFormat(
+              methodologyTotal(methodology)
+            )} pts
+          </p>
+
+          <p>
+            <b>Base aplicable:</b>
+            ${exerciseFormat(calculation.base)} pts
+          </p>
+
+          <p>
+            <b>Puntaje obtenido:</b>
+            ${exerciseFormat(calculation.raw)} pts
+          </p>
+
+          <p>
+            <b>Ponderación normalizada:</b>
+            ${calculation.score.toFixed(2)} / 100
+          </p>
+        </div>
+
+        <div>
+          <div class="bigscore">
+            ${calculation.score.toFixed(2)}
+          </div>
+
+          <div class="${resultClass}">
+            ${calculation.result}
+          </div>
+        </div>
+      </div>
+
+      <div class="component-summary">
+        ${componentsHtml}
+      </div>
+
+      <button
+        class="btn"
+        id="previewPdf"
+        type="button"
+      >
+        Vista previa / PDF
+      </button>
+    </div>
+  `;
+}
+
+/* =========================================================
+   EVENTOS
+   ========================================================= */
+
+function bindNew(entities) {
+  const exercise = state.current;
+
+  $('#newYear').onchange = event => {
+    state.year = +event.target.value;
+    state.current = blankExercise();
+    state.step = 1;
     render();
   };
-  $('#entity').onchange=event=>{
-    x.entity=event.target.value;
-    const ent=ents.find(item=>item.name===x.entity);
-    if(ent&&ent.work!==null) x.work=ent.work;
+
+  $('#entity').onchange = event => {
+    exercise.entity = event.target.value;
+
+    const entity = entities.find(
+      item => item.name === exercise.entity
+    );
+
+    if (entity) {
+      exercise.work = entity.work !== false;
+      exercise.type = entity.type || '';
+    }
+
     newExercise();
   };
-  if(!ents.length) return;
 
-  $$('[data-method-field]').forEach(input=>{
-    input.onchange=()=>{
-      setPathValue(x,input.dataset.methodField,input.checked);
+  if (!entities.length) {
+    return;
+  }
+
+  $$('.major-select').forEach(element => {
+    element.onchange = () => {
+      exercise[element.dataset.major] =
+        element.value === 'true';
+
       newExercise();
     };
   });
 
-  Object.keys(x.solv).forEach(key=>{
-    const input=$('#'+key);
-    if(input) input.oninput=()=>{x.solv[key]=+input.value||0;};
+  $$('[data-major-note]').forEach(element => {
+    element.oninput = () => {
+      exercise.majorNotes =
+        exercise.majorNotes || {};
+
+      exercise.majorNotes[
+        element.dataset.majorNote
+      ] = element.value;
+    };
   });
 
-  $('#prev').onclick=()=>{state.step=Math.max(1,state.step-1);newExercise();};
-  $('#draft').onclick=()=>saveExercise(false);
-  $('#next').onclick=()=>{
-    Object.keys(x.solv).forEach(key=>{
-      const input=$('#'+key);
-      if(input) x.solv[key]=+input.value||0;
-    });
-    if(state.step<6){state.step++;newExercise();}
-    else saveExercise(true);
-  };
-}
+  $$('[data-ass-points]').forEach(element => {
+    element.oninput = () => {
+      const item = findMethodItem(
+        exerciseMethodology(exercise),
+        element.dataset.assPoints
+      );
 
-/* =========================================================
-   12. GUARDADO DE BORRADORES Y EJERCICIOS FINALIZADOS
-   ========================================================= */
-async function saveExercise(final){
-  const x=state.current;
-  if(!x.entity) return alert('Selecciona un ente del catálogo.');
-  const all=clone(store.get('exercises',[]));
-  const idx=all.findIndex(item=>item.year===x.year&&item.entity===x.entity);
-  const c=calc(x);
-  const saved={...clone(x),...c,status:final?'Finalizado':'Borrador',updatedAt:new Date().toISOString()};
-  if(idx>=0) all[idx]=saved; else all.push(saved);
-  try{
-    await store.set('exercises',all);
-    if(final){
-      alert('Ejercicio finalizado y guardado en Cloudflare D1.');
-      state.page='results';state.current=null;state.step=1;render();
-    }else alert('Borrador guardado en Cloudflare D1.');
-  }catch(error){
-    alert('No se pudo guardar en D1: '+error.message);
+      if (!item) {
+        return;
+      }
+
+      const maximum = Number(item.points) || 0;
+      const entered = Number(element.value) || 0;
+
+      assessmentEntry(
+        exercise,
+        item
+      ).points = Math.max(
+        0,
+        Math.min(maximum, entered)
+      );
+
+      refreshCurrentScore();
+    };
+  });
+
+  $$('[data-ass-value]').forEach(element => {
+    element.oninput = () => {
+      const item = findMethodItem(
+        exerciseMethodology(exercise),
+        element.dataset.assValue
+      );
+
+      if (!item) {
+        return;
+      }
+
+      const entered = Number(element.value) || 0;
+
+      assessmentEntry(
+        exercise,
+        item
+      ).value = Math.max(
+        0,
+        Math.min(100, entered)
+      );
+
+      newExercise();
+    };
+  });
+
+  $$('[data-ass-applicable]').forEach(element => {
+    element.onchange = () => {
+      const item = findMethodItem(
+        exerciseMethodology(exercise),
+        element.dataset.assApplicable
+      );
+
+      if (!item) {
+        return;
+      }
+
+      assessmentEntry(
+        exercise,
+        item
+      ).applicable = element.checked;
+
+      newExercise();
+    };
+  });
+
+  $$('[data-ass-note]').forEach(element => {
+    element.oninput = () => {
+      const item = findMethodItem(
+        exerciseMethodology(exercise),
+        element.dataset.assNote
+      );
+
+      if (item) {
+        assessmentEntry(
+          exercise,
+          item
+        ).note = element.value;
+      }
+    };
+  });
+
+  const solvencyFields = [
+    ['countF', 'countF'],
+    ['countS', 'countS'],
+    ['inF', 'inF'],
+    ['inS', 'inS'],
+    ['outF', 'outF'],
+    ['outS', 'outS']
+  ];
+
+  solvencyFields.forEach(([id, key]) => {
+    const element = $('#' + id);
+
+    if (!element) {
+      return;
+    }
+
+    element.oninput = () => {
+      exercise.solv[key] = Math.max(
+        0,
+        Number(element.value) || 0
+      );
+
+      newExercise();
+    };
+  });
+
+  $('#prev').onclick = () => {
+    state.step = Math.max(
+      1,
+      state.step - 1
+    );
+
+    newExercise();
+  };
+
+  $('#draft').onclick = () => {
+    saveExercise(false);
+  };
+
+  $('#next').onclick = () => {
+    if (state.step < 6) {
+      state.step++;
+      newExercise();
+      return;
+    }
+
+    saveExercise(true);
+  };
+
+  const pdfButton = $('#previewPdf');
+
+  if (pdfButton) {
+    pdfButton.onclick = () => {
+      exercisePrintPreview(exercise);
+    };
   }
 }
 
+function findMethodItem(methodology, key) {
+  for (
+    const component of methodology.components || []
+  ) {
+    for (
+      const group of component.groups || []
+    ) {
+      for (
+        const item of methodologyItems(group)
+      ) {
+        if (item.key === key) {
+          return item;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function refreshCurrentScore() {
+  const calculation = calc(state.current);
+  const card = document.querySelector(
+    '.resultcard'
+  );
+
+  if (card) {
+    card.outerHTML = exerciseResultCard(
+      calculation
+    );
+  }
+}
+
+/* =========================================================
+   GUARDADO
+   ========================================================= */
+
+async function saveExercise(final) {
+  const exercise = state.current;
+
+  if (!exercise.entity) {
+    return alert(
+      'Selecciona un ente del catálogo.'
+    );
+  }
+
+  const all = clone(
+    store.get('exercises', [])
+  );
+
+  const index = all.findIndex(item => {
+    return (
+      item.year === exercise.year &&
+      item.entity === exercise.entity
+    );
+  });
+
+  const calculation = calc(exercise);
+
+  const saved = {
+    ...clone(exercise),
+    ...calculation,
+    status: final
+      ? 'Finalizado'
+      : 'Borrador',
+    methodologySnapshot: clone(
+      exerciseMethodology(exercise)
+    ),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (index >= 0) {
+    all[index] = saved;
+  } else {
+    all.push(saved);
+  }
+
+  try {
+    await store.set(
+      'exercises',
+      all
+    );
+
+    state.current = clone(saved);
+
+    if (final) {
+      alert(
+        'Ejercicio guardado. Puedes consultarlo ' +
+        'y editarlo desde Resultados.'
+      );
+
+      state.page = 'results';
+      state.step = 1;
+      state.current = null;
+      render();
+      return;
+    }
+
+    alert(
+      'Borrador guardado en Cloudflare D1.'
+    );
+  } catch (error) {
+    alert(
+      'No se pudo guardar en D1: ' +
+      error.message
+    );
+  }
+}
+
+/* =========================================================
+   VISTA PREVIA / PDF
+   ========================================================= */
+
+function exercisePrintPreview(exercise) {
+  const methodology = exerciseMethodology(
+    exercise
+  );
+
+  const calculation = calc(exercise);
+  const rows = [];
+
+  (methodology.components || [])
+    .forEach(component => {
+      (component.groups || [])
+        .forEach(group => {
+          methodologyItems(group)
+            .forEach(item => {
+              const itemCalc = itemCalculation(
+                exercise,
+                item,
+                group
+              );
+
+              const entry = assessmentEntry(
+                exercise,
+                item
+              );
+
+              rows.push(`
+                <tr>
+                  <td>
+                    ${exerciseEscapeHtml(component.name)}
+                  </td>
+                  <td>
+                    ${exerciseEscapeHtml(group.name)}
+                  </td>
+                  <td>
+                    ${exerciseEscapeHtml(item.label)}
+                  </td>
+                  <td>
+                    ${exerciseFormat(item.points)}
+                  </td>
+                  <td>
+                    ${
+                      itemCalc.applicable
+                        ? exerciseFormat(itemCalc.points)
+                        : 'N/A'
+                    }
+                  </td>
+                  <td>
+                    ${exerciseEscapeHtml(entry.note || '')}
+                  </td>
+                </tr>
+              `);
+            });
+        });
+    });
+
+  const win = window.open(
+    '',
+    '_blank'
+  );
+
+  if (!win) {
+    return alert(
+      'Permite ventanas emergentes para generar el PDF.'
+    );
+  }
+
+  const printStyles = `
+    body {
+      font-family: Arial, sans-serif;
+      color: #18221e;
+      padding: 32px;
+      font-size: 11px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 14px;
+      margin-top: 24px;
+    }
+
+    .meta {
+      margin: 15px 0;
+      padding: 12px;
+      background: #f3f6f4;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccd4cf;
+      padding: 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3f0;
+    }
+
+    @media print {
+      button {
+        display: none;
+      }
+
+      body {
+        padding: 0;
+      }
+    }
+  `;
+
+  const printHtml = `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+
+        <title>
+          Ponderación ${exerciseEscapeHtml(exercise.entity)}
+        </title>
+
+        <style>
+          ${printStyles}
+        </style>
+      </head>
+
+      <body>
+        <h1>
+          Resumen de Ponderación de Cuenta Pública
+        </h1>
+
+        <div class="meta">
+          <b>Ente:</b>
+          ${exerciseEscapeHtml(exercise.entity)}
+          ·
+          <b>Ejercicio:</b>
+          ${exercise.year}
+          <br>
+
+          <b>Base aplicable:</b>
+          ${exerciseFormat(calculation.base)}
+          ·
+          <b>Puntaje obtenido:</b>
+          ${exerciseFormat(calculation.raw)}
+          <br>
+
+          <span class="score">
+            ${calculation.score.toFixed(2)} / 100
+          </span>
+          <br>
+
+          <b>
+            ${exerciseEscapeHtml(calculation.result)}
+          </b>
+        </div>
+
+        <h2>
+          Detalle metodológico
+        </h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Rubro</th>
+              <th>Concepto</th>
+              <th>Máximo</th>
+              <th>Obtenido</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows.join('')}
+          </tbody>
+        </table>
+
+        <button onclick="window.print()">
+          Imprimir / Guardar como PDF
+        </button>
+
+        <script>
+          setTimeout(
+            () => window.print(),
+            350
+          );
+        <\/script>
+      </body>
+    </html>
+  `;
+
+  win.document.write(printHtml);
+  win.document.close();
+}
