@@ -659,9 +659,8 @@ function methodologyDetailHtml(
         </h3>
 
         <p>
-          Distribución de los
-          85 puntos que concentran
-          la mayor ponderación
+          Estructura jerárquica de los
+          85 puntos de mayor ponderación
           del modelo.
         </p>
 
@@ -677,139 +676,230 @@ function methodologyDetailHtml(
     </div>
 
 
-    <div
-      class="
-        methodology-distribution
-        risk-distribution
-      "
-    >
-      ${
-        methodologyRiskRow(
-          35,
-          '% Importe de observaciones '
-            + 'solventadas'
-        )
-      }
+    <div class="risk-architecture">
 
-      ${
-        methodologyRiskRow(
-          15,
-          '% Cantidad de observaciones '
-            + 'solventadas'
-        )
-      }
+      ${methodologyRiskGroup(
+        6,
+        'Cuenta Pública conforme a LFyRC',
+        `
+          ${methodologyRiskCriterion(
+            1,
+            'La documentación presentada cumple con los requisitos de transparencia y veracidad exigidos por la LFyRC y LGCG.'
+          )}
 
-      ${
-        methodologyRiskRow(
-          10,
-          'Reincidencia'
-        )
-      }
+          ${methodologyRiskCriterion(
+            1,
+            'La cuenta pública incluye todos los elementos requeridos por la ley, como estados financieros, presupuestales y programáticos como lo indica la normativa vigente.'
+          )}
 
-      ${
-        methodologyRiskRow(
-          7,
-          'Sistema Contable – SEvAC'
-        )
-      }
+          ${methodologyRiskCriterion(
+            4,
+            'La cuenta pública está libre de omisiones significativas o irregularidades que puedan afectar su integridad y fiabilidad.',
+            [
+              ['0.2', 'Conciliación de inventarios'],
+              ['0.4', 'Modificaciones presupuestales'],
+              ['1.6', 'Manual de administración de remuneraciones, vigente y autorizado'],
+              ['1.6', 'Conciliaciones bancarias'],
+              ['0.2', 'Relación de proveedores']
+            ]
+          )}
+        `
+      )}
 
-      ${
-        methodologyRiskRow(
-          6,
-          'Cuenta Pública conforme '
-            + 'a LFyRC'
-        )
-      }
+      ${methodologyRiskGroup(
+        1,
+        'Informe de Avance de Gestión Financiera Art.12 LFRCBCS',
+        `
+          <div class="risk-group-note">
+            A más tardar el 31 de agosto.
+          </div>
+        `
+      )}
 
-      ${
-        methodologyRiskRow(
-          6,
-          'Obra Pública'
-        )
-      }
+      ${methodologyRiskGroup(
+        7,
+        'Sistema de Contabilidad Completo (SEvAC) (Anual)',
+        `
+          ${methodologyRiskCriterion(
+            7,
+            'Sistema de Contabilidad Completo (SEvAC)'
+          )}
+        `
+      )}
 
-      ${
-        methodologyRiskRow(
-          5,
-          'Ley de Adquisiciones '
-            + 'y Servicios'
-        )
-      }
+      ${methodologyRiskGroup(
+        5,
+        'Ley de Adquisiciones y Servicios',
+        `
+          ${methodologyRiskCriterion(
+            1,
+            'Procedimiento de Adquisición con evidencias / Expediente Técnico'
+          )}
 
-      ${
-        methodologyRiskRow(
-          1,
-          'Informe de Avance '
-            + 'de Gestión Financiera'
-        )
-      }
+          ${methodologyRiskCriterion(
+            4,
+            'Programa Anual de adquisiciones'
+          )}
+        `
+      )}
+
+      ${methodologyRiskGroup(
+        6,
+        'Obra Pública',
+        `
+          ${methodologyRiskCriterion(
+            2.5,
+            'Programa Anual de Obras Públicas aprobado'
+          )}
+
+          ${methodologyRiskCriterion(
+            1,
+            'Expedientes unitarios debidamente integrado'
+          )}
+
+          ${methodologyRiskCriterion(
+            2.5,
+            'Obras pagadas NO ejecutadas'
+          )}
+        `
+      )}
+
+      ${methodologyRiskGroup(
+        10,
+        'Reincidencia en:',
+        `
+          ${methodologyRiskCriterion(
+            1,
+            'Sistema contable armonizado'
+          )}
+
+          ${methodologyRiskCriterion(
+            2,
+            'Programa anual de adquisiciones, arrendamiento y servicios'
+          )}
+
+          ${methodologyRiskCriterion(
+            3,
+            'Manual de remuneraciones y tabulador de sueldos'
+          )}
+
+          ${methodologyRiskCriterion(
+            1,
+            'Procedimientos de contratacion justificando la excepcion a licitación pública'
+          )}
+
+          ${methodologyRiskCriterion(
+            3,
+            'Levantamiento fisico del inventario de bienes muebles e inmuebles'
+          )}
+        `
+      )}
+
+      ${methodologyRiskGroup(
+        15,
+        '% de Cantidad Observaciones Solventadas',
+        `
+          ${methodologyRiskCriterion(
+            15,
+            'Porcentaje que resulte de dividir la cantidad de observaciones solventadas entre el total de observaciones fincadas. (proporción)'
+          )}
+        `
+      )}
+
+      ${methodologyRiskGroup(
+        35,
+        '% de Importe de Observaciones Solventadas',
+        `
+          ${methodologyRiskCriterion(
+            5,
+            'Ingreso'
+          )}
+
+          ${methodologyRiskCriterion(
+            30,
+            'Egreso'
+          )}
+        `
+      )}
 
     </div>
   `;
 }
 
-function methodologyRiskRow(
+function methodologyRiskGroup(
   points,
-  label
+  title,
+  content = ''
 ) {
-  const percentage =
-    (
-      points
-      / 85
-    )
-    * 100;
-
   return `
-    <div
-      class="
-        distribution-row
-      "
-    >
+    <section class="risk-group">
 
-      <div
-        class="
-          distribution-points
-        "
-      >
+      <div class="risk-group-head">
+        <div class="risk-group-points">
+          ${points}
+
+          <span>
+            ${points === 1 ? 'punto' : 'puntos'}
+          </span>
+        </div>
+
+        <div class="risk-group-title">
+          ${title}
+        </div>
+      </div>
+
+      ${
+        content
+          ? `<div class="risk-group-body">${content}</div>`
+          : ''
+      }
+
+    </section>
+  `;
+}
+
+function methodologyRiskCriterion(
+  points,
+  label,
+  subitems = []
+) {
+  return `
+    <div class="risk-criterion">
+
+      <div class="risk-criterion-points">
         ${points}
       </div>
 
-
-      <div
-        class="
-          distribution-info
-        "
-      >
-
-        <b>
+      <div class="risk-criterion-content">
+        <div class="risk-criterion-label">
           ${label}
-        </b>
+        </div>
 
-        <span>
-          ${points}
-          ${
-            points === 1
-              ? 'punto'
-              : 'puntos'
-          }
-        </span>
+        ${
+          subitems.length
+            ? `
+              <div class="risk-subitems">
+                ${
+                  subitems
+                    .map(
+                      ([subPoints, subLabel]) => `
+                        <div class="risk-subitem">
+                          <span class="risk-subitem-points">
+                            ${subPoints}
+                          </span>
 
-      </div>
-
-
-      <div
-        class="
-          distribution-bar
-        "
-      >
-
-        <div
-          style="
-            width:
-            ${percentage.toFixed(2)}%;
-          "
-        ></div>
-
+                          <span class="risk-subitem-label">
+                            ${subLabel}
+                          </span>
+                        </div>
+                      `
+                    )
+                    .join('')
+                }
+              </div>
+            `
+            : ''
+        }
       </div>
 
     </div>
