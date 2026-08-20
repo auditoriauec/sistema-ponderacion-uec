@@ -1033,6 +1033,55 @@ function bindCatalogTabs(){
   });
 }
 
+function makeMethodKey(prefix='item'){
+  if(globalThis.crypto?.randomUUID){
+    return prefix+'-'+crypto.randomUUID();
+  }
+  return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
+}
+
+function newMethodMajor(){
+  return {
+    key:makeMethodKey('major'),
+    label:'Nuevo criterio mayor',
+    description:'Criterio obligatorio para la aprobación.'
+  };
+}
+
+function newMethodLeaf(label='Nuevo criterio',points=0){
+  return {
+    key:makeMethodKey('criterion'),
+    type:'score',
+    label,
+    points:Number(points)||0
+  };
+}
+
+function newMethodParent(){
+  return {
+    key:makeMethodKey('criterion'),
+    label:'Nuevo criterio con desglose',
+    children:[newMethodLeaf('Nuevo subcriterio',0)]
+  };
+}
+
+function newMethodGroup(){
+  return {
+    key:makeMethodKey('group'),
+    name:'Nuevo rubro',
+    items:[newMethodLeaf('Nuevo criterio',0)]
+  };
+}
+
+function newMethodComponent(){
+  return {
+    key:makeMethodKey('variable'),
+    name:'Nueva variable',
+    description:'',
+    groups:[newMethodGroup()]
+  };
+}
+
 function methodologyCatalog(){
   if(!catalogMethodDraft) catalogMethodDraft=getMethodologyConfig();
   const config=catalogMethodDraft;
@@ -1058,6 +1107,7 @@ function methodologyCatalog(){
           <div class="section-title">Criterios mayores</div>
           <p class="subtitle">No suman puntos, pero determinan la aprobación de la Cuenta Pública.</p>
         </div>
+        <button class="btn mini-btn" id="methodAddMajor" type="button">＋ Agregar criterio mayor</button>
       </div>
       <div class="methodology-major-editor">
         ${(config.majors||[]).map((major,index)=>`
@@ -1071,9 +1121,14 @@ function methodologyCatalog(){
               <label>Descripción</label>
               <input data-major-description="${index}" value="${escapeHtmlAttr(major.description||'')}">
             </div>
+            <button class="btn mini-btn danger-btn" data-delete-major="${index}" type="button">Eliminar</button>
           </div>`).join('')}
       </div>
     </section>
+
+    <div class="methodology-add-variable-row">
+      <button class="btn" id="methodAddComponent" type="button">＋ Agregar variable</button>
+    </div>
 
     ${(config.components||[]).map((component,componentIndex)=>methodologyComponentEditor(component,componentIndex)).join('')}
 
@@ -1104,6 +1159,10 @@ function methodologyComponentEditor(component,componentIndex){
         <strong>${formatMethodPoints(methodologyComponentPoints(component))}</strong>
         <span>pts</span>
       </div>
+      <div class="catalog-row-actions">
+        <button class="btn mini-btn" data-add-group="${componentIndex}" type="button">＋ Rubro</button>
+        <button class="btn mini-btn danger-btn" data-delete-component="${componentIndex}" type="button">Eliminar variable</button>
+      </div>
     </div>
 
     <div class="methodology-group-editor-list">
@@ -1125,6 +1184,11 @@ function methodologyGroupEditor(group,componentIndex,groupIndex,groupCount){
         <input data-group-name="${path}" value="${escapeHtmlAttr(group.name)}">
       </div>
       <div class="method-group-total">${formatMethodPoints(methodologyGroupPoints(group))} pts</div>
+      <div class="catalog-row-actions">
+        <button class="btn mini-btn" data-add-item="${path}" type="button">＋ Criterio</button>
+        <button class="btn mini-btn" data-add-parent="${path}" type="button">＋ Criterio con desglose</button>
+        <button class="btn mini-btn danger-btn" data-delete-group="${path}" type="button">Eliminar rubro</button>
+      </div>
     </div>
     ${group.note!==undefined?`<div class="field method-group-note-field"><label>Nota</label><input data-group-note="${path}" value="${escapeHtmlAttr(group.note||'')}"></div>`:''}
     <div class="methodology-items-editor">
@@ -1144,6 +1208,10 @@ function methodologyItemEditor(item,componentIndex,groupIndex,itemIndex,itemCoun
         </div>
         <div class="field method-editor-grow"><label>Criterio</label><input data-item-label="${path}" value="${escapeHtmlAttr(item.label)}"></div>
         <div class="method-item-total">${formatMethodPoints(methodologyChildrenPoints(item))} pts</div>
+        <div class="catalog-row-actions">
+          <button class="btn mini-btn" data-add-child="${path}" type="button">＋ Subcriterio</button>
+          <button class="btn mini-btn danger-btn" data-delete-item="${path}" type="button">Eliminar criterio</button>
+        </div>
       </div>
       <div class="methodology-child-editor">
         ${item.children.map((child,childIndex)=>methodologyLeafEditor(child,`${path}.${childIndex}`,childIndex,item.children.length,true)).join('')}
@@ -1167,6 +1235,7 @@ function methodologyLeafEditor(item,path,index,count,isChild){
       <label>Puntos</label>
       <input type="number" min="0" step="0.05" data-${isChild?'child':'item'}-points="${path}" value="${Number(item.points)||0}">
     </div>
+    <button class="btn mini-btn danger-btn" data-delete-${isChild?'child':'item'}="${path}" type="button">Eliminar</button>
   </div>`;
 }
 
@@ -1186,6 +1255,85 @@ function methodItemAt(config,path){
 
 function bindMethodologyCatalog(){
   const config=catalogMethodDraft;
+
+  $('#methodAddMajor').onclick=()=>{
+    config.majors=config.majors||[];
+    config.majors.push(newMethodMajor());
+    methodologyCatalog();
+  };
+  $$('[data-delete-major]').forEach(button=>button.onclick=()=>{
+    const index=+button.dataset.deleteMajor;
+    const major=config.majors?.[index];
+    if(!major) return;
+    if(!confirm(`¿Eliminar el criterio mayor “${major.label}”?`)) return;
+    config.majors.splice(index,1);
+    methodologyCatalog();
+  });
+
+  $('#methodAddComponent').onclick=()=>{
+    config.components=config.components||[];
+    config.components.push(newMethodComponent());
+    methodologyCatalog();
+  };
+  $$('[data-delete-component]').forEach(button=>button.onclick=()=>{
+    const index=+button.dataset.deleteComponent;
+    const component=config.components?.[index];
+    if(!component) return;
+    if(!confirm(`¿Eliminar la variable “${component.name}” y todo su contenido?`)) return;
+    config.components.splice(index,1);
+    methodologyCatalog();
+  });
+
+  $$('[data-add-group]').forEach(button=>button.onclick=()=>{
+    const c=+button.dataset.addGroup;
+    config.components[c].groups=config.components[c].groups||[];
+    config.components[c].groups.push(newMethodGroup());
+    methodologyCatalog();
+  });
+  $$('[data-delete-group]').forEach(button=>button.onclick=()=>{
+    const [c,g]=methodPathIndexes(button.dataset.deleteGroup);
+    const group=config.components?.[c]?.groups?.[g];
+    if(!group) return;
+    if(!confirm(`¿Eliminar el rubro “${group.name}” y todos sus criterios?`)) return;
+    config.components[c].groups.splice(g,1);
+    methodologyCatalog();
+  });
+
+  $$('[data-add-item]').forEach(button=>button.onclick=()=>{
+    const group=methodGroupAt(config,button.dataset.addItem);
+    group.items=group.items||[];
+    group.items.push(newMethodLeaf('Nuevo criterio',0));
+    methodologyCatalog();
+  });
+  $$('[data-add-parent]').forEach(button=>button.onclick=()=>{
+    const group=methodGroupAt(config,button.dataset.addParent);
+    group.items=group.items||[];
+    group.items.push(newMethodParent());
+    methodologyCatalog();
+  });
+  $$('[data-delete-item]').forEach(button=>button.onclick=()=>{
+    const [c,g,i]=methodPathIndexes(button.dataset.deleteItem);
+    const item=config.components?.[c]?.groups?.[g]?.items?.[i];
+    if(!item) return;
+    if(!confirm(`¿Eliminar el criterio “${item.label}”?`)) return;
+    config.components[c].groups[g].items.splice(i,1);
+    methodologyCatalog();
+  });
+
+  $$('[data-add-child]').forEach(button=>button.onclick=()=>{
+    const item=methodItemAt(config,button.dataset.addChild);
+    item.children=item.children||[];
+    item.children.push(newMethodLeaf('Nuevo subcriterio',0));
+    methodologyCatalog();
+  });
+  $$('[data-delete-child]').forEach(button=>button.onclick=()=>{
+    const [c,g,i,ch]=methodPathIndexes(button.dataset.deleteChild);
+    const child=config.components?.[c]?.groups?.[g]?.items?.[i]?.children?.[ch];
+    if(!child) return;
+    if(!confirm(`¿Eliminar el subcriterio “${child.label}”?`)) return;
+    config.components[c].groups[g].items[i].children.splice(ch,1);
+    methodologyCatalog();
+  });
 
   $$('[data-major-label]').forEach(input=>input.oninput=()=>{config.majors[+input.dataset.majorLabel].label=input.value;});
   $$('[data-major-description]').forEach(input=>input.oninput=()=>{config.majors[+input.dataset.majorDescription].description=input.value;});
