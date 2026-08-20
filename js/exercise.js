@@ -610,7 +610,7 @@ function exerciseItem(
     controlHtml = `
       <div class="field compact-field">
         <label>
-          Resultado SEvAC (%)
+          Calificación SEvAC
         </label>
 
         <input
@@ -621,6 +621,21 @@ function exerciseItem(
           data-ass-value="${item.key}"
           value="${entry.value ?? 0}"
           ${!applicable ? 'disabled' : ''}
+        >
+      </div>
+
+      <div class="field compact-field">
+        <label>
+          Puntaje SEvAC
+        </label>
+
+        <input
+          type="text"
+          data-sevac-points="${item.key}"
+          value="${exerciseFormat(
+            calculation.points
+          )}"
+          readonly
         >
       </div>
 
@@ -1029,15 +1044,19 @@ function exerciseSevacFormulaHtml(
   calculation,
   item
 ) {
-  const percentage = calculation.percentage || 0;
+  const percentage =
+    calculation.percentage || 0;
 
   return `
-    ${exerciseFormat(percentage)}%
+    ${exerciseFormat(percentage)}
+    ÷ 100
     ×
     ${exerciseFormat(item.points)}
     =
     <b>
-      ${exerciseFormat(calculation.points)} pts
+      ${exerciseFormat(
+        calculation.points
+      )} pts
     </b>
   `;
 }
@@ -1080,15 +1099,28 @@ function refreshExerciseCalculations() {
               }
 
               if (item.type === 'sevac') {
-                const formula = document.querySelector(
-                  `[data-sevac-formula="${item.key}"]`
-                );
+                const formula =
+                  document.querySelector(
+                    `[data-sevac-formula="${item.key}"]`
+                  );
+
+                const pointsField =
+                  document.querySelector(
+                    `[data-sevac-points="${item.key}"]`
+                  );
 
                 if (formula) {
                   formula.innerHTML =
                     exerciseSevacFormulaHtml(
                       calculation,
                       item
+                    );
+                }
+
+                if (pointsField) {
+                  pointsField.value =
+                    exerciseFormat(
+                      calculation.points
                     );
                 }
               }
