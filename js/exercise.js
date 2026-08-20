@@ -1694,7 +1694,7 @@ function exercisePrintPreview(exercise) {
 
       color: #17352f;
 
-      background: #ffffff;
+      background: #eef1f0;
 
       font-size: 9.2px;
 
@@ -1705,9 +1705,23 @@ function exercisePrintPreview(exercise) {
     }
 
     .report {
-      width: 100%;
-      margin: 0 auto;
-    }
+  width: 210mm;
+  min-height: 297mm;
+
+  margin: 24px auto;
+
+  padding:
+    10mm
+    9mm
+    20mm
+    9mm;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 4px 24px
+    rgba(0, 0, 0, 0.12);
+}
 
     /* ================================
        ENCABEZADO PRINCIPAL
@@ -2291,6 +2305,17 @@ function exercisePrintPreview(exercise) {
        ================================ */
 
     @media print {
+    
+    .report {
+    width: 100%;
+    min-height: auto;
+
+    margin: 0;
+
+    padding: 0;
+
+    box-shadow: none;
+  }
       .print-button {
         display: none !important;
       }
