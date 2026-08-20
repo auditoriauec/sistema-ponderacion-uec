@@ -102,6 +102,9 @@ function newExercise() {
         <div
           class="step ${active}"
           data-n="${index + 1}"
+          role="button"
+          tabindex="0"
+          title="Ir a ${exerciseEscapeHtml(label)}"
         >
           ${exerciseEscapeHtml(label)}
         </div>
@@ -718,20 +721,34 @@ function ratioItem(
     group
   );
 
+  const denominatorKey = String(
+    item.denominator || ''
+  ).split('.').pop();
+
+  const numeratorKey = String(
+    item.numerator || ''
+  ).split('.').pop();
+
   let labels;
   let ids;
 
-  if (item.ratioKind === 'count') {
+  if (
+    denominatorKey === 'countF' ||
+    item.ratioKind === 'count'
+  ) {
     labels = [
-      'Observaciones fincadas',
-      'Observaciones solventadas'
+      'Importe fincado',
+      'Importe solventado'
     ];
 
     ids = [
       'countF',
       'countS'
     ];
-  } else if (item.ratioKind === 'income') {
+  } else if (
+    denominatorKey === 'inF' ||
+    item.ratioKind === 'income'
+  ) {
     labels = [
       'Importe fincado · Ingreso',
       'Importe solventado · Ingreso'
@@ -750,6 +767,13 @@ function ratioItem(
     ids = [
       'outF',
       'outS'
+    ];
+  }
+
+  if (denominatorKey && numeratorKey) {
+    ids = [
+      denominatorKey,
+      numeratorKey
     ];
   }
 
@@ -1103,6 +1127,38 @@ function bindNew(entities) {
 
     newExercise();
   };
+
+  $$('.wizard .step').forEach(element => {
+    const goToStep = () => {
+      const step = Number(
+        element.dataset.n
+      );
+
+      if (
+        !Number.isInteger(step) ||
+        step < 1 ||
+        step > 6 ||
+        step === state.step
+      ) {
+        return;
+      }
+
+      state.step = step;
+      newExercise();
+    };
+
+    element.onclick = goToStep;
+
+    element.onkeydown = event => {
+      if (
+        event.key === 'Enter' ||
+        event.key === ' '
+      ) {
+        event.preventDefault();
+        goToStep();
+      }
+    };
+  });
 
   if (!entities.length) {
     return;
