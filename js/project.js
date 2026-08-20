@@ -26,9 +26,8 @@ function project() {
           en una calificación única, objetiva
           y trazable.
 
-          Sirve como base técnica para
-          determinar la aprobación de la
-          Cuenta Pública.
+          Sirve como base técnica para la CVASEBCS para
+          determinar la aprobación de la Cuenta Pública.
         </p>
 
         <div class="methodology-values">
