@@ -42,11 +42,11 @@ let state = { page: 'project', year: 2024, step: 1, current: null };
 let methodologyComponent = 'risk';
 
 const menu = [
-  ['project', '▣', 'Metodología'],
-  ['summary', '⌂', 'Resumen'],
-  ['results', '▤', 'Resultados'],
+  ['project', 'Metodología'],
+  ['summary', 'Resumen'],
+  ['results', 'Resultados'],
   ['new', '＋', 'Nuevo ejercicio'],
-  ['catalog', '▦', 'Catálogo']
+  ['catalog', 'Catálogo']
 ];
 
 function years() {
