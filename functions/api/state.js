@@ -8,7 +8,7 @@
    ========================================================= */
 
 /* Datos que la app tiene permitido guardar en D1. */
-const ALLOWED_KEYS = new Set(["catalogs", "programs", "exercises"]);
+const ALLOWED_KEYS = new Set(["catalogs", "programs", "exercises", "methodology"]);
 
 /* Crea la tabla automáticamente si todavía no existe. */
 async function ensureSchema(db) {
@@ -40,7 +40,7 @@ export async function onRequestGet(context) {
 
     await ensureSchema(db);
     const result = await db.prepare("SELECT key, value, updated_at FROM app_state").all();
-    const data = { catalogs: {}, programs: [], exercises: [] };
+    const data = { catalogs: {}, programs: [], exercises: [], methodology: null };
     const updated = {};
 
     for (const row of result.results || []) {
