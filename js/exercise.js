@@ -1520,7 +1520,10 @@ function exercisePrintPreview(exercise) {
   );
 
   const calculation = calc(exercise);
+
   const rows = [];
+
+  let totalObtained = 0;
 
   (methodology.components || [])
     .forEach(component => {
@@ -1539,29 +1542,57 @@ function exercisePrintPreview(exercise) {
                 item
               );
 
+              if (
+                itemCalc.applicable &&
+                Number.isFinite(
+                  Number(itemCalc.points)
+                )
+              ) {
+                totalObtained += Number(
+                  itemCalc.points
+                );
+              }
+
               rows.push(`
                 <tr>
-                  <td>
-                    ${exerciseEscapeHtml(component.name)}
+                  <td class="variable-cell">
+                    ${exerciseEscapeHtml(
+                      component.name
+                    )}
                   </td>
-                  <td>
-                    ${exerciseEscapeHtml(group.name)}
+
+                  <td class="rubro-cell">
+                    ${exerciseEscapeHtml(
+                      group.name
+                    )}
                   </td>
-                  <td>
-                    ${exerciseEscapeHtml(item.label)}
+
+                  <td class="concepto-cell">
+                    ${exerciseEscapeHtml(
+                      item.label
+                    )}
                   </td>
-                  <td>
-                    ${exerciseFormat(item.points)}
+
+                  <td class="number-cell">
+                    ${exerciseFormat(
+                      item.points
+                    )}
                   </td>
-                  <td>
+
+                  <td class="number-cell obtained-cell">
                     ${
                       itemCalc.applicable
-                        ? exerciseFormat(itemCalc.points)
+                        ? exerciseFormat(
+                            itemCalc.points
+                          )
                         : 'N/A'
                     }
                   </td>
-                  <td>
-                    ${exerciseEscapeHtml(entry.note || '')}
+
+                  <td class="note-cell">
+                    ${exerciseEscapeHtml(
+                      entry.note || ''
+                    )}
                   </td>
                 </tr>
               `);
@@ -1580,72 +1611,714 @@ function exercisePrintPreview(exercise) {
     );
   }
 
+  const logoUrl = new URL(
+    'assets/logo-uec.png',
+    window.location.href
+  ).href;
+
+  const entityName =
+    exerciseEscapeHtml(
+      exercise.entity
+    );
+
+  const exerciseYear =
+    exerciseEscapeHtml(
+      String(exercise.year)
+    );
+
+  const resultClass =
+    calculation.result === 'APROBADA'
+      ? 'approved'
+      : 'not-approved';
+
+  const baseText =
+    exerciseFormat(
+      calculation.base
+    );
+
+  const obtainedText =
+    exerciseFormat(
+      calculation.raw
+    );
+
+  const totalObtainedText =
+    exerciseFormat(
+      totalObtained
+    );
+
+  const scoreText =
+    Number(
+      calculation.score || 0
+    ).toFixed(2);
+
+  const formulaText =
+    calculation.base > 0
+      ? `
+        ${obtainedText}
+        ÷
+        ${baseText}
+        ×
+        100
+        =
+        ${scoreText}
+      `
+      : 'No disponible';
+
   const printStyles = `
+    * {
+      box-sizing: border-box;
+    }
+
+    @page {
+      size: A4 portrait;
+
+      margin:
+        10mm
+        9mm
+        20mm
+        9mm;
+    }
+
+    html,
     body {
-      font-family: Arial, sans-serif;
-      color: #18221e;
-      padding: 32px;
-      font-size: 11px;
-    }
-
-    h1 {
-      font-size: 20px;
       margin: 0;
+      padding: 0;
     }
 
-    h2 {
-      font-size: 14px;
-      margin-top: 24px;
+    body {
+      font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: #17352f;
+
+      background: #ffffff;
+
+      font-size: 9.2px;
+
+      line-height: 1.35;
+
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
-    .meta {
-      margin: 15px 0;
-      padding: 12px;
-      background: #f3f6f4;
+    .report {
+      width: 100%;
+      margin: 0 auto;
     }
 
-    .score {
-      font-size: 28px;
+    /* ================================
+       ENCABEZADO PRINCIPAL
+       ================================ */
+
+    .hero {
+      display: grid;
+
+      grid-template-columns:
+        108px
+        minmax(0, 1fr)
+        250px;
+
+      gap: 18px;
+
+      align-items: center;
+
+      margin-bottom: 18px;
+    }
+
+    .logo-wrap {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 102px;
+      height: 102px;
+
+      object-fit: contain;
+
+      display: block;
+    }
+
+    .title-area {
+      min-width: 0;
+    }
+
+    .main-title {
+      margin: 0;
+
+      color: #064c3f;
+
+      font-size: 27px;
+
+      line-height: 0.98;
+
+      font-weight: 800;
+
+      letter-spacing: -0.5px;
+
+      text-transform: uppercase;
+    }
+
+    .main-title span {
+      display: block;
+    }
+
+    .main-title .gold {
+      color: #b48a3a;
+
+      margin-top: 5px;
+    }
+
+    .entity-data {
+      display: flex;
+
+      align-items: stretch;
+
+      margin-top: 20px;
+    }
+
+    .data-item {
+      padding-right: 18px;
+
+      margin-right: 18px;
+
+      border-right:
+        1px solid #d7c9ad;
+    }
+
+    .data-item:last-child {
+      border-right: none;
+
+      padding-right: 0;
+      margin-right: 0;
+    }
+
+    .data-label {
+      display: block;
+
+      margin-bottom: 4px;
+
+      color: #5b6762;
+
+      font-size: 8px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.5px;
+    }
+
+    .data-value {
+      display: block;
+
+      color: #152f2a;
+
+      font-size: 12px;
+
+      line-height: 1.2;
+
       font-weight: 700;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 16px;
+    /* ================================
+       TARJETA DE CALIFICACIÓN
+       ================================ */
+
+    .score-card {
+      overflow: hidden;
+
+      border:
+        1px solid #d3ddd9;
+
+      border-radius: 10px;
+
+      background: #ffffff;
+
+      box-shadow:
+        0 3px 10px
+        rgba(0, 54, 44, 0.10);
     }
 
-    th,
-    td {
-      border: 1px solid #ccd4cf;
-      padding: 6px;
-      text-align: left;
-      vertical-align: top;
+    .score-card-title {
+      padding: 8px 10px;
+
+      background: #075244;
+
+      color: #ffffff;
+
+      text-align: center;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.4px;
+    }
+
+    .global-score {
+      padding: 12px 10px 6px;
+
+      color: #064c3f;
+
+      text-align: center;
+
+      font-size: 37px;
+
+      line-height: 1;
+
+      font-weight: 800;
+    }
+
+    .global-score small {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .result {
+      margin: 4px 14px 12px;
+
+      padding: 6px 8px;
+
+      border-radius: 6px;
+
+      text-align: center;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+      text-transform: uppercase;
+    }
+
+    .result.approved {
+      background: #c39b51;
+      color: #ffffff;
+    }
+
+    .result.not-approved {
+      background: #8f2f32;
+      color: #ffffff;
+    }
+
+    .score-meta {
+      display: grid;
+
+      grid-template-columns:
+        1fr
+        1fr;
+
+      background: #075244;
+
+      color: #ffffff;
+    }
+
+    .score-meta-item {
+      padding: 9px 8px;
+
+      text-align: center;
+    }
+
+    .score-meta-item:first-child {
+      border-right:
+        1px solid
+        rgba(255,255,255,.25);
+    }
+
+    .score-meta-label {
+      display: block;
+
+      margin-bottom: 2px;
+
+      font-size: 7px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      opacity: .88;
+    }
+
+    .score-meta-value {
+      display: block;
+
+      font-size: 15px;
+
+      line-height: 1;
+
+      font-weight: 800;
+    }
+
+    /* ================================
+       TÍTULO DE DETALLE
+       ================================ */
+
+    .section-title {
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+
+      margin:
+        4px
+        0
+        9px;
+
+      color: #17352f;
+    }
+
+    .section-icon {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      width: 27px;
+      height: 27px;
+
+      flex: 0 0 27px;
+
+      border-radius: 50%;
+
+      background: #075244;
+
+      color: #ffffff;
+
+      font-size: 14px;
+
+      font-weight: 800;
+    }
+
+    .section-title h2 {
+      margin: 0;
+
+      font-size: 14px;
+
+      line-height: 1;
+
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.25px;
+    }
+
+    /* ================================
+       TABLA
+       ================================ */
+
+    table {
+      width: 100%;
+
+      border-collapse: collapse;
+
+      table-layout: fixed;
+
+      margin: 0;
+
+      color: #253731;
+    }
+
+    col.variable {
+      width: 16%;
+    }
+
+    col.rubro {
+      width: 20%;
+    }
+
+    col.concepto {
+      width: 35%;
+    }
+
+    col.maximo {
+      width: 8%;
+    }
+
+    col.obtenido {
+      width: 9%;
+    }
+
+    col.nota {
+      width: 12%;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tfoot {
+      display: table-row-group;
     }
 
     th {
-      background: #eef3f0;
+      padding: 7px 5px;
+
+      border:
+        1px solid #d4ddd9;
+
+      background: #075244;
+
+      color: #ffffff;
+
+      font-size: 8px;
+
+      line-height: 1.15;
+
+      font-weight: 800;
+
+      text-align: center;
+
+      text-transform: uppercase;
+
+      vertical-align: middle;
     }
 
+    td {
+      padding: 6px 6px;
+
+      border:
+        1px solid #d4ddd9;
+
+      background: #ffffff;
+
+      color: #273a34;
+
+      vertical-align: top;
+
+      white-space: normal;
+
+      overflow: visible;
+
+      overflow-wrap: anywhere;
+
+      word-break: normal;
+
+      hyphens: auto;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fafcfb;
+    }
+
+    .number-cell {
+      text-align: center;
+
+      font-weight: 600;
+
+      white-space: nowrap;
+    }
+
+    .obtained-cell {
+      color: #064c3f;
+
+      font-weight: 700;
+    }
+
+    .note-cell {
+      font-size: 8.7px;
+
+      line-height: 1.35;
+    }
+
+    /*
+      Evita que una fila se corte
+      entre dos páginas.
+    */
+    tbody tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    tbody td {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* ================================
+       TOTAL AL FINAL DE LA TABLA
+       ================================ */
+
+    .total-row td {
+      padding-top: 8px;
+      padding-bottom: 8px;
+
+      border-top:
+        2px solid #075244;
+
+      background: #f1f6f4;
+
+      color: #064c3f;
+
+      font-weight: 800;
+    }
+
+    .total-label {
+      text-align: right;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.2px;
+    }
+
+    .total-value {
+      text-align: center;
+
+      font-size: 11px;
+
+      white-space: nowrap;
+    }
+
+    /* ================================
+       ACLARACIÓN DE CALIFICACIÓN
+       ================================ */
+
+    .calculation-note {
+      margin-top: 10px;
+
+      padding: 10px 12px;
+
+      border-left:
+        4px solid #b48a3a;
+
+      background: #f8f7f3;
+
+      color: #394a44;
+
+      font-size: 8.8px;
+
+      line-height: 1.45;
+
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .calculation-note strong {
+      color: #064c3f;
+    }
+
+    .calculation-formula {
+      display: inline-block;
+
+      margin-left: 4px;
+
+      color: #064c3f;
+
+      font-weight: 800;
+    }
+
+    /* ================================
+       PIE REPETIDO EN TODAS LAS HOJAS
+       ================================ */
+
+    .print-footer {
+      position: fixed;
+
+      left: 0;
+      right: 0;
+      bottom: -15mm;
+
+      height: 11mm;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 8mm;
+
+      border-top:
+        2px solid #b48a3a;
+
+      background: #075244;
+
+      color: #ffffff;
+
+      font-size: 7.5px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.25px;
+    }
+
+    .footer-separator {
+      margin: 0 7px;
+
+      color: #c9aa6a;
+    }
+
+    /* ================================
+       BOTÓN
+       ================================ */
+
+    .print-button {
+      display: block;
+
+      margin:
+        20px
+        auto
+        0;
+
+      padding: 10px 18px;
+
+      border: none;
+
+      border-radius: 6px;
+
+      background: #075244;
+
+      color: #ffffff;
+
+      font: inherit;
+
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    /* ================================
+       IMPRESIÓN
+       ================================ */
+
     @media print {
-      button {
-        display: none;
+      .print-button {
+        display: none !important;
       }
 
       body {
-        padding: 0;
+        background: #ffffff;
+      }
+
+      .score-card {
+        box-shadow: none;
       }
     }
   `;
 
   const printHtml = `
     <!doctype html>
-    <html>
+
+    <html lang="es">
       <head>
         <meta charset="utf-8">
 
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        >
+
         <title>
-          Ponderación ${exerciseEscapeHtml(exercise.entity)}
+          Ponderación ${entityName}
         </title>
 
         <style>
@@ -1654,70 +2327,249 @@ function exercisePrintPreview(exercise) {
       </head>
 
       <body>
-        <h1>
-          Resumen de Ponderación de Cuenta Pública
-        </h1>
+        <div class="report">
 
-        <div class="meta">
-          <b>Ente:</b>
-          ${exerciseEscapeHtml(exercise.entity)}
-          ·
-          <b>Ejercicio:</b>
-          ${exercise.year}
-          <br>
+          <section class="hero">
 
-          <b>Base aplicable:</b>
-          ${exerciseFormat(calculation.base)}
-          ·
-          <b>Puntaje obtenido:</b>
-          ${exerciseFormat(calculation.raw)}
-          <br>
+            <div class="logo-wrap">
+              <img
+                class="logo"
+                src="${logoUrl}"
+                alt="UEC ASE"
+              >
+            </div>
 
-          <span class="score">
-            ${calculation.score.toFixed(2)} / 100
-          </span>
-          <br>
+            <div class="title-area">
 
-          <b>
-            ${exerciseEscapeHtml(calculation.result)}
-          </b>
+              <h1 class="main-title">
+                <span>
+                  Resumen de
+                </span>
+
+                <span>
+                  Ponderación
+                </span>
+
+                <span class="gold">
+                  de Cuenta Pública
+                </span>
+              </h1>
+
+              <div class="entity-data">
+
+                <div class="data-item">
+                  <span class="data-label">
+                    Ente fiscalizado
+                  </span>
+
+                  <span class="data-value">
+                    ${entityName}
+                  </span>
+                </div>
+
+                <div class="data-item">
+                  <span class="data-label">
+                    Ejercicio fiscal
+                  </span>
+
+                  <span class="data-value">
+                    ${exerciseYear}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="score-card">
+
+              <div class="score-card-title">
+                Calificación global
+              </div>
+
+              <div class="global-score">
+                ${scoreText}
+                <small>
+                  / 100
+                </small>
+              </div>
+
+              <div
+                class="result ${resultClass}"
+              >
+                ${exerciseEscapeHtml(
+                  calculation.result
+                )}
+              </div>
+
+              <div class="score-meta">
+
+                <div class="score-meta-item">
+                  <span class="score-meta-label">
+                    Base aplicable
+                  </span>
+
+                  <span class="score-meta-value">
+                    ${baseText}
+                  </span>
+                </div>
+
+                <div class="score-meta-item">
+                  <span class="score-meta-label">
+                    Puntaje obtenido
+                  </span>
+
+                  <span class="score-meta-value">
+                    ${obtainedText}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+          </section>
+
+          <div class="section-title">
+
+            <div class="section-icon">
+              ≡
+            </div>
+
+            <h2>
+              Detalle metodológico
+            </h2>
+
+          </div>
+
+          <table>
+
+            <colgroup>
+              <col class="variable">
+              <col class="rubro">
+              <col class="concepto">
+              <col class="maximo">
+              <col class="obtenido">
+              <col class="nota">
+            </colgroup>
+
+            <thead>
+              <tr>
+                <th>
+                  Variable
+                </th>
+
+                <th>
+                  Rubro
+                </th>
+
+                <th>
+                  Concepto
+                </th>
+
+                <th>
+                  Máximo
+                </th>
+
+                <th>
+                  Obtenido
+                </th>
+
+                <th>
+                  Nota
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${rows.join('')}
+            </tbody>
+
+            <tfoot>
+              <tr class="total-row">
+
+                <td
+                  colspan="4"
+                  class="total-label"
+                >
+                  Total puntaje obtenido
+                </td>
+
+                <td class="total-value">
+                  ${totalObtainedText}
+                </td>
+
+                <td>
+                </td>
+
+              </tr>
+            </tfoot>
+
+          </table>
+
+          <div class="calculation-note">
+
+            <strong>
+              Nota sobre la calificación global:
+            </strong>
+
+            El puntaje obtenido corresponde a
+            la suma de los puntos alcanzados
+            únicamente en los rubros aplicables.
+
+            La calificación global puede ser
+            diferente al puntaje obtenido porque
+            se normaliza proporcionalmente sobre
+            una escala de 100, tomando como
+            referencia la base aplicable del
+            ejercicio.
+
+            <span class="calculation-formula">
+              ${formulaText}
+            </span>.
+
+          </div>
+
+          <button
+            class="print-button"
+            onclick="window.print()"
+          >
+            Imprimir / Guardar como PDF
+          </button>
+
         </div>
 
-        <h2>
-          Detalle metodológico
-        </h2>
+        <footer class="print-footer">
 
-        <table>
-          <thead>
-            <tr>
-              <th>Variable</th>
-              <th>Rubro</th>
-              <th>Concepto</th>
-              <th>Máximo</th>
-              <th>Obtenido</th>
-              <th>Nota</th>
-            </tr>
-          </thead>
+          <div>
+            Ente:
+            ${entityName}
+          </div>
 
-          <tbody>
-            ${rows.join('')}
-          </tbody>
-        </table>
+          <div>
+            Ejercicio fiscal:
+            ${exerciseYear}
+          </div>
 
-        <button onclick="window.print()">
-          Imprimir / Guardar como PDF
-        </button>
+        </footer>
 
         <script>
-          setTimeout(
-            () => window.print(),
-            350
+          window.addEventListener(
+            'load',
+            () => {
+              setTimeout(
+                () => window.print(),
+                500
+              );
+            }
           );
         <\/script>
+
       </body>
     </html>
   `;
 
-  win.document.write(printHtml);
+  win.document.write(
+    printHtml
+  );
+
   win.document.close();
 }
