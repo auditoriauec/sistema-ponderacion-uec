@@ -1664,6 +1664,32 @@ function exercisePrintPreview(exercise) {
       `
       : 'No disponible';
 
+   const calculationNote =
+  Number(calculation.base) === 100
+    ? `
+      El puntaje obtenido corresponde a la suma
+      de los puntos alcanzados en los rubros
+      aplicables. La base aplicable del ejercicio
+      es de 100 puntos, por lo que el puntaje
+      obtenido corresponde directamente a la
+      calificación global.
+    `
+    : `
+      El puntaje obtenido corresponde a la suma
+      de los puntos alcanzados únicamente en los
+      rubros aplicables.
+
+      La calificación global es diferente al
+      puntaje obtenido porque se normaliza
+      proporcionalmente sobre una escala de 100,
+      tomando como referencia la base aplicable
+      del ejercicio.
+
+      <span class="calculation-formula">
+        ${formulaText}
+      </span>.
+    `;
+
   const printStyles = `
     * {
       box-sizing: border-box;
@@ -2645,25 +2671,13 @@ function exercisePrintPreview(exercise) {
 
           <div class="calculation-note">
 
-            <strong>
-              Nota sobre la calificación global:
-            </strong>
+  <strong>
+    Nota sobre la calificación global:
+  </strong>
 
-            El puntaje obtenido corresponde a la suma
-            de los puntos alcanzados únicamente en los
-            rubros aplicables.
+  ${calculationNote}
 
-            La calificación global puede ser diferente
-            al puntaje obtenido porque se normaliza
-            proporcionalmente sobre una escala de 100,
-            tomando como referencia la base aplicable
-            del ejercicio.
-
-            <span class="calculation-formula">
-              ${formulaText}
-            </span>.
-
-          </div>
+</div>
 
           <button
             class="print-button"
