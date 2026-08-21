@@ -58,11 +58,53 @@ export async function onRequestGet(context) {
 /* POST: guarda un bloque de información en D1. */
 export async function onRequestPost(context) {
   try {
+     const body =
+  await context.request.json();
+
+if (body?.action === 'login') {
+  const password =
+    String(
+      body.password || ''
+    );
+
+  const expectedPassword =
+    String(
+      context.env.APP_PASSWORD || ''
+    );
+
+  if (!expectedPassword) {
+    return json(
+      {
+        ok:false,
+        error:
+          'La contraseña institucional no está configurada.'
+      },
+      500
+    );
+  }
+
+  if (
+    password !==
+    expectedPassword
+  ) {
+    return json(
+      {
+        ok:false,
+        error:
+          'Contraseña incorrecta.'
+      },
+      401
+    );
+  }
+
+  return json({
+    ok:true
+  });
+}
     const db = context.env.DB;
     if (!db) return json({ ok: false, error: "Binding D1 DB no disponible." }, 500);
 
     await ensureSchema(db);
-    const body = await context.request.json();
     const key = body?.key;
     const value = body?.value;
 
