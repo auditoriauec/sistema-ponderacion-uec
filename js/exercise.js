@@ -2166,19 +2166,130 @@ function exercisePrintPreview(exercise) {
     ).toFixed(2);
 
   const formulaText =
-    calculation.base > 0
-      ? `
-        ${obtainedText}
-        ÷
-        ${baseText}
-        ×
-        100
-        =
-        ${scoreText}
-      `
-      : 'No disponible';
+  calculation.base > 0
+    ? `
+      ${obtainedText}
+      ÷
+      ${baseText}
+      ×
+      100
+      =
+      ${scoreText}
+    `
+    : 'No disponible';
 
-   const calculationNote =
+/* ========================================
+   VARIABLES NO APLICABLES
+   ======================================== */
+
+const notApplicableItems = [];
+
+(methodology.components || [])
+  .forEach(component => {
+    (component.groups || [])
+      .forEach(group => {
+        methodologyItems(group)
+          .forEach(item => {
+            const itemCalc = itemCalculation(
+              exercise,
+              item,
+              group
+            );
+
+            if (!itemCalc.applicable) {
+              notApplicableItems.push({
+                name: item.label,
+                points: Number(item.points) || 0
+              });
+            }
+          });
+      });
+  });
+
+const originalBase = methodologyTotal(
+  methodology
+);
+
+const excludedPoints =
+  notApplicableItems.reduce(
+    (sum, item) => {
+      return sum + item.points;
+    },
+    0
+  );
+
+const notApplicablePdfHtml =
+  notApplicableItems.length
+    ? `
+      <div class="not-applicable-pdf">
+
+        <div class="not-applicable-heading">
+          Variables no aplicables
+        </div>
+
+        <ul>
+          ${notApplicableItems
+            .map(item => `
+              <li>
+                <span>
+                  ${exerciseEscapeHtml(
+                    item.name
+                  )}
+                </span>
+
+                <strong>
+                  ${exerciseFormat(
+                    item.points
+                  )} pts
+                </strong>
+              </li>
+            `)
+            .join('')}
+        </ul>
+
+        <div class="base-explanation">
+
+          <div>
+            <span>
+              Base metodológica original
+            </span>
+
+            <strong>
+              ${exerciseFormat(
+                originalBase
+              )} pts
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Puntos no aplicables
+            </span>
+
+            <strong>
+              − ${exerciseFormat(
+                excludedPoints
+              )} pts
+            </strong>
+          </div>
+
+          <div class="base-result">
+            <span>
+              Base aplicable resultante
+            </span>
+
+            <strong>
+              ${baseText} pts
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+    `
+    : '';
+
+const calculationNote =
   Number(calculation.base) === 100
     ? `
       El puntaje obtenido corresponde a la suma
@@ -2193,8 +2304,15 @@ function exercisePrintPreview(exercise) {
       de los puntos alcanzados únicamente en los
       rubros aplicables.
 
-      La calificación global es diferente al
-      puntaje obtenido porque se normaliza
+      La base aplicable es menor a 100 debido a
+      que existen variables que no corresponden
+      al ejercicio evaluado. Los puntos máximos
+      de dichas variables se excluyen de la base
+      metodológica original.
+
+      ${notApplicablePdfHtml}
+
+      La calificación global se normaliza
       proporcionalmente sobre una escala de 100,
       tomando como referencia la base aplicable
       del ejercicio.
@@ -2203,7 +2321,6 @@ function exercisePrintPreview(exercise) {
         ${formulaText}
       </span>.
     `;
-
   const printStyles = `
     * {
       box-sizing: border-box;
@@ -2822,19 +2939,168 @@ function exercisePrintPreview(exercise) {
     }
 
     .calculation-formula {
-      display: inline-block;
+  display: inline-block;
 
-      margin-left: 4px;
+  margin-left: 4px;
 
-      color: #064c3f;
+  color: #064c3f;
 
-      font-weight: 800;
-    }
+  font-weight: 800;
+}
 
-    /* ========================================
-       BOTÓN
-       ======================================== */
+/* ========================================
+   VARIABLES NO APLICABLES
+   ======================================== */
 
+.not-applicable-pdf {
+  margin-top: 10px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid #d8ddd9;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.not-applicable-heading {
+  margin-bottom: 7px;
+
+  color: #064c3f;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.not-applicable-pdf ul {
+  margin:
+    0
+    0
+    9px;
+
+  padding-left: 18px;
+}
+
+.not-applicable-pdf li {
+  margin-bottom: 4px;
+
+  padding-left: 2px;
+}
+
+.not-applicable-pdf li strong {
+  margin-left: 5px;
+
+  color: #064c3f;
+}
+
+.base-explanation {
+  margin-top: 9px;
+
+  padding-top: 8px;
+
+  border-top:
+    1px solid #d8ddd9;
+}
+
+.base-explanation > div {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 3px 0;
+}
+
+.base-explanation strong {
+  white-space: nowrap;
+
+  color: #064c3f;
+}
+
+.base-result {
+  margin-top: 4px;
+
+  padding-top: 6px !important;
+
+  border-top:
+    1px solid #d8ddd9;
+
+  font-weight: 800;
+}
+
+/* ========================================
+   FUNDAMENTO LEGAL
+   ======================================== */
+
+.legal-section {
+  margin-top: 18px;
+
+  padding:
+    12px
+    14px;
+
+  border-top:
+    3px solid #075244;
+
+  background: #f7f9f8;
+
+  color: #344640;
+
+  font-size: 9px;
+
+  line-height: 1.55;
+
+  text-align: justify;
+
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.legal-title {
+  margin:
+    0
+    0
+    8px;
+
+  color: #064c3f;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.legal-section p {
+  margin:
+    0
+    0
+    8px;
+}
+
+.legal-section p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-intro {
+  color: #17352f;
+
+  font-weight: 700;
+}
+
+/* ========================================
+   BOTÓN
+   ======================================== */
     .print-button {
       display: block;
 
@@ -3193,13 +3459,57 @@ function exercisePrintPreview(exercise) {
 
 </div>
 
-          <button
-            class="print-button"
-            onclick="window.print()"
-          >
-            Imprimir / Guardar como PDF
-          </button>
+<section class="legal-section">
 
+  <h2 class="legal-title">
+    Fundamento legal
+  </h2>
+
+  <p class="legal-intro">
+    Con fundamento en el Art. 46 de la Ley
+    de Fiscalización y Rendición de Cuentas
+    del Estado de Baja California Sur
+  </p>
+
+  <p>
+    La Comisión estudiará el Informe General
+    y el contenido de la Cuenta Pública.
+    Asimismo, presentará los informes y
+    someterá a votación del Pleno los
+    dictámenes correspondientes a más tardar
+    el 31 de octubre del año siguiente al de
+    la presentación de la Cuenta Pública.
+  </p>
+
+  <p>
+    Los dictámenes e informes deberán contar
+    con el análisis pormenorizado de su
+    contenido y estar sustentados en
+    conclusiones técnicas del Informe General
+    y recuperando las discusiones técnicas
+    realizadas en la Comisión, para ello
+    acompañará a sus dictámenes e informes,
+    en un apartado de antecedentes, el análisis
+    realizado por la Comisión.
+  </p>
+
+  <p>
+    La aprobación de los dictámenes y desahogo
+    de los informes ante el Pleno no suspende
+    el trámite de las acciones promovidas por
+    la Auditoría Superior del Estado de Baja
+    California Sur, mismas que seguirán el
+    procedimiento previsto en esta Ley.
+  </p>
+
+</section>
+
+<button
+  class="print-button"
+  onclick="window.print()"
+>
+  Imprimir / Guardar como PDF
+</button>
         </div>
 
         <script>
