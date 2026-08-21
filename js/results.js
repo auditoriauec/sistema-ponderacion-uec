@@ -61,19 +61,29 @@ function resultsTableHtml(items) {
         "
       >
 
-      <button
-        class="btn"
-        id="exportCsv"
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+        "
       >
-        ⇩ Exportar CSV
-      </button>
 
-      <button
-        class="btn"
-        id="exportResultsPdf"
-      >
-        PDF
-      </button>
+        <button
+          class="btn"
+          id="exportCsv"
+        >
+          ⇩ Exportar CSV
+        </button>
+
+        <button
+          class="btn"
+          id="exportResultsPdf"
+        >
+          PDF
+        </button>
+
+      </div>
 
     </div>
 
