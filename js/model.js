@@ -219,6 +219,28 @@ function ratioValues(
   };
 }
 
+function modelIsSevacItem(item){
+  const key = String(
+    item?.key || ''
+  ).toLowerCase();
+
+  const label = String(
+    item?.label ||
+    item?.name ||
+    item?.title ||
+    ''
+  ).toLowerCase();
+
+  return (
+    item?.type === 'sevac' ||
+    key.includes('sevac') ||
+    label.includes('sevac') ||
+    label.includes(
+      'sistema de contabilidad completo'
+    )
+  );
+}
+
 function itemCalculation(
   x,
   item,
@@ -269,7 +291,7 @@ function itemCalculation(
     };
   }
 
-  if (item.type === 'sevac') {
+  if (modelIsSevacItem(item)) {
     const percentage =
       Math.max(
         0,
