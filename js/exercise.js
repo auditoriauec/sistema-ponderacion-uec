@@ -32,6 +32,171 @@ function exerciseMoney(value) {
   );
 }
 
+
+/* =========================================================
+   FORMATO DE MONTOS DE SOLVENTACIÓN
+   ========================================================= */
+
+function exerciseAmountInput(value) {
+  const number = Math.max(
+    0,
+    Number(value) || 0
+  );
+
+  return number.toLocaleString(
+    'en-US',
+    {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }
+  );
+}
+
+function exerciseCaptureAmount(element) {
+  let raw = String(
+    element.value || ''
+  );
+
+  raw = raw.replace(/,/g, '');
+  raw = raw.replace(/[^\d.]/g, '');
+
+  const firstPoint = raw.indexOf('.');
+
+  if (firstPoint !== -1) {
+    raw =
+      raw.slice(0, firstPoint + 1) +
+      raw
+        .slice(firstPoint + 1)
+        .replace(/\./g, '');
+  }
+
+  const hasDecimalPoint = raw.includes('.');
+  const parts = raw.split('.');
+  let integerPart = parts[0] || '';
+  const decimalPart = (
+    parts[1] || ''
+  ).slice(0, 2);
+
+  if (
+    integerPart === '' &&
+    !hasDecimalPoint
+  ) {
+    element.value = '';
+    return 0;
+  }
+
+  if (integerPart === '') {
+    integerPart = '0';
+  }
+
+  integerPart = integerPart.replace(
+    /^0+(?=\d)/,
+    ''
+  );
+
+  const formattedInteger = Number(
+    integerPart || 0
+  ).toLocaleString(
+    'en-US',
+    {
+      maximumFractionDigits: 0
+    }
+  );
+
+  element.value = hasDecimalPoint
+    ? `${formattedInteger}.${decimalPart}`
+    : formattedInteger;
+
+  const numericValue = Number(
+    `${integerPart}${
+      hasDecimalPoint
+        ? `.${decimalPart}`
+        : ''
+    }`
+  );
+
+  return Number.isFinite(numericValue)
+    ? numericValue
+    : 0;
+}
+
+/* =========================================================
+   DESGLOSE DE EGRESO
+   Cumplimiento + Presupuestales + Egresos + Obra Pública
+   ========================================================= */
+
+function ensureExpenseBreakdown(exercise) {
+  if (!exercise.solv) {
+    exercise.solv = {};
+  }
+
+  if (!exercise.solv.expenseBreakdown) {
+    exercise.solv.expenseBreakdown = {
+      complianceF: 0,
+      complianceS: 0,
+      budgetF: 0,
+      budgetS: 0,
+      expenseF: Math.max(
+        0,
+        Number(exercise.solv.outF) || 0
+      ),
+      expenseS: Math.max(
+        0,
+        Number(exercise.solv.outS) || 0
+      ),
+      publicWorksF: 0,
+      publicWorksS: 0
+    };
+  }
+
+  return exercise.solv.expenseBreakdown;
+}
+
+function syncExpenseTotals(exercise) {
+  const breakdown = ensureExpenseBreakdown(
+    exercise
+  );
+
+  const fincadoKeys = [
+    'complianceF',
+    'budgetF',
+    'expenseF',
+    'publicWorksF'
+  ];
+
+  const solventadoKeys = [
+    'complianceS',
+    'budgetS',
+    'expenseS',
+    'publicWorksS'
+  ];
+
+  exercise.solv.outF = fincadoKeys.reduce(
+    (sum, key) => {
+      return sum + Math.max(
+        0,
+        Number(breakdown[key]) || 0
+      );
+    },
+    0
+  );
+
+  exercise.solv.outS = solventadoKeys.reduce(
+    (sum, key) => {
+      return sum + Math.max(
+        0,
+        Number(breakdown[key]) || 0
+      );
+    },
+    0
+  );
+
+  return {
+    outF: exercise.solv.outF,
+    outS: exercise.solv.outS
+  };
+}
+
 function exerciseItemId(key, suffix) {
   const safeKey = String(key)
     .replace(/[^a-z0-9]/gi, '_');
@@ -56,6 +221,14 @@ function ensureExerciseCurrent() {
       getMethodologyConfig()
     );
   }
+
+  ensureExpenseBreakdown(
+    state.current
+  );
+
+  syncExpenseTotals(
+    state.current
+  );
 
   return state.current;
 }
@@ -767,6 +940,27 @@ function ratioItem(
     item
   );
 
+  if (
+    item.ratioKind === 'expense' ||
+    String(item.denominator || '')
+      .endsWith('.outF')
+  ) {
+    syncExpenseTotals(exercise);
+
+    const calculation = itemCalculation(
+      exercise,
+      item,
+      group
+    );
+
+    return expenseRatioItem(
+      exercise,
+      item,
+      calculation,
+      entry
+    );
+  }
+
   const calculation = itemCalculation(
     exercise,
     item,
@@ -789,18 +983,15 @@ function ratioItem(
     item.ratioKind === 'count'
   ) {
     labels = [
-      'Importe fincado',
-      'Importe solventado'
+      'Observaciones fincadas',
+      'Observaciones solventadas'
     ];
 
     ids = [
       'countF',
       'countS'
     ];
-  } else if (
-    denominatorKey === 'inF' ||
-    item.ratioKind === 'income'
-  ) {
+  } else {
     labels = [
       'Importe fincado · Ingreso',
       'Importe solventado · Ingreso'
@@ -810,16 +1001,6 @@ function ratioItem(
       'inF',
       'inS'
     ];
-  } else {
-    labels = [
-      'Importe fincado · Egreso',
-      'Importe solventado · Egreso'
-    ];
-
-    ids = [
-      'outF',
-      'outS'
-    ];
   }
 
   if (denominatorKey && numeratorKey) {
@@ -828,9 +1009,6 @@ function ratioItem(
       numeratorKey
     ];
   }
-
-  const percentage =
-    (calculation.ratio || 0) * 100;
 
   const itemClass = !calculation.applicable
     ? 'item-not-applicable'
@@ -843,6 +1021,48 @@ function ratioItem(
   const checked = entry.applicable !== false
     ? 'checked'
     : '';
+
+  const isCount =
+    item.ratioKind === 'count' ||
+    denominatorKey === 'countF';
+
+  const inputType = isCount
+    ? 'number'
+    : 'text';
+
+  const inputMode = isCount
+    ? 'numeric'
+    : 'decimal';
+
+  const denominatorValue = isCount
+    ? Math.max(
+        0,
+        Number(pathValue(
+          exercise,
+          item.denominator
+        )) || 0
+      )
+    : exerciseAmountInput(
+        pathValue(
+          exercise,
+          item.denominator
+        )
+      );
+
+  const numeratorValue = isCount
+    ? Math.max(
+        0,
+        Number(pathValue(
+          exercise,
+          item.numerator
+        )) || 0
+      )
+    : exerciseAmountInput(
+        pathValue(
+          exercise,
+          item.numerator
+        )
+      );
 
   return `
     <div class="score-item ${itemClass}">
@@ -863,14 +1083,16 @@ function ratioItem(
           </label>
 
           <input
-            type="number"
+            type="${inputType}"
+            inputmode="${inputMode}"
             min="0"
             step="0.01"
+            autocomplete="off"
             id="${ids[0]}"
-            value="${pathValue(
-              exercise,
-              item.denominator
-            ) || 0}"
+            data-solvency-amount="${
+              isCount ? 'false' : 'true'
+            }"
+            value="${denominatorValue}"
             ${disabled}
           >
         </div>
@@ -881,16 +1103,205 @@ function ratioItem(
           </label>
 
           <input
-            type="number"
+            type="${inputType}"
+            inputmode="${inputMode}"
             min="0"
             step="0.01"
+            autocomplete="off"
             id="${ids[1]}"
-            value="${pathValue(
-              exercise,
-              item.numerator
-            ) || 0}"
+            data-solvency-amount="${
+              isCount ? 'false' : 'true'
+            }"
+            value="${numeratorValue}"
             ${disabled}
           >
+        </div>
+      </div>
+
+      <div
+        class="formula-box"
+        data-ratio-formula="${item.key}"
+      >
+        ${exerciseRatioFormulaHtml(
+          calculation,
+          item
+        )}
+      </div>
+
+      <div class="score-controls">
+        <label class="apply-control">
+          <input
+            type="checkbox"
+            data-ass-applicable="${item.key}"
+            ${checked}
+          >
+          Aplica
+        </label>
+      </div>
+
+      <textarea
+        class="note-input"
+        data-ass-note="${item.key}"
+        placeholder="Nota / justificación"
+      >${exerciseEscapeHtml(entry.note || '')}</textarea>
+    </div>
+  `;
+}
+
+function expenseRatioItem(
+  exercise,
+  item,
+  calculation,
+  entry
+) {
+  const breakdown = ensureExpenseBreakdown(
+    exercise
+  );
+
+  const itemClass = !calculation.applicable
+    ? 'item-not-applicable'
+    : '';
+
+  const disabled = !calculation.applicable
+    ? 'disabled'
+    : '';
+
+  const checked = entry.applicable !== false
+    ? 'checked'
+    : '';
+
+  const rows = [
+    {
+      label: 'Cumplimiento',
+      fincado: 'complianceF',
+      solventado: 'complianceS'
+    },
+    {
+      label: 'Presupuestales',
+      fincado: 'budgetF',
+      solventado: 'budgetS'
+    },
+    {
+      label: 'Egresos',
+      fincado: 'expenseF',
+      solventado: 'expenseS'
+    },
+    {
+      label: 'Obra Pública',
+      fincado: 'publicWorksF',
+      solventado: 'publicWorksS'
+    }
+  ];
+
+  const rowsHtml = rows
+    .map(row => {
+      return `
+        <div
+          style="
+            margin-top:14px;
+            padding-top:14px;
+            border-top:1px solid rgba(0,0,0,.08);
+          "
+        >
+          <div
+            style="
+              font-weight:700;
+              margin-bottom:10px;
+            "
+          >
+            ${exerciseEscapeHtml(row.label)}
+          </div>
+
+          <div class="ratio-grid">
+            <div class="field compact-field">
+              <label>
+                Importe fincado
+              </label>
+
+              <input
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                data-expense-field="${row.fincado}"
+                value="${exerciseAmountInput(
+                  breakdown[row.fincado]
+                )}"
+                ${disabled}
+              >
+            </div>
+
+            <div class="field compact-field">
+              <label>
+                Importe solventado
+              </label>
+
+              <input
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                data-expense-field="${row.solventado}"
+                value="${exerciseAmountInput(
+                  breakdown[row.solventado]
+                )}"
+                ${disabled}
+              >
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <div class="score-item ${itemClass}">
+      <div class="score-item-head">
+        <b>
+          ${exerciseEscapeHtml(item.label)}
+        </b>
+
+        <span class="max-pill">
+          Máx. ${exerciseFormat(item.points)}
+        </span>
+      </div>
+
+      <p class="exercise-help">
+        El Egreso total se integra automáticamente
+        con Cumplimiento, Presupuestales, Egresos
+        y Obra Pública. Los conceptos que no tenga
+        el ente pueden permanecer en cero.
+      </p>
+
+      ${rowsHtml}
+
+      <div
+        class="formula-box"
+        style="margin-top:16px"
+      >
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            gap:16px;
+            flex-wrap:wrap;
+          "
+        >
+          <span>
+            Egreso total fincado:
+            <b data-expense-total-f>
+              ${exerciseMoney(
+                exercise.solv.outF
+              )}
+            </b>
+          </span>
+
+          <span>
+            Egreso total solventado:
+            <b data-expense-total-s>
+              ${exerciseMoney(
+                exercise.solv.outS
+              )}
+            </b>
+          </span>
         </div>
       </div>
 
@@ -1224,6 +1635,30 @@ function refreshExerciseCalculations() {
         });
     });
 
+  const expenseTotals = syncExpenseTotals(
+    exercise
+  );
+
+  const expenseTotalF = document.querySelector(
+    '[data-expense-total-f]'
+  );
+
+  const expenseTotalS = document.querySelector(
+    '[data-expense-total-s]'
+  );
+
+  if (expenseTotalF) {
+    expenseTotalF.textContent = exerciseMoney(
+      expenseTotals.outF
+    );
+  }
+
+  if (expenseTotalS) {
+    expenseTotalS.textContent = exerciseMoney(
+      expenseTotals.outS
+    );
+  }
+
   refreshCurrentScore();
 }
 
@@ -1403,9 +1838,7 @@ function bindNew(entities) {
     ['countF', 'countF'],
     ['countS', 'countS'],
     ['inF', 'inF'],
-    ['inS', 'inS'],
-    ['outF', 'outF'],
-    ['outS', 'outS']
+    ['inS', 'inS']
   ];
 
   solvencyFields.forEach(([id, key]) => {
@@ -1416,11 +1849,36 @@ function bindNew(entities) {
     }
 
     element.oninput = () => {
+      const isAmount =
+        element.dataset.solvencyAmount === 'true';
+
+      const entered = isAmount
+        ? exerciseCaptureAmount(element)
+        : Number(element.value) || 0;
+
       exercise.solv[key] = Math.max(
         0,
-        Number(element.value) || 0
+        entered
       );
 
+      refreshExerciseCalculations();
+    };
+  });
+
+  $$('[data-expense-field]').forEach(element => {
+    element.oninput = () => {
+      const breakdown = ensureExpenseBreakdown(
+        exercise
+      );
+
+      breakdown[
+        element.dataset.expenseField
+      ] = Math.max(
+        0,
+        exerciseCaptureAmount(element)
+      );
+
+      syncExpenseTotals(exercise);
       refreshExerciseCalculations();
     };
   });
