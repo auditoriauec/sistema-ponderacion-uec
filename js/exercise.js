@@ -3466,7 +3466,7 @@ const calculationNote =
   </h2>
 
   <p class="legal-intro">
-    Con fundamento en el Art. 46 de la Ley
+    Con fundamento en el Art. 46 primer y segundo párrafo de la Ley
     de Fiscalización y Rendición de Cuentas
     del Estado de Baja California Sur
   </p>
@@ -3491,15 +3491,6 @@ const calculationNote =
     acompañará a sus dictámenes e informes,
     en un apartado de antecedentes, el análisis
     realizado por la Comisión.
-  </p>
-
-  <p>
-    La aprobación de los dictámenes y desahogo
-    de los informes ante el Pleno no suspende
-    el trámite de las acciones promovidas por
-    la Auditoría Superior del Estado de Baja
-    California Sur, mismas que seguirán el
-    procedimiento previsto en esta Ley.
   </p>
 
 </section>
