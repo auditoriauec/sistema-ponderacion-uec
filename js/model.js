@@ -204,11 +204,10 @@ function ratioValues(
         )
       : 0;
 
-  const points = roundPoints(
-    ratio *
-    (
-      Number(item.points) || 0
-    )
+  const points =
+  ratio *
+  (
+    Number(item.points) || 0
   );
 
   return {
@@ -302,12 +301,10 @@ function itemCalculation(
       );
 
     const points =
-      roundPoints(
-        max *
-        (
-          percentage / 100
-        )
-      );
+  max *
+  (
+    percentage / 100
+  );
 
     return {
       max,
