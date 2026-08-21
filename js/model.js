@@ -166,33 +166,155 @@ function assessmentEntry(x,item){
   return x.assessment[item.key];
 }
 
-function ratioValues(x,item){
-  const denominator=Math.max(0,Number(pathValue(x,item.denominator))||0);
-  const numerator=Math.max(0,Number(pathValue(x,item.numerator))||0);
-  const ratio=denominator>0?Math.min(1,numerator/denominator):0;
-  return {denominator,numerator,ratio,points:ratio*(Number(item.points)||0)};
+function roundPoints(value){
+  return Math.round(
+    (Number(value) + Number.EPSILON) * 100
+  ) / 100;
 }
 
-function itemCalculation(x,item,group){
-  const max=Number(item.points)||0;
-  const entry=assessmentEntry(x,item);
-  const groupApplies=!(group?.requiresWork&&!x.work);
-  const applicable=groupApplies&&entry.applicable!==false;
-  if(!applicable) return {max,applicable:false,points:0,base:0,entry};
+function ratioValues(
+  x,
+  item
+){
+  const denominator = Math.max(
+    0,
+    Number(
+      pathValue(
+        x,
+        item.denominator
+      )
+    ) || 0
+  );
 
-  if(item.type==='ratio'){
-    const ratio=ratioValues(x,item);
-    return {...ratio,max,applicable:true,base:max,entry};
+  const numerator = Math.max(
+    0,
+    Number(
+      pathValue(
+        x,
+        item.numerator
+      )
+    ) || 0
+  );
+
+  const ratio =
+    denominator > 0
+      ? Math.min(
+          1,
+          numerator / denominator
+        )
+      : 0;
+
+  const points = roundPoints(
+    ratio *
+    (
+      Number(item.points) || 0
+    )
+  );
+
+  return {
+    denominator,
+    numerator,
+    ratio,
+    points
+  };
+}
+
+function itemCalculation(
+  x,
+  item,
+  group
+){
+  const max =
+    Number(item.points) || 0;
+
+  const entry =
+    assessmentEntry(
+      x,
+      item
+    );
+
+  const groupApplies =
+    !(
+      group?.requiresWork &&
+      !x.work
+    );
+
+  const applicable =
+    groupApplies &&
+    entry.applicable !== false;
+
+  if (!applicable) {
+    return {
+      max,
+      applicable:false,
+      points:0,
+      base:0,
+      entry
+    };
   }
 
-  if(item.type==='sevac'){
-    const percentage=Math.max(0,Math.min(100,Number(entry.value)||0));
-    const points=max*(percentage/100);
-    return {max,applicable:true,base:max,points,percentage,entry};
+  if (item.type === 'ratio') {
+    const ratio =
+      ratioValues(
+        x,
+        item
+      );
+
+    return {
+      ...ratio,
+      max,
+      applicable:true,
+      base:max,
+      entry
+    };
   }
 
-  const points=Math.max(0,Math.min(max,Number(entry.points)||0));
-  return {max,applicable:true,base:max,points,entry};
+  if (item.type === 'sevac') {
+    const percentage =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Number(entry.value) || 0
+        )
+      );
+
+    const points =
+      roundPoints(
+        max *
+        (
+          percentage / 100
+        )
+      );
+
+    return {
+      max,
+      applicable:true,
+      base:max,
+      points,
+      percentage,
+      entry
+    };
+  }
+
+  const points =
+    roundPoints(
+      Math.max(
+        0,
+        Math.min(
+          max,
+          Number(entry.points) || 0
+        )
+      )
+    );
+
+  return {
+    max,
+    applicable:true,
+    base:max,
+    points,
+    entry
+  };
 }
 
 function componentCalculation(x,component){
