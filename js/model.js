@@ -132,7 +132,24 @@ function blankExercise(){
     major1:true,
     major2:true,
     assessment:{},
-    solv:{countF:0,countS:0,inF:0,inS:0,outF:0,outS:0},
+    solv:{
+      countF:0,
+      countS:0,
+      inF:0,
+      inS:0,
+      outF:0,
+      outS:0,
+      expenseBreakdown:{
+        complianceF:0,
+        complianceS:0,
+        budgetF:0,
+        budgetS:0,
+        expenseF:0,
+        expenseS:0,
+        publicWorksF:0,
+        publicWorksS:0
+      }
+    },
     methodologySnapshot:clone(getMethodologyConfig()),
     status:'Borrador'
   };
