@@ -1487,6 +1487,7 @@ function bindMethodologyCatalog(){
   );
 
 }
+  };
 }
 
 function moveArrayItem(array,from,to){
