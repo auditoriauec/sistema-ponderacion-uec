@@ -1388,17 +1388,105 @@ function bindMethodologyCatalog(){
     const button=$('#methodSave');
     button.disabled=true;
     button.textContent='Guardando…';
-    try{
-      await store.set('methodology',config);
-      catalogMethodDraft=clone(config);
-      alert('Modelo de ponderación actualizado. Los cambios ya se reflejan en Metodología y Nuevo ejercicio.');
-      methodologyCatalog();
-    }catch(error){
-      button.disabled=false;
-      button.textContent='Guardar modelo de ponderación';
-      alert('No se pudo guardar el modelo en D1: '+error.message);
-    }
-  };
+    try {
+
+  // Guardar el nuevo modelo
+  await store.set(
+    'methodology',
+    config
+  );
+
+
+  // Obtener ejercicios guardados
+  const exercises = clone(
+    store.get(
+      'exercises',
+      []
+    )
+  );
+
+
+  // Actualizar el modelo de cada ejercicio
+  const updatedExercises =
+    exercises.map(exercise => {
+
+      const updated = {
+        ...clone(exercise),
+
+        methodologySnapshot:
+          clone(config)
+      };
+
+
+      // Recalcular el ejercicio
+      const calculation =
+        calc(updated);
+
+
+      return {
+        ...updated,
+        ...calculation,
+
+        updatedAt:
+          new Date().toISOString()
+      };
+
+    });
+
+
+  // Guardar ejercicios actualizados
+  await store.set(
+    'exercises',
+    updatedExercises
+  );
+
+
+  // Actualizar ejercicio abierto
+  if (state.current) {
+
+    state.current.methodologySnapshot =
+      clone(config);
+
+    const currentCalculation =
+      calc(state.current);
+
+    Object.assign(
+      state.current,
+      currentCalculation
+    );
+
+  }
+
+
+  // Actualizar catálogo
+  catalogMethodDraft =
+    clone(config);
+
+
+  alert(
+    'Modelo de ponderación actualizado. ' +
+    'Los ejercicios guardados también ' +
+    'fueron recalculados.'
+  );
+
+
+  methodologyCatalog();
+
+
+} catch (error) {
+
+  button.disabled = false;
+
+  button.textContent =
+    'Guardar modelo de ponderación';
+
+
+  alert(
+    'No se pudo guardar el modelo en D1: ' +
+    error.message
+  );
+
+}
 }
 
 function moveArrayItem(array,from,to){
