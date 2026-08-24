@@ -116,7 +116,9 @@ function pathValue(object,path){
 }
 
 function exerciseMethodology(x){
-  return x?.methodologySnapshot?.components?.length?x.methodologySnapshot:getMethodologyConfig();
+
+  return getMethodologyConfig();
+
 }
 
 function makeAssessmentEntry(){
