@@ -3214,8 +3214,8 @@ const calculationNote =
         >
 
         <title>
-          Ponderación ${entityName}
-        </title>
+  Ponderación ${entityName} - Ejercicio Fiscal ${state.year}
+</title>
 
         <style>
           ${printStyles}
