@@ -369,7 +369,7 @@ const notApprovedPercent =
     : '0.0';
 
   const rows = ordered
-    .map(item => {
+    .map((item, index) => {
       const calculation =
         calc(item);
 
