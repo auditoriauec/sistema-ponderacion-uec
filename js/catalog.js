@@ -1379,115 +1379,150 @@ function bindMethodologyCatalog(){
     methodologyCatalog();
   };
 
-  $('#methodSave').onclick=async()=>{
-    const total=methodologyTotal(config);
-    if(Math.abs(total-100)>0.001){
-      const proceed=confirm(`El modelo suma ${formatMethodPoints(total)} puntos, no 100. ¿Deseas guardarlo de todos modos?`);
-      if(!proceed) return;
-    }
-    const button=$('#methodSave');
-    button.disabled=true;
-    button.textContent='Guardando…';
-    try {
+ $('#methodSave').onclick = async () => {
 
-  // Guardar el nuevo modelo
-  await store.set(
-    'methodology',
-    config
-  );
-
-
-  // Obtener ejercicios guardados
-  const exercises = clone(
-    store.get(
-      'exercises',
-      []
-    )
-  );
-
-
-  // Actualizar el modelo de cada ejercicio
-  const updatedExercises =
-    exercises.map(exercise => {
-
-      const updated = {
-        ...clone(exercise),
-
-        methodologySnapshot:
-          clone(config)
-      };
-
-
-      // Recalcular el ejercicio
-      const calculation =
-        calc(updated);
-
-
-      return {
-        ...updated,
-        ...calculation,
-
-        updatedAt:
-          new Date().toISOString()
-      };
-
-    });
-
-
-  // Guardar ejercicios actualizados
-  await store.set(
-    'exercises',
-    updatedExercises
-  );
-
-
-  // Actualizar ejercicio abierto
-  if (state.current) {
-
-    state.current.methodologySnapshot =
-      clone(config);
-
-    const currentCalculation =
-      calc(state.current);
-
-    Object.assign(
-      state.current,
-      currentCalculation
+  const total =
+    methodologyTotal(
+      config
     );
+
+
+  /*
+   * Avisar si el modelo no suma 100.
+   */
+  if (
+    Math.abs(
+      total - 100
+    ) > 0.001
+  ) {
+
+    const proceed =
+      confirm(
+        `El modelo suma ${
+          formatMethodPoints(total)
+        } puntos, no 100. ` +
+        '¿Deseas guardarlo de todos modos?'
+      );
+
+    if (!proceed) {
+      return;
+    }
 
   }
 
 
-  // Actualizar catálogo
-  catalogMethodDraft =
-    clone(config);
+  const button =
+    $('#methodSave');
 
-
-  alert(
-    'Modelo de ponderación actualizado. ' +
-    'Los ejercicios guardados también ' +
-    'fueron recalculados.'
-  );
-
-
-  methodologyCatalog();
-
-
-} catch (error) {
-
-  button.disabled = false;
+  button.disabled = true;
 
   button.textContent =
-    'Guardar modelo de ponderación';
+    'Guardando…';
 
 
-  alert(
-    'No se pudo guardar el modelo en D1: ' +
-    error.message
-  );
+  try {
 
-}
-  };
+    /*
+     * ==========================================
+     * MODELOS POR EJERCICIO FISCAL
+     * ==========================================
+     */
+
+    const methodologies =
+      clone(
+        store.get(
+          'methodologies',
+          {}
+        )
+      );
+
+
+    /*
+     * Guardar solamente el modelo
+     * correspondiente al año seleccionado.
+     */
+    methodologies[state.year] =
+      clone(
+        config
+      );
+
+
+    await store.set(
+      'methodologies',
+      methodologies
+    );
+
+
+    /*
+     * ==========================================
+     * COMPATIBILIDAD CON EL MODELO ACTUAL
+     * ==========================================
+     *
+     * Durante esta migración conservamos también
+     * la clave methodology para el ejercicio 2024.
+     *
+     * Así evitamos afectar cualquier parte antigua
+     * del sistema que todavía pudiera utilizarla.
+     */
+    if (
+      state.year === 2024
+    ) {
+
+      await store.set(
+        'methodology',
+        config
+      );
+
+    }
+
+
+    /*
+     * IMPORTANTE:
+     *
+     * Ya NO modificamos methodologySnapshot
+     * de los ejercicios guardados.
+     *
+     * Ya NO recalculamos ejercicios históricos.
+     */
+
+
+    /*
+     * Mantener actualizado el editor
+     * que actualmente está abierto.
+     */
+    catalogMethodDraft =
+      clone(
+        config
+      );
+
+
+    alert(
+      'Modelo de ponderación del ejercicio fiscal ' +
+      state.year +
+      ' guardado correctamente.'
+    );
+
+
+    methodologyCatalog();
+
+
+  } catch (error) {
+
+    button.disabled = false;
+
+    button.textContent =
+      'Guardar modelo de ponderación';
+
+
+    alert(
+      'No se pudo guardar el modelo en D1: ' +
+      error.message
+    );
+
+  }
+
+};
+
 }
 
 function moveArrayItem(array,from,to){
