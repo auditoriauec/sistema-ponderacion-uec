@@ -67,12 +67,31 @@ function catalog(){
   let c = `
     ${catalogTabsHtml()}
     <div class="toolbar catalog-toolbar">
-      <div class="catalog-toolbar-actions">
-        <button class="btn primary" id="uploadBtn">＋ Cargar Programa Anual de Auditorías</button>
-        <button class="btn" id="manualEntityBtn">＋ Agregar ente manualmente</button>
-      </div>
-    </div>
+  <div class="catalog-toolbar-actions">
 
+    <button
+      class="btn primary"
+      id="uploadBtn"
+    >
+      ＋ Cargar Programa Anual de Auditorías
+    </button>
+
+    <button
+      class="btn"
+      id="manualEntityBtn"
+    >
+      ＋ Agregar ente manualmente
+    </button>
+
+    <button
+      class="btn"
+      id="importEntitiesBtn"
+    >
+      Importar entes de otro ejercicio
+    </button>
+
+  </div>
+</div>
     <div class="catalog-kpis">
       <div class="card smallk">
 <b>${arr.length}</b>Entes en catálogo</div>
@@ -134,9 +153,17 @@ function catalog(){
   );
 
   bindNav();
-  bindCatalogTabs();
-  $('#uploadBtn').onclick = uploadModal;
-  $('#manualEntityBtn').onclick = () => entityEditorModal();
+  bindNav();
+bindCatalogTabs();
+
+$('#uploadBtn').onclick =
+  uploadModal;
+
+$('#manualEntityBtn').onclick =
+  () => entityEditorModal();
+
+$('#importEntitiesBtn').onclick =
+  importEntitiesFromYearModal;
 
   $$('.edit-catalog-entity').forEach(btn=>{
     btn.onclick = () => entityEditorModal(+btn.dataset.index);
@@ -145,6 +172,422 @@ function catalog(){
   $$('.delete-catalog-entity').forEach(btn=>{
     btn.onclick = () => deleteCatalogEntity(+btn.dataset.index);
   });
+}
+
+/* =========================================================
+   IMPORTAR ENTES DESDE OTRO EJERCICIO
+   ========================================================= */
+
+function importEntitiesFromYearModal(){
+
+  const catalogs =
+    clone(
+      store.get(
+        'catalogs',
+        {}
+      )
+    );
+
+  const availableYears =
+    Object.keys(catalogs)
+
+      .map(year =>
+        Number(year)
+      )
+
+      .filter(year =>
+        year !== state.year &&
+        Array.isArray(catalogs[year]) &&
+        catalogs[year].length > 0
+      )
+
+      .sort(
+        (a,b) =>
+          b - a
+      );
+
+
+  if(!availableYears.length){
+
+    alert(
+      'No existen catálogos de otros ejercicios disponibles para importar.'
+    );
+
+    return;
+
+  }
+
+
+  const modal =
+    document.createElement(
+      'div'
+    );
+
+  modal.className =
+    'modal';
+
+
+  modal.innerHTML = `
+    <div class="modalbox catalog-editor-modal">
+
+      <div class="modal-head">
+
+        <div>
+
+          <div class="section-title">
+            Importar entes de otro ejercicio
+          </div>
+
+          <p class="subtitle">
+            Copia entes de un catálogo existente
+            al ejercicio fiscal ${state.year}.
+          </p>
+
+        </div>
+
+        <button
+          class="modal-close"
+          id="importEntitiesClose"
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="fields">
+
+        <div class="field">
+
+          <label>
+            Copiar entes desde
+          </label>
+
+          <select id="importEntitiesYear">
+
+            ${availableYears
+              .map(year => `
+                <option value="${year}">
+                  Ejercicio Fiscal ${year}
+                </option>
+              `)
+              .join('')
+            }
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="importEntitiesInfo"
+        class="catalog-message info"
+      >
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          class="btn"
+          id="importEntitiesCancel"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="btn primary"
+          id="importEntitiesConfirm"
+        >
+          Importar entes
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+
+  document.body.appendChild(
+    modal
+  );
+
+
+  const closeModal = () =>
+    modal.remove();
+
+
+  const sourceYearSelect =
+    $('#importEntitiesYear');
+
+
+  const info =
+    $('#importEntitiesInfo');
+
+
+  const confirmBtn =
+    $('#importEntitiesConfirm');
+
+
+  $('#importEntitiesClose').onclick =
+    closeModal;
+
+
+  $('#importEntitiesCancel').onclick =
+    closeModal;
+
+
+
+  /* ==========================================
+     MOSTRAR CUÁNTOS ENTES SE IMPORTARÁN
+     ========================================== */
+
+  function updateImportInfo(){
+
+    const sourceYear =
+      Number(
+        sourceYearSelect.value
+      );
+
+
+    const sourceEntities =
+      (
+        catalogs[sourceYear] || []
+      )
+      .map(
+        normalizeCatalogRecord
+      );
+
+
+    const targetEntities =
+      (
+        catalogs[state.year] || []
+      )
+      .map(
+        normalizeCatalogRecord
+      );
+
+
+    const existingKeys =
+      new Set(
+
+        targetEntities.map(
+          entity =>
+            normalizeEntityKey(
+              entity.name
+            )
+        )
+
+      );
+
+
+    const newEntities =
+      sourceEntities.filter(
+        entity =>
+
+          !existingKeys.has(
+            normalizeEntityKey(
+              entity.name
+            )
+          )
+
+      );
+
+
+    const duplicated =
+      sourceEntities.length -
+      newEntities.length;
+
+
+    info.innerHTML = `
+
+      El ejercicio fiscal
+      <b>${sourceYear}</b>
+      contiene
+      <b>${sourceEntities.length}</b>
+      entes.
+
+      <br><br>
+
+      Se agregarán
+      <b>${newEntities.length}</b>
+      al ejercicio fiscal
+      <b>${state.year}</b>.
+
+      ${
+        duplicated
+          ? `<br><br>
+             ${duplicated}
+             ente(s) ya existen en
+             ${state.year}
+             y no se duplicarán.`
+          : ''
+      }
+
+    `;
+
+
+    confirmBtn.disabled =
+      newEntities.length === 0;
+
+  }
+
+
+  sourceYearSelect.onchange =
+    updateImportInfo;
+
+
+  updateImportInfo();
+
+
+
+  /* ==========================================
+     CONFIRMAR IMPORTACIÓN
+     ========================================== */
+
+  confirmBtn.onclick =
+    async () => {
+
+      const sourceYear =
+        Number(
+          sourceYearSelect.value
+        );
+
+
+      const sourceEntities =
+        (
+          catalogs[sourceYear] || []
+        )
+        .map(
+          normalizeCatalogRecord
+        );
+
+
+      const targetEntities =
+        (
+          catalogs[state.year] || []
+        )
+        .map(
+          normalizeCatalogRecord
+        );
+
+
+      const existingKeys =
+        new Set(
+
+          targetEntities.map(
+            entity =>
+              normalizeEntityKey(
+                entity.name
+              )
+          )
+
+        );
+
+
+      const entitiesToImport =
+        sourceEntities
+
+          .filter(
+            entity =>
+
+              !existingKeys.has(
+                normalizeEntityKey(
+                  entity.name
+                )
+              )
+
+          )
+
+          .map(
+            entity => ({
+
+              ...entity,
+
+              /*
+               * Se genera un ID nuevo para que
+               * el catálogo importado sea
+               * completamente independiente.
+               */
+
+              id:
+                makeEntityId()
+
+            })
+          );
+
+
+      if(
+        !entitiesToImport.length
+      ){
+
+        alert(
+          'Todos los entes de ese ejercicio ya existen en el catálogo actual.'
+        );
+
+        return;
+
+      }
+
+
+      catalogs[state.year] = [
+
+        ...targetEntities,
+
+        ...entitiesToImport
+
+      ];
+
+
+      confirmBtn.disabled =
+        true;
+
+
+      confirmBtn.textContent =
+        'Importando…';
+
+
+      try{
+
+        await store.set(
+          'catalogs',
+          catalogs
+        );
+
+
+        closeModal();
+
+
+        catalog();
+
+
+        alert(
+          `${entitiesToImport.length} ente(s) importado(s) correctamente desde el ejercicio fiscal ${sourceYear}.`
+        );
+
+
+      }catch(error){
+
+        confirmBtn.disabled =
+          false;
+
+
+        confirmBtn.textContent =
+          'Importar entes';
+
+
+        alert(
+          'No se pudieron importar los entes: ' +
+          error.message
+        );
+
+      }
+
+    };
+
 }
 
 async function deleteCatalogEntity(index){
