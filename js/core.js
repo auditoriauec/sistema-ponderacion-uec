@@ -52,7 +52,7 @@ const savedYear =
   );
 
 let state = {
-  page: 'project',
+  page: 'summary',
 
   year:
     years().includes(savedYear)
@@ -66,8 +66,8 @@ let state = {
 let methodologyComponent = 'risk';
 
 const menu = [
-  ['project', '', 'Metodología'],
   ['summary', '', 'Resumen'],
+  ['project', '', 'Metodología'],
   ['results', '', 'Resultados'],
   ['new', '＋', 'Nuevo ejercicio'],
   ['catalog', '', 'Catálogo']
@@ -247,9 +247,9 @@ function bindNav() {
     logoutButton.onclick = () => {
       sessionStorage.removeItem('in');
 
-      state.page = 'project';
-      state.step = 1;
-      state.current = null;
+      state.page = 'summary';
+state.step = 1;
+state.current = null;
 
       render();
     };
