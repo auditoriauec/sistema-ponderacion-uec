@@ -18,9 +18,39 @@ function project() {
   );
 
   const content = `
-    <div class="methodology-page">
+  <div class="methodology-page">
 
-      ${methodologyIntroHtml()}
+    <div class="methodology-year-selector">
+
+      <label for="methodologyYear">
+        Ejercicio Fiscal
+      </label>
+
+      <select id="methodologyYear">
+
+        ${years()
+          .map(
+            year => `
+              <option
+                value="${year}"
+                ${
+                  Number(state.year) === Number(year)
+                    ? 'selected'
+                    : ''
+                }
+              >
+                ${year}
+              </option>
+            `
+          )
+          .join('')
+        }
+
+      </select>
+
+    </div>
+
+    ${methodologyIntroHtml()}
 
       <div class="methodology-rules-grid">
         ${methodologyMajorsHtml(methodology)}
@@ -648,22 +678,73 @@ function methodologyRiskCriterion(
    ========================================================= */
 
 function bindMethodology() {
-  const buttons = $$ (
+
+  /*
+   * ==========================================
+   * SELECTOR DE EJERCICIO FISCAL
+   * ==========================================
+   */
+
+  const yearSelect =
+    $('#methodologyYear');
+
+  if (yearSelect) {
+
+    yearSelect.onchange =
+      event => {
+
+        state.year =
+          Number(
+            event.target.value
+          );
+
+        /*
+         * Recordar el año seleccionado
+         * para mantenerlo en toda la app.
+         */
+        try {
+
+          sessionStorage.setItem(
+            'selectedFiscalYear',
+            state.year
+          );
+
+        } catch (error) {
+          // Sin acción.
+        }
+
+        render();
+
+      };
+
+  }
+
+
+  /*
+   * ==========================================
+   * COMPONENTES DE LA METODOLOGÍA
+   * ==========================================
+   */
+
+  const buttons = $$(
     '.methodology-component'
   );
 
   buttons.forEach(
-    (
-      button
-    ) => {
+    button => {
+
       button.onclick = () => {
+
         methodologyComponent =
           button.dataset.methodology;
 
         project();
+
       };
+
     }
   );
+
 }
 
 
