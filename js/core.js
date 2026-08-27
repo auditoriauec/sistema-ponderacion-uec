@@ -44,7 +44,25 @@ const store={
    Aquí puedes cambiar el módulo inicial, años disponibles
    y nombres que aparecen en el menú lateral.
    ========================================================= */
-let state = { page: 'project', year: 2024, step: 1, current: null };
+const savedYear =
+  Number(
+    sessionStorage.getItem(
+      'selectedFiscalYear'
+    )
+  );
+
+let state = {
+  page: 'project',
+
+  year:
+    years().includes(savedYear)
+      ? savedYear
+      : 2024,
+
+  step: 1,
+
+  current: null
+};
 let methodologyComponent = 'risk';
 
 const menu = [
@@ -188,11 +206,40 @@ function bindNav() {
   const yearSelect = $('#yearSel');
 
   if (yearSelect) {
-    yearSelect.onchange = (event) => {
-      state.year = +event.target.value;
-      render();
-    };
-  }
+
+  yearSelect.onchange = (event) => {
+
+    state.year =
+      +event.target.value;
+     
+ /*
+     * Recordar el ejercicio fiscal
+     * durante la sesión.
+     */
+    sessionStorage.setItem(
+      'selectedFiscalYear',
+      state.year
+    );
+     
+    /*
+     * Si estamos en Catálogo,
+     * limpiar el modelo temporal.
+     *
+     * Esto obliga a cargar el modelo
+     * correspondiente al nuevo
+     * ejercicio fiscal.
+     */
+    if (
+      state.page === 'catalog'
+    ) {
+      catalogMethodDraft = null;
+    }
+
+    render();
+
+  };
+
+}
 
   const logoutButton = $('#logoutBtn');
 
