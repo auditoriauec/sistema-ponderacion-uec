@@ -8,7 +8,13 @@
    ========================================================= */
 
 /* Datos que la app tiene permitido guardar en D1. */
-const ALLOWED_KEYS = new Set(["catalogs", "programs", "exercises", "methodology"]);
+const ALLOWED_KEYS = new Set([
+  "catalogs",
+  "programs",
+  "exercises",
+  "methodology",
+  "methodologies"
+]);
 
 /* Crea la tabla automáticamente si todavía no existe. */
 async function ensureSchema(db) {
