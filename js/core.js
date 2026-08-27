@@ -6,7 +6,13 @@ const $ = (selector) => document.querySelector(selector);
 
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-const dbCache = { catalogs: {}, programs: [], exercises: [], methodology: null };
+const dbCache = {
+  catalogs: {},
+  programs: [],
+  exercises: [],
+  methodology: null,
+  methodologies: {}
+};
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
