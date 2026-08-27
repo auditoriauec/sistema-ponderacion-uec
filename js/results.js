@@ -347,6 +347,27 @@ function resultsPdfPreview(items) {
       );
     }).length;
 
+   const totalAccounts =
+  ordered.length;
+
+const approvedPercent =
+  totalAccounts
+    ? (
+        approved /
+        totalAccounts *
+        100
+      ).toFixed(1)
+    : '0.0';
+
+const notApprovedPercent =
+  totalAccounts
+    ? (
+        notApproved /
+        totalAccounts *
+        100
+      ).toFixed(1)
+    : '0.0';
+
   const rows = ordered
     .map(item => {
       const calculation =
@@ -361,11 +382,9 @@ function resultsPdfPreview(items) {
       return `
         <tr>
 
-          <td>
-            ${exerciseEscapeHtml(
-              item.year
-            )}
-          </td>
+          <td class="number-cell">
+  ${index + 1}
+</td>
 
           <td class="entity-cell">
             ${exerciseEscapeHtml(
@@ -574,6 +593,18 @@ function resultsPdfPreview(items) {
 
       font-weight: 800;
     }
+    
+.summary-percent {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #64716d;
+
+  font-size: 9px;
+
+  font-weight: 700;
+}
 
     .summary-card.bad
       .summary-value {
@@ -800,27 +831,35 @@ function resultsPdfPreview(items) {
 
             <div class="summary-card">
 
-              <span class="summary-label">
-                Aprobadas
-              </span>
+  <span class="summary-label">
+    Aprobadas
+  </span>
 
-              <span class="summary-value">
-                ${approved}
-              </span>
+  <span class="summary-value">
+    ${approved}
+  </span>
 
-            </div>
+  <span class="summary-percent">
+    ${approvedPercent}% del total
+  </span>
+
+</div>
 
             <div class="summary-card bad">
 
-              <span class="summary-label">
-                No aprobadas
-              </span>
+  <span class="summary-label">
+    No aprobadas
+  </span>
 
-              <span class="summary-value">
-                ${notApproved}
-              </span>
+  <span class="summary-value">
+    ${notApproved}
+  </span>
 
-            </div>
+  <span class="summary-percent">
+    ${notApprovedPercent}% del total
+  </span>
+
+</div>
 
           </section>
 
@@ -835,7 +874,7 @@ function resultsPdfPreview(items) {
               <tr>
 
                 <th>
-                  Ejercicio Fiscal
+                  No.
                 </th>
 
                 <th>
