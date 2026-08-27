@@ -82,9 +82,67 @@ const DEFAULT_METHODOLOGY = {
   ]
 };
 
-function getMethodologyConfig(){
-  const saved=store.get('methodology',null);
-  return saved&&Array.isArray(saved.components)&&saved.components.length?saved:clone(DEFAULT_METHODOLOGY);
+function getMethodologyConfig(
+  year = state.year
+) {
+
+  /*
+   * Primero buscamos si existe un modelo
+   * específico para el ejercicio fiscal.
+   */
+  const methodologies =
+    store.get(
+      'methodologies',
+      {}
+    );
+
+  const yearMethodology =
+    methodologies?.[year] ||
+    methodologies?.[String(year)];
+
+  if (
+    yearMethodology &&
+    Array.isArray(
+      yearMethodology.components
+    ) &&
+    yearMethodology.components.length
+  ) {
+    return yearMethodology;
+  }
+
+
+  /*
+   * COMPATIBILIDAD:
+   * Si todavía no existe un modelo específico
+   * para ese año, utiliza el modelo global
+   * que ya tiene actualmente la aplicación.
+   *
+   * Esto evita romper 2024, 2025, 2026, etc.
+   */
+  const legacyMethodology =
+    store.get(
+      'methodology',
+      null
+    );
+
+  if (
+    legacyMethodology &&
+    Array.isArray(
+      legacyMethodology.components
+    ) &&
+    legacyMethodology.components.length
+  ) {
+    return legacyMethodology;
+  }
+
+
+  /*
+   * Último respaldo:
+   * modelo predeterminado incluido en el código.
+   */
+  return clone(
+    DEFAULT_METHODOLOGY
+  );
 }
 
 function methodologyItems(group){
