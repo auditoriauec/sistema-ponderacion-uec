@@ -90,3 +90,778 @@
   border-radius:9px;
 }
 
+/* =========================================================
+   RESUMEN DE CUENTAS PÚBLICAS
+   Dashboard ejecutivo
+   ========================================================= */
+
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.summary-filterbar {
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+  flex-wrap:wrap;
+
+  margin-bottom:18px;
+  padding:16px 18px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:10px;
+}
+
+
+.summary-filter {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+
+  min-width:190px;
+}
+
+
+.summary-filter-entity {
+  min-width:310px;
+  flex:1;
+}
+
+
+.summary-filter label {
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+}
+
+
+.summary-filter select {
+  width:100%;
+
+  min-height:42px;
+
+  padding:9px 36px 9px 11px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:7px;
+
+  background:#fff;
+
+  color:var(--text);
+
+  font:inherit;
+
+  cursor:pointer;
+}
+
+
+.summary-clear {
+  min-height:42px;
+}
+
+
+/* =========================================================
+   KPIs
+   ========================================================= */
+
+.summary-kpi-grid {
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap:14px;
+}
+
+
+.summary-kpi {
+  min-height:132px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  position:relative;
+}
+
+
+.summary-kpi-label {
+  color:var(--muted);
+
+  font-size:12px;
+  font-weight:800;
+
+  line-height:1.35;
+
+  min-height:33px;
+}
+
+
+.summary-kpi-value {
+  margin-top:8px;
+
+  font-size:28px;
+  line-height:1.1;
+
+  font-weight:900;
+
+  color:var(--text);
+
+  overflow-wrap:anywhere;
+}
+
+
+.summary-kpi-detail {
+  margin-top:9px;
+
+  min-height:22px;
+
+  color:var(--muted);
+
+  font-size:11px;
+  line-height:1.45;
+}
+
+
+.summary-kpi-ok {
+  border-top:
+    3px solid
+    var(--green);
+}
+
+
+.summary-kpi-bad {
+  border-top:
+    3px solid
+    var(--red);
+}
+
+
+/* =========================================================
+   AÑOS
+   ========================================================= */
+
+.summary-year-chip {
+  display:inline-flex;
+  align-items:center;
+
+  margin:
+    2px 4px 2px 0;
+
+  padding:
+    4px 7px;
+
+  border-radius:20px;
+
+  background:#edf5f1;
+
+  color:var(--green);
+
+  font-size:10px;
+  font-weight:800;
+}
+
+
+.summary-year-chip-large {
+  padding:8px 12px;
+  font-size:12px;
+}
+
+
+/* =========================================================
+   TÍTULO DE SECCIÓN
+   ========================================================= */
+
+.summary-section-heading {
+  display:flex;
+
+  align-items:flex-end;
+  justify-content:space-between;
+
+  gap:14px;
+
+  margin:
+    24px 0 12px;
+}
+
+
+.summary-section-heading h2 {
+  margin:0;
+
+  font-size:17px;
+}
+
+
+.summary-section-heading p {
+  margin:
+    5px 0 0;
+
+  color:var(--muted);
+
+  font-size:12px;
+}
+
+
+/* =========================================================
+   GRÁFICAS
+   ========================================================= */
+
+.summary-chart-grid {
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:14px;
+
+  margin-top:14px;
+}
+
+
+.summary-chart-empty {
+  min-height:180px;
+
+  display:grid;
+  place-items:center;
+
+  color:var(--muted);
+
+  font-size:13px;
+  text-align:center;
+}
+
+
+/* =========================================================
+   DONUT
+   ========================================================= */
+
+.summary-donut-wrap {
+  min-height:240px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:38px;
+
+  flex-wrap:wrap;
+}
+
+
+.summary-donut {
+  width:190px;
+  height:190px;
+
+  position:relative;
+}
+
+
+.summary-donut-svg {
+  width:100%;
+  height:100%;
+
+  transform:
+    rotate(-90deg);
+}
+
+
+.summary-donut-center {
+  position:absolute;
+
+  inset:0;
+
+  display:flex;
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+}
+
+
+.summary-donut-center strong {
+  font-size:29px;
+  line-height:1;
+}
+
+
+.summary-donut-center span {
+  margin-top:5px;
+
+  color:var(--muted);
+
+  font-size:11px;
+}
+
+
+.summary-chart-labels {
+  min-width:170px;
+
+  display:grid;
+  gap:18px;
+}
+
+
+.summary-chart-label {
+  display:flex;
+  align-items:flex-start;
+
+  gap:10px;
+}
+
+
+.summary-chart-label div {
+  display:flex;
+  flex-direction:column;
+
+  gap:3px;
+}
+
+
+.summary-chart-label b {
+  font-size:12px;
+}
+
+
+.summary-chart-label span {
+  font-size:12px;
+}
+
+
+.summary-dot {
+  width:10px;
+  height:10px;
+
+  flex:0 0 10px;
+
+  margin-top:3px;
+
+  border-radius:50%;
+}
+
+
+.summary-dot-ok {
+  background:var(--green);
+}
+
+
+.summary-dot-bad {
+  background:var(--red);
+}
+
+
+/* =========================================================
+   AVANCE
+   ========================================================= */
+
+.summary-progress {
+  min-height:240px;
+
+  display:flex;
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:
+    18px 28px;
+}
+
+
+.summary-progress-value {
+  font-size:36px;
+  line-height:1;
+
+  font-weight:900;
+}
+
+
+.summary-progress-detail {
+  margin-top:8px;
+
+  color:var(--muted);
+
+  font-size:13px;
+}
+
+
+.summary-progress-track {
+  width:100%;
+  height:11px;
+
+  margin-top:25px;
+
+  overflow:hidden;
+
+  border-radius:20px;
+
+  background:#e8ecea;
+}
+
+
+.summary-progress-fill {
+  height:100%;
+
+  border-radius:20px;
+
+  background:var(--green);
+
+  transition:
+    width .25s ease;
+}
+
+
+.summary-progress-label {
+  margin-top:11px;
+
+  color:var(--muted);
+
+  font-size:11px;
+}
+
+
+/* =========================================================
+   PANEL DE EJERCICIOS
+   ========================================================= */
+
+.summary-years-panel {
+  min-height:240px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  align-content:center;
+
+  gap:8px;
+
+  flex-wrap:wrap;
+}
+
+
+/* =========================================================
+   EVOLUCIÓN HISTÓRICA
+   ========================================================= */
+
+.summary-evolution-card {
+  margin-top:14px;
+}
+
+
+.summary-evolution-head {
+  display:flex;
+
+  align-items:flex-start;
+  justify-content:space-between;
+
+  gap:18px;
+}
+
+
+.summary-evolution-head p {
+  margin:
+    -5px 0 0;
+
+  color:var(--muted);
+
+  font-size:12px;
+}
+
+
+.summary-evolution-scroll {
+  width:100%;
+
+  overflow-x:auto;
+  overflow-y:hidden;
+
+  margin-top:12px;
+}
+
+
+.summary-evolution-svg {
+  display:block;
+
+  width:100%;
+  min-width:620px;
+
+  min-height:250px;
+}
+
+
+.summary-svg-grid {
+  stroke:#e7ece9;
+
+  stroke-width:1;
+}
+
+
+.summary-svg-axis {
+  fill:#84918b;
+
+  font-size:9px;
+}
+
+
+.summary-svg-line {
+  fill:none;
+
+  stroke:var(--green);
+
+  stroke-width:3;
+
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+
+.summary-svg-point {
+  fill:var(--green);
+
+  stroke:#fff;
+  stroke-width:2;
+}
+
+
+.summary-svg-label {
+  fill:var(--text);
+
+  font-size:10px;
+  font-weight:800;
+}
+
+
+.summary-svg-year {
+  fill:var(--muted);
+
+  font-size:10px;
+  font-weight:700;
+}
+
+
+/* =========================================================
+   TABLAS APROBADAS / NO APROBADAS
+   ========================================================= */
+
+.summary-account-grid {
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:14px;
+
+  margin-top:14px;
+}
+
+
+.summary-account-card {
+  min-width:0;
+}
+
+
+.summary-approved-card {
+  border-top:
+    3px solid
+    var(--green);
+}
+
+
+.summary-not-approved-card {
+  border-top:
+    3px solid
+    var(--red);
+}
+
+
+.summary-account-head {
+  display:flex;
+
+  align-items:flex-start;
+  justify-content:space-between;
+
+  gap:14px;
+
+  margin-bottom:12px;
+}
+
+
+.summary-account-head .section-title {
+  margin-bottom:3px;
+}
+
+
+.summary-account-head small {
+  color:var(--muted);
+
+  font-size:10px;
+}
+
+
+.summary-account-count {
+  min-width:38px;
+  height:38px;
+
+  padding:0 10px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:20px;
+
+  background:#f0f3f1;
+
+  font-size:15px;
+  font-weight:900;
+}
+
+
+.summary-account-scroll {
+  max-height:380px;
+
+  overflow:auto;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:8px;
+}
+
+
+.summary-account-table {
+  margin:0;
+
+  width:100%;
+}
+
+
+.summary-account-table thead {
+  position:sticky;
+
+  top:0;
+
+  z-index:2;
+
+  background:#f6f8f7;
+}
+
+
+.summary-account-table th,
+.summary-account-table td {
+  padding:
+    11px 12px;
+
+  font-size:11px;
+}
+
+
+.summary-account-row {
+  cursor:pointer;
+
+  transition:
+    background .15s ease;
+}
+
+
+.summary-account-row:hover {
+  background:#f2f7f4;
+}
+
+
+.summary-table-empty {
+  padding:28px !important;
+
+  color:var(--muted);
+
+  text-align:center;
+}
+
+
+/* =========================================================
+   RESPONSIVE DEL RESUMEN
+   ========================================================= */
+
+@media (
+  max-width:1100px
+) {
+
+  .summary-kpi-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (
+  max-width:850px
+) {
+
+  .summary-chart-grid,
+  .summary-account-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+
+
+@media (
+  max-width:650px
+) {
+
+  .summary-kpi-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .summary-filterbar {
+    align-items:stretch;
+  }
+
+
+  .summary-filter,
+  .summary-filter-entity {
+    width:100%;
+    min-width:0;
+  }
+
+
+  .summary-clear {
+    width:100%;
+  }
+
+
+  .summary-kpi {
+    min-height:112px;
+  }
+
+
+  .summary-donut-wrap {
+    gap:20px;
+  }
+
+}
