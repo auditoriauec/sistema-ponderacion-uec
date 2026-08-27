@@ -46,7 +46,13 @@ export async function onRequestGet(context) {
 
     await ensureSchema(db);
     const result = await db.prepare("SELECT key, value, updated_at FROM app_state").all();
-    const data = { catalogs: {}, programs: [], exercises: [], methodology: null };
+    const data = {
+  catalogs: {},
+  programs: [],
+  exercises: [],
+  methodology: null,
+  methodologies: {}
+};
     const updated = {};
 
     for (const row of result.results || []) {
