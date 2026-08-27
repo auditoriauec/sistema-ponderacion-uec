@@ -865,3 +865,50 @@
   }
 
 }
+
+/* =========================================================
+   SELECTOR DE EJERCICIO · METODOLOGÍA
+   ========================================================= */
+
+.methodology-year-selector {
+  display:flex;
+  flex-direction:column;
+
+  gap:7px;
+
+  width:190px;
+
+  margin-bottom:18px;
+}
+
+
+.methodology-year-selector label {
+  font-size:12px;
+
+  font-weight:800;
+
+  color:var(--muted);
+}
+
+
+.methodology-year-selector select {
+  min-height:42px;
+
+  padding:
+    9px 36px
+    9px 11px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:7px;
+
+  background:#fff;
+
+  color:var(--text);
+
+  font:inherit;
+
+  cursor:pointer;
+}
