@@ -220,19 +220,25 @@
 }
 
 /* =========================================================
-   CATÁLOGO · ENCABEZADO FIJO DE TABLA
+   CATÁLOGO DE ENTES · ENCABEZADO FIJO
    ========================================================= */
+
+.catalog-entities-scroll {
+  max-height: 65vh;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+}
+
+.catalog-main-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
 
 .catalog-main-table thead th {
   position: sticky;
   top: 0;
-  z-index: 20;
-
+  z-index: 50;
   background: #fafbfa;
-}
-
-.catalog-main-table thead {
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
