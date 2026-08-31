@@ -54,80 +54,201 @@ function yesNoBadge(value){
 }
 
 function catalog(){
-  if(catalogSection==='methodology'){
+  if(catalogSection === 'methodology'){
     methodologyCatalog();
     return;
   }
 
-  const catalogs = store.get('catalogs',{});
-  const arr = (catalogs[state.year] || []).map(normalizeCatalogRecord);
-  const exercises = store.get('exercises',[]).filter(x=>x.year===state.year);
-  const finalizedExercises = exercises.filter(x=>x.status==='Finalizado');
+  const catalogs = store.get('catalogs', {});
+
+  const arr = (catalogs[state.year] || [])
+    .map((record, originalIndex) => ({
+      ...normalizeCatalogRecord(record),
+      originalIndex
+    }));
+
+  const typeOrder = new Map(
+    CATALOG_TYPES.map(
+      (type, index) => [type, index]
+    )
+  );
+
+  arr.sort((a, b) => {
+
+    const orderA = typeOrder.has(a.type)
+      ? typeOrder.get(a.type)
+      : 999;
+
+    const orderB = typeOrder.has(b.type)
+      ? typeOrder.get(b.type)
+      : 999;
+
+    if(orderA !== orderB){
+      return orderA - orderB;
+    }
+
+    return (a.name || '').localeCompare(
+      b.name || '',
+      'es',
+      {
+        sensitivity: 'base'
+      }
+    );
+  });
+
+  const exercises = store
+    .get('exercises', [])
+    .filter(
+      x => x.year === state.year
+    );
+
+  const finalizedExercises =
+    exercises.filter(
+      x => x.status === 'Finalizado'
+    );
 
   let c = `
     ${catalogTabsHtml()}
+
     <div class="toolbar catalog-toolbar">
-  <div class="catalog-toolbar-actions">
 
-    <button
-      class="btn primary"
-      id="uploadBtn"
-    >
-      ＋ Cargar Programa Anual de Auditorías
-    </button>
+      <div class="catalog-toolbar-actions">
 
-    <button
-      class="btn"
-      id="manualEntityBtn"
-    >
-      ＋ Agregar ente manualmente
-    </button>
+        <button
+          class="btn primary"
+          id="uploadBtn"
+        >
+          ＋ Cargar Programa Anual de Auditorías
+        </button>
 
-    <button
-      class="btn"
-      id="importEntitiesBtn"
-    >
-      Importar entes de otro ejercicio
-    </button>
+        <button
+          class="btn"
+          id="manualEntityBtn"
+        >
+          ＋ Agregar ente manualmente
+        </button>
 
-  </div>
-</div>
+        <button
+          class="btn"
+          id="importEntitiesBtn"
+        >
+          Importar entes de otro ejercicio
+        </button>
+
+      </div>
+
+    </div>
+
     <div class="catalog-kpis">
+
       <div class="card smallk">
-<b>${arr.length}</b>Entes en catálogo</div>
+        <b>${arr.length}</b>
+        Entes en catálogo
+      </div>
+
       <div class="card smallk">
-<b>${finalizedExercises.length}</b>Ejercicios realizados</div>
+        <b>${finalizedExercises.length}</b>
+        Ejercicios realizados
+      </div>
+
       <div class="card smallk">
-<b>${Math.max(0,arr.length-finalizedExercises.length)}</b>Pendientes de evaluar</div>
+        <b>
+          ${Math.max(
+            0,
+            arr.length - finalizedExercises.length
+          )}
+        </b>
+        Pendientes de evaluar
+      </div>
+
       <div class="card smallk">
-<b>${store.get('programs',[]).filter(p=>p.year===state.year).length}</b>Programas cargados</div>
-    </div>`;
+        <b>
+          ${
+            store
+              .get('programs', [])
+              .filter(
+                p => p.year === state.year
+              )
+              .length
+          }
+        </b>
+        Programas cargados
+      </div>
+
+    </div>
+  `;
 
   if(arr.length){
-    const rows = arr.map((entity,index)=>{
-      const done = exercises.some(x=>x.entity===entity.name&&x.status==='Finalizado')
-        ? '<span class="status-ok">● Realizado</span>'
-        : 'Pendiente';
 
-      return `
-        <tr>
-          <td class="catalog-entity-cell">${escapeHtml(entity.name)}</td>
-          <td>${escapeHtml(entity.type || '—')}</td>
-          <td>${yesNoBadge(entity.compliance)}</td>
-          <td>${yesNoBadge(entity.work)}</td>
-          <td>${yesNoBadge(entity.performance)}</td>
-          <td>${done}</td>
-          <td class="catalog-row-actions">
-            <button class="btn mini-btn edit-catalog-entity" data-index="${index}">Editar</button>
-            <button class="btn mini-btn danger-btn delete-catalog-entity" data-index="${index}">Eliminar</button>
-          </td>
-        </tr>`;
-    }).join('');
+    const rows = arr
+      .map(entity => {
+
+        const done =
+          exercises.some(
+            x =>
+              x.entity === entity.name &&
+              x.status === 'Finalizado'
+          )
+            ? '<span class="status-ok">● Realizado</span>'
+            : 'Pendiente';
+
+        return `
+          <tr>
+
+            <td class="catalog-entity-cell">
+              ${escapeHtml(entity.name)}
+            </td>
+
+            <td>
+              ${escapeHtml(entity.type || '—')}
+            </td>
+
+            <td>
+              ${yesNoBadge(entity.compliance)}
+            </td>
+
+            <td>
+              ${yesNoBadge(entity.work)}
+            </td>
+
+            <td>
+              ${yesNoBadge(entity.performance)}
+            </td>
+
+            <td>
+              ${done}
+            </td>
+
+            <td class="catalog-row-actions">
+
+              <button
+                class="btn mini-btn edit-catalog-entity"
+                data-index="${entity.originalIndex}"
+              >
+                Editar
+              </button>
+
+              <button
+                class="btn mini-btn danger-btn delete-catalog-entity"
+                data-index="${entity.originalIndex}"
+              >
+                Eliminar
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      })
+      .join('');
 
     c += `
-     <div class="tablewrap catalog-entities-scroll">
-  <table class="table catalog-main-table">
+      <div class="tablewrap catalog-entities-scroll">
+
+        <table class="table catalog-main-table">
+
           <thead>
+
             <tr>
               <th>Ente fiscalizado</th>
               <th>Tipo de ente</th>
@@ -137,13 +258,29 @@ function catalog(){
               <th>Ejercicio de ponderación</th>
               <th>Acciones</th>
             </tr>
+
           </thead>
-          <tbody>${rows}</tbody>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
         </table>
-      </div>`;
+
+      </div>
+    `;
+
   }else{
-    c += `<div class="empty">No hay entes cargados para ${state.year}.<br>
-<br>Carga el PDF del Programa Anual de Auditorías o agrega un ente manualmente.</div>`;
+
+    c += `
+      <div class="empty">
+        No hay entes cargados para ${state.year}.
+        <br>
+        <br>
+        Carga el PDF del Programa Anual de Auditorías
+        o agrega un ente manualmente.
+      </div>
+    `;
   }
 
   $('#app').innerHTML = layout(
@@ -153,24 +290,33 @@ function catalog(){
   );
 
   bindNav();
-  bindNav();
-bindCatalogTabs();
+  bindCatalogTabs();
 
-$('#uploadBtn').onclick =
-  uploadModal;
+  $('#uploadBtn').onclick =
+    uploadModal;
 
-$('#manualEntityBtn').onclick =
-  () => entityEditorModal();
+  $('#manualEntityBtn').onclick =
+    () => entityEditorModal();
 
-$('#importEntitiesBtn').onclick =
-  importEntitiesFromYearModal;
+  $('#importEntitiesBtn').onclick =
+    importEntitiesFromYearModal;
 
-  $$('.edit-catalog-entity').forEach(btn=>{
-    btn.onclick = () => entityEditorModal(+btn.dataset.index);
+  $$('.edit-catalog-entity').forEach(btn => {
+
+    btn.onclick = () =>
+      entityEditorModal(
+        +btn.dataset.index
+      );
+
   });
 
-  $$('.delete-catalog-entity').forEach(btn=>{
-    btn.onclick = () => deleteCatalogEntity(+btn.dataset.index);
+  $$('.delete-catalog-entity').forEach(btn => {
+
+    btn.onclick = () =>
+      deleteCatalogEntity(
+        +btn.dataset.index
+      );
+
   });
 }
 
