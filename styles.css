@@ -10,21 +10,3 @@
 @import url("css/modals.css");
 @import url("css/responsive.css");
 @import url("css/catalog-pdf.css");
-
-/* =========================================================
-   ENCABEZADO FIJO - TABLA CATÁLOGO DE ENTES
-   ========================================================= */
-
-/* Catálogo: permitir encabezado fijo */
-
-.tablewrap:has(.catalog-main-table) {
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-.catalog-main-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: #fafbfa;
-}
