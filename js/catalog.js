@@ -125,8 +125,8 @@ function catalog(){
     }).join('');
 
     c += `
-      <div class="tablewrap">
-        <table class="table catalog-main-table">
+     <div class="tablewrap catalog-entities-scroll">
+  <table class="table catalog-main-table">
           <thead>
             <tr>
               <th>Ente fiscalizado</th>
