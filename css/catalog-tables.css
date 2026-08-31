@@ -248,7 +248,7 @@
    ========================================================= */
 
 .results-table-scroll {
-  max-height: 65vh;
+  height: calc(100vh - 185px);
   overflow-x: auto;
   overflow-y: auto;
   position: relative;
