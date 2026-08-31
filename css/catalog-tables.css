@@ -242,3 +242,27 @@
   background: #fafbfa;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
+
+/* =========================================================
+   RESULTADOS · TABLA CON ENCABEZADO FIJO
+   ========================================================= */
+
+.results-table-scroll {
+  max-height: 65vh;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+}
+
+.results-main-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.results-main-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fafbfa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
