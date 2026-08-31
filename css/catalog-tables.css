@@ -218,3 +218,21 @@
   .method-group-note-field{margin-left:0;}
   .method-points-field{flex:auto;width:100%;}
 }
+
+/* =========================================================
+   CATÁLOGO · ENCABEZADO FIJO DE TABLA
+   ========================================================= */
+
+.catalog-main-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  background: #fafbfa;
+}
+
+.catalog-main-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
