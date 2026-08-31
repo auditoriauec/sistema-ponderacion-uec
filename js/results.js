@@ -87,9 +87,9 @@ function resultsTableHtml(items) {
 
     </div>
 
-    <div class="tablewrap">
+    <div class="tablewrap results-table-scroll">
 
-      <table class="table">
+  <table class="table results-main-table">
 
         <thead>
           <tr>
