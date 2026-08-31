@@ -15,9 +15,16 @@
    ENCABEZADO FIJO - TABLA CATÁLOGO DE ENTES
    ========================================================= */
 
+/* Catálogo: permitir encabezado fijo */
+
+.tablewrap:has(.catalog-main-table) {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
 .catalog-main-table thead th {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: #ffffff;
+  z-index: 20;
+  background: #fafbfa;
 }
