@@ -132,11 +132,6 @@ function catalog(){
       x => x.status === 'Finalizado'
     );
 
-  const finalizedExercises =
-    exercises.filter(
-      x => x.status === 'Finalizado'
-    );
-
 
   /* =======================================================
      APLICAR FILTROS COMBINADOS
