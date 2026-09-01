@@ -1343,30 +1343,16 @@ function summaryAccountRows(
 
 
   return [...exercises]
-    .sort(
-      (a, b) => {
+  .sort(
+    (a, b) => {
 
-        if (
-          Number(a.year) !==
-          Number(b.year)
-        ) {
-          return (
-            Number(a.year) -
-            Number(b.year)
-          );
-        }
+      return (
+        summaryScore(b) -
+        summaryScore(a)
+      );
 
-        return String(
-          a.entity || ''
-        ).localeCompare(
-          String(
-            b.entity || ''
-          ),
-          'es'
-        );
-
-      }
-    )
+    }
+  )
     .map(
       item => {
 
