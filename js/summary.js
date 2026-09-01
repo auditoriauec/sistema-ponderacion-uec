@@ -1882,13 +1882,62 @@ function summary() {
   `;
 
 
-  $('#app').innerHTML =
+    $('#app').innerHTML =
     layout(
       content,
       'Resumen de Cuentas Públicas',
       'Panorama ejecutivo de las cuentas públicas evaluadas.',
       false
     );
+
+
+  /*
+   * Encabezado fijo exclusivo del módulo Resumen.
+   * Agrupa el título y los filtros en una sola pieza
+   * para evitar traslapes al hacer scroll.
+   */
+  const summaryMain =
+    document.querySelector('.main');
+
+  const summaryTopbar =
+    summaryMain?.querySelector(
+      ':scope > .topbar'
+    );
+
+  const summaryFilterbar =
+    summaryMain?.querySelector(
+      ':scope > .summary-filterbar'
+    );
+
+
+  if (
+    summaryMain &&
+    summaryTopbar &&
+    summaryFilterbar
+  ) {
+
+    const stickyHeader =
+      document.createElement('div');
+
+    stickyHeader.className =
+      'summary-sticky-header';
+
+
+    summaryMain.insertBefore(
+      stickyHeader,
+      summaryTopbar
+    );
+
+
+    stickyHeader.appendChild(
+      summaryTopbar
+    );
+
+    stickyHeader.appendChild(
+      summaryFilterbar
+    );
+
+  }
 
 
   bindNav();
