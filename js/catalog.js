@@ -6,7 +6,29 @@
    - Permite revisar, editar y eliminar entes guardados.
    ========================================================= */
 let catalogSection = 'entities';
+
 let catalogMethodDraft = null;
+
+
+/* =========================================================
+   FILTROS · CATÁLOGO DE ENTES
+   ========================================================= */
+
+let catalogFilters = {
+
+  entity: '',
+
+  type: '',
+
+  compliance: '',
+
+  work: '',
+
+  performance: '',
+
+  exercise: ''
+
+};
 
 const CATALOG_TYPES = [
   'Poder Ejecutivo',
@@ -61,10 +83,13 @@ function catalog(){
 
   const catalogs = store.get('catalogs', {});
 
-  const arr = (catalogs[state.year] || [])
+    let arr = (catalogs[state.year] || [])
     .map((record, originalIndex) => ({
+
       ...normalizeCatalogRecord(record),
+
       originalIndex
+
     }));
 
   const typeOrder = new Map(
@@ -107,6 +132,90 @@ function catalog(){
       x => x.status === 'Finalizado'
     );
 
+  const finalizedExercises =
+    exercises.filter(
+      x => x.status === 'Finalizado'
+    );
+
+
+  /* =======================================================
+     APLICAR FILTROS COMBINADOS
+     ======================================================= */
+
+  arr = arr.filter(entity => {
+
+    const entityExercise =
+      exercises.some(
+        x =>
+          x.entity === entity.name &&
+          x.status === 'Finalizado'
+      )
+        ? 'realizado'
+        : 'pendiente';
+
+
+    if(
+      catalogFilters.entity &&
+      !normalizeEntityKey(entity.name)
+        .includes(
+          normalizeEntityKey(
+            catalogFilters.entity
+          )
+        )
+    ){
+      return false;
+    }
+
+
+    if(
+      catalogFilters.type &&
+      entity.type !== catalogFilters.type
+    ){
+      return false;
+    }
+
+
+    if(
+      catalogFilters.compliance !== '' &&
+      String(entity.compliance) !==
+        catalogFilters.compliance
+    ){
+      return false;
+    }
+
+
+    if(
+      catalogFilters.work !== '' &&
+      String(entity.work) !==
+        catalogFilters.work
+    ){
+      return false;
+    }
+
+
+    if(
+      catalogFilters.performance !== '' &&
+      String(entity.performance) !==
+        catalogFilters.performance
+    ){
+      return false;
+    }
+
+
+    if(
+      catalogFilters.exercise &&
+      entityExercise !==
+        catalogFilters.exercise
+    ){
+      return false;
+    }
+
+
+    return true;
+
+  });
+
+   
   let c = `
     ${catalogTabsHtml()}
 
@@ -243,33 +352,217 @@ function catalog(){
       .join('');
 
     c += `
-      <div class="tablewrap catalog-entities-scroll">
+            <div class="tablewrap catalog-entities-scroll">
 
         <table class="table catalog-main-table">
 
           <thead>
 
             <tr>
-              <th>Ente fiscalizado</th>
-              <th>Tipo de ente</th>
-              <th>Cumplimiento</th>
-              <th>Obra pública</th>
-              <th>Desempeño</th>
-              <th>Ejercicio de ponderación</th>
-              <th>Acciones</th>
+
+              <th>
+                Ente fiscalizado
+              </th>
+
+              <th>
+                Tipo de ente
+              </th>
+
+              <th>
+                Cumplimiento
+              </th>
+
+              <th>
+                Obra pública
+              </th>
+
+              <th>
+                Desempeño
+              </th>
+
+              <th>
+                Ejercicio de ponderación
+              </th>
+
+              <th>
+                Acciones
+              </th>
+
+            </tr>
+
+
+            <tr class="catalog-filter-row">
+
+              <th>
+
+                <input
+                  id="catalogFilterEntity"
+                  class="catalog-filter-input"
+                  type="text"
+                  placeholder="Buscar ente…"
+                  value="${escapeHtmlAttr(
+                    catalogFilters.entity
+                  )}"
+                >
+
+              </th>
+
+
+              <th>
+
+                <select
+                  id="catalogFilterType"
+                  class="catalog-filter-select"
+                >
+
+                  <option value="">
+                    Todos
+                  </option>
+
+                  ${CATALOG_TYPES
+                    .map(type => `
+                      <option
+                        value="${escapeHtmlAttr(type)}"
+                        ${
+                          catalogFilters.type === type
+                            ? 'selected'
+                            : ''
+                        }
+                      >
+                        ${escapeHtml(type)}
+                      </option>
+                    `)
+                    .join('')
+                  }
+
+                </select>
+
+              </th>
+
+
+              <th>
+
+                <select
+                  id="catalogFilterCompliance"
+                  class="catalog-filter-select"
+                >
+
+                  <option value="">
+                    Todos
+                  </option>
+
+                  <option value="true">
+                    Sí
+                  </option>
+
+                  <option value="false">
+                    No
+                  </option>
+
+                </select>
+
+              </th>
+
+
+              <th>
+
+                <select
+                  id="catalogFilterWork"
+                  class="catalog-filter-select"
+                >
+
+                  <option value="">
+                    Todos
+                  </option>
+
+                  <option value="true">
+                    Sí
+                  </option>
+
+                  <option value="false">
+                    No
+                  </option>
+
+                </select>
+
+              </th>
+
+
+              <th>
+
+                <select
+                  id="catalogFilterPerformance"
+                  class="catalog-filter-select"
+                >
+
+                  <option value="">
+                    Todos
+                  </option>
+
+                  <option value="true">
+                    Sí
+                  </option>
+
+                  <option value="false">
+                    No
+                  </option>
+
+                </select>
+
+              </th>
+
+
+              <th>
+
+                <select
+                  id="catalogFilterExercise"
+                  class="catalog-filter-select"
+                >
+
+                  <option value="">
+                    Todos
+                  </option>
+
+                  <option value="realizado">
+                    Realizado
+                  </option>
+
+                  <option value="pendiente">
+                    Pendiente
+                  </option>
+
+                </select>
+
+              </th>
+
+
+              <th>
+
+                <button
+                  class="btn mini-btn"
+                  id="catalogClearFilters"
+                  type="button"
+                >
+                  Limpiar
+                </button>
+
+              </th>
+
             </tr>
 
           </thead>
 
+
           <tbody>
+
             ${rows}
+
           </tbody>
 
         </table>
 
       </div>
     `;
-
   }else{
 
     c += `
@@ -318,6 +611,148 @@ function catalog(){
       );
 
   });
+
+     /* =======================================================
+     EVENTOS · FILTROS DEL CATÁLOGO
+     ======================================================= */
+
+  const entityFilter =
+    $('#catalogFilterEntity');
+
+
+  if(entityFilter){
+
+    entityFilter.oninput = () => {
+
+      catalogFilters.entity =
+        entityFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const typeFilter =
+    $('#catalogFilterType');
+
+
+  if(typeFilter){
+
+    typeFilter.onchange = () => {
+
+      catalogFilters.type =
+        typeFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const complianceFilter =
+    $('#catalogFilterCompliance');
+
+
+  if(complianceFilter){
+
+    complianceFilter.onchange = () => {
+
+      catalogFilters.compliance =
+        complianceFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const workFilter =
+    $('#catalogFilterWork');
+
+
+  if(workFilter){
+
+    workFilter.onchange = () => {
+
+      catalogFilters.work =
+        workFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const performanceFilter =
+    $('#catalogFilterPerformance');
+
+
+  if(performanceFilter){
+
+    performanceFilter.onchange = () => {
+
+      catalogFilters.performance =
+        performanceFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const exerciseFilter =
+    $('#catalogFilterExercise');
+
+
+  if(exerciseFilter){
+
+    exerciseFilter.onchange = () => {
+
+      catalogFilters.exercise =
+        exerciseFilter.value;
+
+      catalog();
+
+    };
+
+  }
+
+
+  const clearFiltersButton =
+    $('#catalogClearFilters');
+
+
+  if(clearFiltersButton){
+
+    clearFiltersButton.onclick = () => {
+
+      catalogFilters = {
+
+        entity: '',
+
+        type: '',
+
+        compliance: '',
+
+        work: '',
+
+        performance: '',
+
+        exercise: ''
+
+      };
+
+      catalog();
+
+    };
+
+  }
 }
 
 /* =========================================================
