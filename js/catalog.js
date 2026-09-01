@@ -131,7 +131,9 @@ function catalog(){
     exercises.filter(
       x => x.status === 'Finalizado'
     );
-
+   
+const totalCatalogEntities =
+  arr.length;
 
   /* =======================================================
      APLICAR FILTROS COMBINADOS
@@ -246,9 +248,9 @@ function catalog(){
     <div class="catalog-kpis">
 
       <div class="card smallk">
-        <b>${arr.length}</b>
-        Entes en catálogo
-      </div>
+  <b>${totalCatalogEntities}</b>
+  Entes en catálogo
+</div>
 
       <div class="card smallk">
         <b>${finalizedExercises.length}</b>
@@ -256,14 +258,14 @@ function catalog(){
       </div>
 
       <div class="card smallk">
-        <b>
-          ${Math.max(
-            0,
-            arr.length - finalizedExercises.length
-          )}
-        </b>
-        Pendientes de evaluar
-      </div>
+  <b>
+    ${Math.max(
+      0,
+      totalCatalogEntities - finalizedExercises.length
+    )}
+  </b>
+  Pendientes de evaluar
+</div>
 
       <div class="card smallk">
         <b>
