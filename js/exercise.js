@@ -1707,7 +1707,6 @@ function bindNew(entities) {
       }
 
       state.step = step;
-
 newExercise();
 
 window.scrollTo({
@@ -1903,16 +1902,8 @@ window.scrollTo({
 
   $('#next').onclick = () => {
   if (state.step < 6) {
-
     state.step++;
-
     newExercise();
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-
     return;
   }
 
