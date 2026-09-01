@@ -1707,8 +1707,13 @@ function bindNew(entities) {
       }
 
       state.step = step;
-      newExercise();
-    };
+
+newExercise();
+
+window.scrollTo({
+  top: 0,
+  behavior: 'smooth'
+});
 
     element.onclick = goToStep;
 
@@ -1897,14 +1902,22 @@ function bindNew(entities) {
   };
 
   $('#next').onclick = () => {
-    if (state.step < 6) {
-      state.step++;
-      newExercise();
-      return;
-    }
+  if (state.step < 6) {
 
-    saveExercise(true);
-  };
+    state.step++;
+
+    newExercise();
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+
+    return;
+  }
+
+  saveExercise(true);
+};
 
   const pdfButton = $('#previewPdf');
 
