@@ -1239,10 +1239,7 @@ function summaryEvolutionChart(
           const value =
             item.average.toFixed(2);
 
-          const pct =
-            item.average.toFixed(1);
-
-
+         
           return `
             <circle
               cx="${x}"
@@ -1258,7 +1255,7 @@ function summaryEvolutionChart(
               text-anchor="middle"
               class="summary-svg-label"
             >
-              ${value} · ${pct}%
+              ${value}
             </text>
 
 
