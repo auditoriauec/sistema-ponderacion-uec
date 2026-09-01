@@ -266,3 +266,75 @@
   background: #fafbfa;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
+
+/* =========================================================
+   CATÁLOGO · FILTROS DE TABLA
+   ========================================================= */
+
+.catalog-filter-row th {
+  padding: 8px 6px;
+  background: #f7f8f7;
+  vertical-align: middle;
+}
+
+
+/* BUSCADOR DE ENTE */
+
+.catalog-filter-input {
+  width: 100%;
+  min-width: 160px;
+
+  padding: 7px 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  font: inherit;
+  font-size: 11px;
+
+  outline: none;
+  box-sizing: border-box;
+}
+
+
+.catalog-filter-input:focus {
+  border-color: var(--green);
+}
+
+
+/* SELECTORES */
+
+.catalog-filter-select {
+  width: 100%;
+  min-width: 90px;
+
+  padding: 7px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  font: inherit;
+  font-size: 11px;
+
+  cursor: pointer;
+
+  outline: none;
+  box-sizing: border-box;
+}
+
+
+.catalog-filter-select:focus {
+  border-color: var(--green);
+}
+
+
+/* BOTÓN LIMPIAR */
+
+#catalogClearFilters {
+  width: 100%;
+  white-space: nowrap;
+}
