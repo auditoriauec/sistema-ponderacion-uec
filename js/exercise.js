@@ -1713,7 +1713,7 @@ window.scrollTo({
   top: 0,
   behavior: 'smooth'
 });
-
+};
     element.onclick = goToStep;
 
     element.onkeydown = event => {
