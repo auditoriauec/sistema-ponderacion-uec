@@ -139,7 +139,11 @@ const totalCatalogEntities =
      APLICAR FILTROS COMBINADOS
      ======================================================= */
 
-  arr = arr.filter(entity => {
+const hasCatalogEntities =
+  arr.length > 0;
+   
+  const filteredArr =
+  arr.filter(entity => {
 
     const entityExercise =
       exercises.some(
@@ -284,10 +288,10 @@ const totalCatalogEntities =
     </div>
   `;
 
-  if(arr.length){
+  if(hasCatalogEntities){
 
-    const rows = arr
-      .map(entity => {
+    const rows = filteredArr
+  .map(entity => {
 
         const done =
           exercises.some(
@@ -444,18 +448,26 @@ const totalCatalogEntities =
                   class="catalog-filter-select"
                 >
 
-                  <option value="">
-                    Todos
-                  </option>
+                  <option
+  value=""
+  ${catalogFilters.compliance === '' ? 'selected' : ''}
+>
+  Todos
+</option>
 
-                  <option value="true">
-                    Sí
-                  </option>
+<option
+  value="true"
+  ${catalogFilters.compliance === 'true' ? 'selected' : ''}
+>
+  Sí
+</option>
 
-                  <option value="false">
-                    No
-                  </option>
-
+<option
+  value="false"
+  ${catalogFilters.compliance === 'false' ? 'selected' : ''}
+>
+  No
+</option>
                 </select>
 
               </th>
@@ -468,17 +480,26 @@ const totalCatalogEntities =
                   class="catalog-filter-select"
                 >
 
-                  <option value="">
-                    Todos
-                  </option>
+                  <option
+  value=""
+  ${catalogFilters.work === '' ? 'selected' : ''}
+>
+  Todos
+</option>
 
-                  <option value="true">
-                    Sí
-                  </option>
+<option
+  value="true"
+  ${catalogFilters.work === 'true' ? 'selected' : ''}
+>
+  Sí
+</option>
 
-                  <option value="false">
-                    No
-                  </option>
+<option
+  value="false"
+  ${catalogFilters.work === 'false' ? 'selected' : ''}
+>
+  No
+</option>
 
                 </select>
 
@@ -492,17 +513,26 @@ const totalCatalogEntities =
                   class="catalog-filter-select"
                 >
 
-                  <option value="">
-                    Todos
-                  </option>
+                  <option
+  value=""
+  ${catalogFilters.performance === '' ? 'selected' : ''}
+>
+  Todos
+</option>
 
-                  <option value="true">
-                    Sí
-                  </option>
+<option
+  value="true"
+  ${catalogFilters.performance === 'true' ? 'selected' : ''}
+>
+  Sí
+</option>
 
-                  <option value="false">
-                    No
-                  </option>
+<option
+  value="false"
+  ${catalogFilters.performance === 'false' ? 'selected' : ''}
+>
+  No
+</option>
 
                 </select>
 
@@ -516,17 +546,26 @@ const totalCatalogEntities =
                   class="catalog-filter-select"
                 >
 
-                  <option value="">
-                    Todos
-                  </option>
+                  <option
+  value=""
+  ${catalogFilters.exercise === '' ? 'selected' : ''}
+>
+  Todos
+</option>
 
-                  <option value="realizado">
-                    Realizado
-                  </option>
+<option
+  value="realizado"
+  ${catalogFilters.exercise === 'realizado' ? 'selected' : ''}
+>
+  Realizado
+</option>
 
-                  <option value="pendiente">
-                    Pendiente
-                  </option>
+<option
+  value="pendiente"
+  ${catalogFilters.exercise === 'pendiente' ? 'selected' : ''}
+>
+  Pendiente
+</option>
 
                 </select>
 
@@ -550,11 +589,28 @@ const totalCatalogEntities =
           </thead>
 
 
-          <tbody>
+         <tbody>
 
-            ${rows}
+  ${
+    rows ||
+    `
+      <tr class="catalog-no-results">
 
-          </tbody>
+        <td
+          colspan="7"
+          style="
+            text-align:center;
+            padding:32px 16px;
+          "
+        >
+          No hay entes que coincidan con los filtros seleccionados.
+        </td>
+
+      </tr>
+    `
+  }
+
+</tbody>
 
         </table>
 
