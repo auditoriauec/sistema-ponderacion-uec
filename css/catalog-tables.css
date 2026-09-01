@@ -238,7 +238,7 @@
 .catalog-main-table thead th {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 5;
   background: #fafbfa;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
