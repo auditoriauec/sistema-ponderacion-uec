@@ -8,7 +8,7 @@ function sortResultsByScore(items) {
     const scoreA = calc(a).score;
     const scoreB = calc(b).score;
 
-    return scoreA - scoreB;
+    return scoreB - scoreA;
   });
 }
 
