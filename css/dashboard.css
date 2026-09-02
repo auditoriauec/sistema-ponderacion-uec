@@ -95,6 +95,50 @@
    Dashboard ejecutivo
    ========================================================= */
 
+/* =========================================================
+   ENCABEZADO FIJO DEL MÓDULO RESUMEN
+   Título + filtros
+   ========================================================= */
+
+.summary-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+
+  background: var(--bg);
+
+  margin:
+    -26px
+    -30px
+    18px;
+
+  padding:
+    26px
+    30px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(226, 230, 227, .85);
+
+  box-shadow:
+    0 8px 18px
+    rgba(22, 45, 38, .04);
+}
+
+
+/* Título dentro del encabezado fijo */
+
+.summary-sticky-header .topbar {
+  margin-bottom: 16px;
+}
+
+
+/* Tarjeta de filtros dentro del encabezado fijo */
+
+.summary-sticky-header .summary-filterbar {
+  margin-bottom: 16px;
+}
 
 /* =========================================================
    FILTROS
