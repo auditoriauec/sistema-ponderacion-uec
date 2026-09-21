@@ -141,15 +141,16 @@ function resultsTableHtml(items) {
   <table class="table results-main-table">
 
         <thead>
-          <tr>
-            <th>Ente fiscalizado</th>
-            <th>Estado</th>
-            <th>Base</th>
-            <th>Ponderación</th>
-            <th>Resultado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
+  <tr>
+    <th>No.</th>
+    <th>Ente fiscalizado</th>
+    <th>Estado</th>
+    <th>Base</th>
+    <th>Ponderación</th>
+    <th>Resultado</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
 
         <tbody id="resBody">
           ${resultRows(items)}
@@ -166,22 +167,27 @@ function resultRows(items) {
     sortResultsByScore(items);
 
   return orderedItems
-    .map(item => {
-      const calculation = calc(item);
-
+  .map((item, index) => {
+    const calculation = calc(item);
+     
       const resultClass =
         calculation.result === 'APROBADA'
           ? 'status-ok'
           : 'status-bad';
 
       return `
-        <tr>
+  <tr>
 
-          <td>
-            <b>
-              ${exerciseEscapeHtml(
-                item.entity || '—'
-              )}
+    <td>
+      <b>${index + 1}</b>
+    </td>
+
+    <td>
+      <b>
+        ${exerciseEscapeHtml(
+          item.entity || '—'
+        )}
+        
             </b>
 
             <br>
