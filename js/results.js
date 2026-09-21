@@ -358,10 +358,12 @@ const notApprovedPercent =
     return `
       <tr>
       
-<td class="number-cell">
+<td class="number-cell col-no">
   ${index + 1}
 </td>
-        <td class="entity-cell">
+
+<td class="entity-cell col-ente">
+
           ${exerciseEscapeHtml(
             item.entity || '—'
           )}
@@ -846,13 +848,13 @@ const notApprovedPercent =
 
     <tr>
     
- <th>
-    No.
-  </th>
-  
-      <th>
-        Ente
-      </th>
+ <th class="col-no">
+  No.
+</th>
+
+<th class="col-ente">
+  Ente
+</th>
 
       <th>
         Ponderación
