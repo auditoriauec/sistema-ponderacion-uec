@@ -12,6 +12,55 @@ function sortResultsByScore(items) {
   });
 }
 
+function getResultsSolvencyData(item) {
+  const solv = item.solv || {};
+
+  const countF = Math.max(
+    0,
+    Number(solv.countF) || 0
+  );
+
+  const countS = Math.max(
+    0,
+    Number(solv.countS) || 0
+  );
+
+  const observationsNotSolved = Math.max(
+    0,
+    countF - countS
+  );
+
+  const amountF =
+    Math.max(0, Number(solv.inF) || 0) +
+    Math.max(0, Number(solv.outF) || 0);
+
+  const amountS =
+    Math.max(0, Number(solv.inS) || 0) +
+    Math.max(0, Number(solv.outS) || 0);
+
+  const amountNotSolved = Math.max(
+    0,
+    amountF - amountS
+  );
+
+  return {
+    observationsNotSolved,
+    amountNotSolved
+  };
+}
+
+function formatResultsMoney(value) {
+  return Number(value || 0).toLocaleString(
+    'es-MX',
+    {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
+}
+
 function results() {
   const all = sortResultsByScore(
     store
@@ -234,86 +283,6 @@ function bindResultsSearch(all) {
   };
 }
 
-function bindResultsExport(all) {
-  const button = $('#exportCsv');
-
-  if (!button) {
-    return;
-  }
-
-  button.onclick = () => {
-    const ordered =
-      sortResultsByScore(all);
-
-    const rows = [
-      [
-        'Ejercicio Fiscal',
-        'Ente',
-        'Base',
-        'Ponderación',
-        'Resultado',
-        'Estado'
-      ],
-
-      ...ordered.map(item => {
-        const calculation =
-          calc(item);
-
-        return [
-          item.year,
-          item.entity,
-          exerciseFormat(
-            calculation.base
-          ),
-          calculation.score.toFixed(2),
-          calculation.result,
-          item.status || 'Borrador'
-        ];
-      })
-    ];
-
-    const csv = rows
-      .map(row => {
-        return row
-          .map(value => {
-            const clean =
-              String(value)
-                .replaceAll(
-                  '"',
-                  '""'
-                );
-
-            return `"${clean}"`;
-          })
-          .join(',');
-      })
-      .join('\n');
-
-    const blob = new Blob(
-      [csv],
-      {
-        type:
-          'text/csv;charset=utf-8'
-      }
-    );
-
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement('a');
-
-    link.href = url;
-
-    link.download =
-      `resultados_ponderacion_${state.year}.csv`;
-
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
-}
-
 function bindResultsPdf(all) {
   const button =
     $('#exportResultsPdf');
@@ -369,55 +338,50 @@ const notApprovedPercent =
     : '0.0';
 
   const rows = ordered
-    .map((item, index) => {
-      const calculation =
-        calc(item);
+  .map(item => {
+    const calculation = calc(item);
 
-      const resultClass =
-        calculation.result ===
-        'APROBADA'
-          ? 'approved-text'
-          : 'not-approved-text';
+    const solvency =
+      getResultsSolvencyData(item);
 
-      return `
-        <tr>
+    const resultClass =
+      calculation.result === 'APROBADA'
+        ? 'approved-text'
+        : 'not-approved-text';
 
-          <td class="number-cell">
-  ${index + 1}
-</td>
+    return `
+      <tr>
 
-          <td class="entity-cell">
-            ${exerciseEscapeHtml(
-              item.entity || '—'
-            )}
-          </td>
+        <td class="entity-cell">
+          ${exerciseEscapeHtml(
+            item.entity || '—'
+          )}
+        </td>
 
-          <td class="number-cell">
-            ${exerciseFormat(
-              calculation.base
-            )}
-          </td>
+        <td class="score-cell">
+          ${calculation.score.toFixed(2)}
+        </td>
 
-          <td class="score-cell">
-            ${calculation.score.toFixed(2)}
-          </td>
+        <td class="${resultClass}">
+          ${exerciseEscapeHtml(
+            calculation.result
+          )}
+        </td>
 
-          <td class="${resultClass}">
-            ${exerciseEscapeHtml(
-              calculation.result
-            )}
-          </td>
+        <td class="number-cell">
+          ${solvency.observationsNotSolved}
+        </td>
 
-          <td>
-            ${exerciseEscapeHtml(
-              item.status || 'Borrador'
-            )}
-          </td>
+        <td class="number-cell">
+          ${formatResultsMoney(
+            solvency.amountNotSolved
+          )}
+        </td>
 
-        </tr>
-      `;
-    })
-    .join('');
+      </tr>
+    `;
+  })
+  .join('');
 
   const win = window.open(
     '',
@@ -867,40 +831,37 @@ const notApprovedPercent =
             Resultados por ente fiscalizado
           </div>
 
-          <table>
+         <table>
 
-            <thead>
+  <thead>
 
-              <tr>
+    <tr>
 
-                <th>
-                  No.
-                </th>
+      <th>
+        Ente
+      </th>
 
-                <th>
-                  Ente
-                </th>
+      <th>
+        Ponderación
+      </th>
 
-                <th>
-                  Base
-                </th>
+      <th>
+        Resultado
+      </th>
 
-                <th>
-                  Ponderación
-                </th>
+      <th>
+        Observaciones<br>
+        no solventadas
+      </th>
 
-                <th>
-                  Resultado
-                </th>
+      <th>
+        Monto no<br>
+        solventado
+      </th>
 
-                <th>
-                  Estado
-                </th>
+    </tr>
 
-              </tr>
-
-            </thead>
-
+  </thead>
             <tbody>
               ${rows}
             </tbody>
@@ -976,33 +937,45 @@ function bindResultsExport(all) {
   }
 
   button.onclick = () => {
+    const ordered =
+      sortResultsByScore(all);
+
     const rows = [
       [
         'Ente',
-        'Año',
-        'Estado',
-        'Base',
-        'Puntaje obtenido',
         'Ponderación',
-        'Resultado'
+        'Resultado',
+        'Observaciones no solventadas',
+        'Monto no solventado'
       ],
-      ...all.map(item => [
-        item.entity,
-        item.year,
-        item.status,
-        item.base ?? '',
-        item.raw ?? '',
-        Number(item.score || 0).toFixed(2),
-        item.result || ''
-      ])
+
+      ...ordered.map(item => {
+        const calculation =
+          calc(item);
+
+        const solvency =
+          getResultsSolvencyData(item);
+
+        return [
+          item.entity || '',
+          calculation.score.toFixed(2),
+          calculation.result || '',
+          solvency.observationsNotSolved,
+          solvency.amountNotSolved.toFixed(2)
+        ];
+      })
     ];
 
     const csv = rows
       .map(row => {
         return row
           .map(value => {
-            const clean = String(value)
-              .replaceAll('"', '""');
+            const clean =
+              String(value)
+                .replaceAll(
+                  '"',
+                  '""'
+                );
 
             return `"${clean}"`;
           })
@@ -1011,23 +984,29 @@ function bindResultsExport(all) {
       .join('\n');
 
     const blob = new Blob(
-      [csv],
+      ['\ufeff' + csv],
       {
-        type: 'text/csv;charset=utf-8'
+        type:
+          'text/csv;charset=utf-8'
       }
     );
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement('a');
 
     link.href = url;
-    link.download = `resultados_${state.year}.csv`;
+
+    link.download =
+      `resultados_ponderacion_${state.year}.csv`;
+
     link.click();
 
     URL.revokeObjectURL(url);
   };
 }
-
 function bindResultActions(all) {
   $$('.result-edit').forEach(button => {
     button.onclick = () => {
