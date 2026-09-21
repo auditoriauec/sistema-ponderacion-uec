@@ -338,7 +338,7 @@ const notApprovedPercent =
     : '0.0';
 
   const rows = ordered
-  .map(item => {
+  .map((item, index) => {
     const calculation = calc(item);
 
     const solvency =
@@ -351,7 +351,10 @@ const notApprovedPercent =
 
     return `
       <tr>
-
+      
+<td class="number-cell">
+  ${index + 1}
+</td>
         <td class="entity-cell">
           ${exerciseEscapeHtml(
             item.entity || '—'
@@ -836,7 +839,11 @@ const notApprovedPercent =
   <thead>
 
     <tr>
-
+    
+ <th>
+    No.
+  </th>
+  
       <th>
         Ente
       </th>
@@ -941,15 +948,16 @@ function bindResultsExport(all) {
       sortResultsByScore(all);
 
     const rows = [
-      [
-        'Ente',
-        'Ponderación',
-        'Resultado',
-        'Observaciones no solventadas',
-        'Monto no solventado'
-      ],
+  [
+    'No.',
+    'Ente',
+    'Ponderación',
+    'Resultado',
+    'Observaciones no solventadas',
+    'Monto no solventado'
+  ],
 
-      ...ordered.map(item => {
+  ...ordered.map((item, index) => {
         const calculation =
           calc(item);
 
@@ -957,12 +965,13 @@ function bindResultsExport(all) {
           getResultsSolvencyData(item);
 
         return [
-          item.entity || '',
-          calculation.score.toFixed(2),
-          calculation.result || '',
-          solvency.observationsNotSolved,
-          solvency.amountNotSolved.toFixed(2)
-        ];
+  index + 1,
+  item.entity || '',
+  calculation.score.toFixed(2),
+  calculation.result || '',
+  solvency.observationsNotSolved,
+  solvency.amountNotSolved.toFixed(2)
+];
       })
     ];
 
