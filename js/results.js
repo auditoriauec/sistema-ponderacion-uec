@@ -394,6 +394,25 @@ const notApprovedPercent =
   })
   .join('');
 
+const totals = ordered.reduce(
+  (acc, item) => {
+    const solvency =
+      getResultsSolvencyData(item);
+
+    acc.observations +=
+      solvency.observationsNotSolved;
+
+    acc.amount +=
+      solvency.amountNotSolved;
+
+    return acc;
+  },
+  {
+    observations: 0,
+    amount: 0
+  }
+);
+   
   const win = window.open(
     '',
     '_blank'
@@ -671,6 +690,30 @@ const notApprovedPercent =
       font-weight: 700;
     }
 
+.col-no {
+  width: 5%;
+  text-align: center;
+}
+
+.col-ente {
+  width: 30%;
+}
+
+.totals-row td {
+  font-weight: 800;
+  border-top: 2px solid #075244;
+  background: #eef4f2;
+}
+
+.totals-row .entity-cell {
+  color: #064c3f;
+}
+
+.totals-row .number-cell {
+  color: #064c3f;
+  text-align: center;
+}
+
     .number-cell {
       text-align: center;
     }
@@ -878,8 +921,36 @@ const notApprovedPercent =
 
   </thead>
             <tbody>
-              ${rows}
-            </tbody>
+  ${rows}
+
+  <tr class="totals-row">
+
+    <td class="col-no">
+    </td>
+
+    <td class="entity-cell col-ente">
+      TOTAL
+    </td>
+
+    <td>
+    </td>
+
+    <td>
+    </td>
+
+    <td class="number-cell">
+      ${totals.observations}
+    </td>
+
+    <td class="number-cell">
+      ${formatResultsMoney(
+        totals.amount
+      )}
+    </td>
+
+  </tr>
+
+</tbody>
 
           </table>
 
