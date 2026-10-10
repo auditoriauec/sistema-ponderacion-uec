@@ -1962,6 +1962,8 @@ ${summaryKpiHtml({
 
   bindSummaryAccountRows();
 
+  bindSummaryReportButton();
+
 }
 
 
@@ -2153,3 +2155,4 @@ function bindSummaryAccountRows() {
     );
 
 }
+
