@@ -79,10 +79,10 @@ function summaryReportPreview() {
 
   const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resumen de Cuenta Pública - ${esc(summaryFilters.year)}</title>
 <style>
-/* Documento institucional en dos páginas verticales. */
+/* Reporte institucional: tres páginas A4 verticales. */
 @page { size: A4 portrait; margin: 12mm; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #edf1ef; color: #17342b; font: 11px/1.35 Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: #edf1ef; color: #17342b; font: 12px/1.4 Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .actions { text-align: center; padding: 12px; }
 .print-btn { border: 0; border-radius: 6px; background: #075244; color: white; padding: 11px 18px; font-weight: 700; cursor: pointer; }
 .report { width: 210mm; margin: 12px auto; background: white; padding: 12mm; box-shadow: 0 4px 18px #0002; }
@@ -125,16 +125,25 @@ h2 { font-size: 15px; margin: 22px 0 10px; color: #153c30; }
 .track { height: 9px; background: #e5eee9; border-radius: 9px; overflow: hidden; margin: 15px 0 8px; }
 .fill { height: 100%; background: #075244; }
 .tables-grid { display: block; }
+.table-page { min-height: 255mm; display: flex; flex-direction: column; }
+.table-page .table-section { flex: 1; }
+.table-page .footer { margin-top: auto; }
+.table-page.approved-page .table-section h2 { border-left: 3px solid #075244; padding-left: 10px; }
+.table-page.rejected-page .table-section h2 { border-left: 3px solid #b83232; padding-left: 10px; }
+.table-page.rejected-page th { background: #a8242b; border-color: #a8242b; }
+.table-page.rejected-page .count { color: #98252a; background: #fce9e9; }
 .table-section { margin-bottom: 22px; }
 .table-section h2 { border-bottom: 1px solid #d9e4df; padding-bottom: 8px; }
 .count { font-size: 11px; padding: 4px 8px; background: #edf4f0; border-radius: 12px; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 thead { display: table-header-group; }
 tr { break-inside: avoid; page-break-inside: avoid; }
-th { background: #075244; color: white; font-size: 10px; padding: 8px; border: 1px solid #075244; text-align: center; }
-td { font-size: 10px; padding: 7px 8px; border: 1px solid #d9e4df; overflow-wrap: anywhere; }
+th { background: #075244; color: white; font-size: 10.5px; padding: 10px 8px; border: 1px solid #075244; text-align: center; }
+td { font-size: 10.5px; padding: 9px 8px; border: 1px solid #d9e4df; overflow-wrap: anywhere; }
 tbody tr:nth-child(even) { background: #f7faf8; }
 .small { width: 15%; }
+th:nth-child(2) { width: 55%; }
+.table-page td:nth-child(2) { overflow-wrap: normal; word-break: normal; }
 .center { text-align: center; }
 .footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 24px; padding-top: 10px; border-top: 1px solid #d9e4df; color: #62736b; font-size: 9px; }
 @media print {
@@ -142,6 +151,8 @@ tbody tr:nth-child(even) { background: #f7faf8; }
   .actions { display: none; }
   .report { width: auto; padding: 0; margin: 0; box-shadow: none; }
   .report-page + .report-page { margin-top: 0; break-before: page; page-break-before: always; }
+  .table-page { min-height: 0; height: 273mm; }
+  .table-page .footer { margin-top: auto; }
   .header, .metric, .panel { break-inside: avoid; }
 }
 </style></head><body><div class="actions"><button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button></div><main class="report">
@@ -153,10 +164,15 @@ tbody tr:nth-child(even) { background: #f7faf8; }
 <div class="charts"><section class="panel"><h2>Clasificación de Cuentas Públicas</h2><div class="donut-layout"><div class="donut"><div class="donut-inner"><strong>${num(total)}</strong><small>evaluadas</small></div></div><div class="legend"><div><i class="dot green"></i><b>Aprobadas</b><br>${approved.length} · ${pct(approved.length,total)}</div><div><i class="dot red"></i><b>No aprobadas</b><br>${rejected.length} · ${pct(rejected.length,total)}</div></div></div></section>
 <section class="panel"><h2>${summaryFilters.year === 'all' ? 'Ejercicios Evaluados' : 'Avance de Evaluación'}</h2>${summaryFilters.year === 'all' ? `<div class="progress"><strong>${years.map(esc).join(' · ') || '—'}</strong><p class="muted">Ejercicios fiscales con cuentas evaluadas</p></div>` : `<div class="progress"><strong>${progress.toFixed(1)}%</strong><p>${evaluated} de ${expected} cuentas</p><div class="track"><div class="fill" style="width:${progress.toFixed(1)}%"></div></div><small class="muted">${evaluated} evaluadas · ${progress.toFixed(1)}% del catálogo</small></div>`}</section></div>
 </section>
-<section class="report-page second-page">
+<section class="report-page table-page approved-page">
 <header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Detalle por ente fiscalizado</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
-<div class="tables-grid">${table('Cuentas Aprobadas',approved)}${table('Cuentas No Aprobadas',rejected)}</div>
-<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · ${entityText}</span></footer>
+${table('Cuentas Aprobadas', approved)}
+<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · Página 2 de 3</span></footer>
+</section>
+<section class="report-page table-page rejected-page">
+<header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Detalle por ente fiscalizado</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
+${table('Cuentas No Aprobadas', rejected)}
+<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · Página 3 de 3</span></footer>
 </section>
 </main><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),600));<\/script></body></html>`;
   win.document.open();
