@@ -1671,7 +1671,7 @@ function summary() {
     </div>
 
 
-    <div class="summary-kpi-grid">
+    <div class="summary-kpi-grid summary-fiscalizacion-grid">
 
       ${summaryKpiHtml({
         label:
@@ -1718,6 +1718,22 @@ function summary() {
             ? '100% del monto fincado'
             : 'Sin monto registrado'
       })}
+
+${summaryKpiHtml({
+  label:
+    'Monto de Observaciones Solventadas',
+
+  value:
+    summaryMoney(
+      solvency.amountS
+    ),
+
+  detail:
+    summaryPercent(
+      solvency.amountS,
+      solvency.amountF
+    ) + '% del monto fincado'
+})}
 
 
       ${summaryKpiHtml({
