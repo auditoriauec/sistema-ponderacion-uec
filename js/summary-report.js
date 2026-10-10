@@ -1,4 +1,8 @@
-/* Reporte ejecutivo imprimible del módulo Resumen. No modifica los datos. */
+/* =========================================================
+   REPORTE EJECUTIVO DE CUENTA PÚBLICA
+   Vista previa e impresión del módulo Resumen.
+   Mantiene intactos los cálculos y datos del Dashboard.
+   ========================================================= */
 function bindSummaryReportButton() {
   const topbar = document.querySelector('.summary-sticky-header .topbar') || document.querySelector('.main > .topbar');
   if (!topbar || topbar.querySelector('#summaryReportPdf')) return;
@@ -33,11 +37,40 @@ function summaryReportPreview() {
   const issueDate = new Date().toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'});
   const logo = new URL('assets/logo-uec.png', window.location.href).href;
   const card = (label,value,detail,kind='') => `<div class="metric ${kind}"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="metric-detail">${detail}</div></div>`;
-  const table = (title,items) => {
-    const rows = [...items].sort((a,b) => summaryScore(b)-summaryScore(a)).map((item,index) => `
-      <tr><td class="center">${index+1}</td><td>${esc(item.entity || '—')}</td><td class="center">${esc(item.year)}</td><td class="right">${summaryScore(item).toFixed(2)}</td></tr>`).join('');
-    return `<section class="table-section"><h2>${title} <span class="count">${items.length}</span></h2><table><thead><tr><th class="small">No.</th><th>Ente fiscalizado</th><th class="small">Ejercicio</th><th class="small">Ponderación</th></tr></thead><tbody>${rows || '<tr><td colspan="4">Sin cuentas para mostrar.</td></tr>'}</tbody></table></section>`;
+  // Tabla detallada: encabezados y ponderaciones centrados.
+  const table = (title, items) => {
+    const rows = [...items]
+      .sort((a, b) => summaryScore(b) - summaryScore(a))
+      .map((item, index) => `
+        <tr>
+          <td class="center">${index + 1}</td>
+          <td>${esc(item.entity || '—')}</td>
+          <td class="center">${esc(item.year)}</td>
+          <td class="center">${summaryScore(item).toFixed(2)}</td>
+        </tr>
+      `)
+      .join('');
+
+    return `
+      <section class="table-section">
+        <h2>${title} <span class="count">${items.length}</span></h2>
+        <table>
+          <thead>
+            <tr>
+              <th class="small">No.</th>
+              <th>Ente fiscalizado</th>
+              <th class="small">Ejercicio</th>
+              <th class="small">Ponderación</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="4">Sin cuentas para mostrar.</td></tr>'}
+          </tbody>
+        </table>
+      </section>
+    `;
   };
+
   const expected = entities;
   const evaluated = expected ? new Set(exercises.map(x => String(x.entity||'').trim()).filter(name => catalog.some(row => row.name === name))).size : 0;
   const progress = expected ? Math.min(100, evaluated / expected * 100) : 0;
@@ -46,41 +79,550 @@ function summaryReportPreview() {
 
   const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resumen de Cuenta Pública - ${esc(summaryFilters.year)}</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#e9eeec;color:#162923;font:12px/1.45 Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.report{max-width:1100px;margin:24px auto;padding:32px 38px;background:white;box-shadow:0 6px 28px #0002}
-.header{display:flex;align-items:center;justify-content:space-between;gap:25px;border-bottom:2px solid #0b5142;padding-bottom:18px}.logo{width:165px;max-height:95px;object-fit:contain;object-position:left}.meta{text-align:right;color:#60716b;font-size:11px}
-h1{font-size:29px;line-height:1.1;color:#122d25;margin:24px 0 5px}h2{font-size:16px;margin:23px 0 12px;color:#16372e}.subtitle{font-size:19px;color:#52615d;margin:0}.description{color:#6b7873;margin:7px 0 21px}
-.metrics{display:grid;gap:10px}.metrics.four{grid-template-columns:repeat(4,minmax(0,1fr))}.metrics.five{grid-template-columns:repeat(5,minmax(0,1fr))}.metric{border:1px solid #dce5e1;border-radius:8px;padding:14px 12px;min-width:0;min-height:103px;display:flex;flex-direction:column;justify-content:space-between;gap:9px}.metric.ok{border-top:3px solid #0c563d}.metric.bad{border-top:3px solid #cf3b35}.metric-label{color:#62716d;font-weight:700;font-size:10px}.metric-value{font-weight:800;font-size:24px;line-height:1.12;overflow-wrap:anywhere}.five .metric-value{font-size:clamp(12px,1.5vw,18px)}.metric-detail{font-size:10px;color:#6c7975}
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.panel{border:1px solid #dce5e1;border-radius:8px;padding:17px}.panel h2{margin:0 0 14px}.donut-layout{display:flex;align-items:center;gap:25px;justify-content:center}.donut{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(#073b13 0deg ${approvedAngle}deg,#d33c35 ${approvedAngle}deg 360deg)}.donut-inner{width:100px;height:100px;background:#fff;border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center}.donut-inner strong{font-size:30px}.legend{font-size:12px}.legend div{margin:12px 0}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px}.green{background:#073b13}.red{background:#d33c35}.progress{text-align:center;padding:15px 4px}.progress strong{font-size:38px}.track{height:11px;background:#e7eeea;border-radius:10px;overflow:hidden;margin:20px 0 9px}.fill{height:100%;background:#073b13}.muted{color:#63736c}
-.table-section{margin-top:0;min-width:0}.table-section h2{border-bottom:1px solid #d8e2dd;padding-bottom:9px}.count{font-size:12px;background:#edf3ef;padding:5px 10px;border-radius:20px;margin-left:6px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}th{background:#0b5142;color:white;text-align:left;font-size:10px;padding:9px 10px;border:1px solid #0b5142}td{padding:8px 10px;border:1px solid #d9e2dd;overflow-wrap:anywhere}tbody tr:nth-child(even){background:#f7faf8}.small{width:13%}.center{text-align:center}.right{text-align:right}.footer{margin-top:28px;padding-top:12px;border-top:1px solid #d5dfda;color:#60716b;font-size:10px;display:flex;justify-content:space-between}.actions{text-align:center;margin:15px}.print-btn{border:0;background:#075244;color:#fff;border-radius:7px;padding:12px 18px;cursor:pointer;font-weight:700}
+* {
+  box-sizing:border-box;
+}
 
-/* Distribución ejecutiva de una hoja, con importes completos */
-.report{max-width:1500px;padding:18px 24px;margin:12px auto}
-.header{justify-content:flex-start;gap:18px;padding-bottom:10px}
-.logo{width:110px;max-height:66px;flex:none}
-.header-title{flex:1;min-width:0}
-.header-title h1{font-size:23px;margin:0 0 3px}
-.header-title .subtitle{font-size:15px}
-.header-title .description{font-size:10px;margin:2px 0 0}
-.meta{max-width:230px;flex:none;font-size:9px}
-.metrics{gap:7px}.metric{min-height:70px;padding:9px 10px;gap:4px}
-.metric-label{font-size:9px}.metric-value{font-size:20px;line-height:1.1;white-space:nowrap;letter-spacing:-.45px;overflow-wrap:normal}
-.metrics.five .metric-value{font-size:clamp(12px,1.28vw,18px);letter-spacing:-.55px}
-.metric-detail{font-size:9px}
-h2{font-size:13px;margin:12px 0 4px}.muted{margin:3px 0 6px;font-size:10px}
-.charts{gap:10px;margin-top:9px}.panel{padding:10px}.panel h2{margin:0 0 6px}
-.donut{width:94px;height:94px}.donut-inner{width:65px;height:65px}.donut-inner strong{font-size:20px}
-.legend{font-size:10px}.legend div{margin:5px 0}.donut-layout{gap:18px}
-.progress{padding:2px}.progress strong{font-size:26px}.progress p{margin:2px}.track{height:7px;margin:8px 0 4px}
-.tables-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:9px;align-items:start}
-.table-section h2{margin:0 0 5px;padding-bottom:5px;font-size:12px}
-.table-section table{font-size:9px}
-.table-section th{font-size:8px;padding:4px 5px}
-.table-section td{padding:3px 5px;line-height:1.12}
-.table-section .small{width:14%}
-.footer{margin-top:9px;padding-top:5px;font-size:8px}
-@media print{.report{width:100%;max-width:none;margin:0;padding:0}.metrics.five .metric-value{font-size:14px}.tables-grid{break-inside:avoid}.charts{break-inside:avoid}.metric{break-inside:avoid}}
-@page{size:A3 landscape;margin:7mm}@media print{body{background:white}.report{max-width:none;margin:0;padding:0;box-shadow:none}.actions{display:none}.table-section{break-before:auto}.five .metric-value{font-size:14px}.footer{break-inside:avoid}}
+body {
+  margin:0;
+  background:#e9eeec;
+  color:#162923;
+  font:12px/1.45 Arial,Helvetica,sans-serif;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+.report {
+  max-width:1100px;
+  margin:24px auto;
+  padding:32px 38px;
+  background:white;
+  box-shadow:0 6px 28px #0002;
+}
+
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:25px;
+  border-bottom:2px solid #0b5142;
+  padding-bottom:18px;
+}
+
+.logo {
+  width:165px;
+  max-height:95px;
+  object-fit:contain;
+  object-position:left;
+}
+
+.meta {
+  text-align:right;
+  color:#60716b;
+  font-size:11px;
+}
+
+h1 {
+  font-size:29px;
+  line-height:1.1;
+  color:#122d25;
+  margin:24px 0 5px;
+}
+
+h2 {
+  font-size:16px;
+  margin:23px 0 12px;
+  color:#16372e;
+}
+
+.subtitle {
+  font-size:19px;
+  color:#52615d;
+  margin:0;
+}
+
+.description {
+  color:#6b7873;
+  margin:7px 0 21px;
+}
+
+.metrics {
+  display:grid;
+  gap:10px;
+}
+
+.metrics.four {
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+.metrics.five {
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+
+.metric {
+  border:1px solid #dce5e1;
+  border-radius:8px;
+  padding:14px 12px;
+  min-width:0;
+  min-height:103px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:9px;
+}
+
+.metric.ok {
+  border-top:3px solid #0c563d;
+}
+
+.metric.bad {
+  border-top:3px solid #cf3b35;
+}
+
+.metric-label {
+  color:#62716d;
+  font-weight:700;
+  font-size:10px;
+}
+
+.metric-value {
+  font-weight:800;
+  font-size:24px;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+}
+
+.five .metric-value {
+  font-size:clamp(12px,1.5vw,18px);
+}
+
+.metric-detail {
+  font-size:10px;
+  color:#6c7975;
+}
+
+.charts {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:18px;
+}
+
+.panel {
+  border:1px solid #dce5e1;
+  border-radius:8px;
+  padding:17px;
+}
+
+.panel h2 {
+  margin:0 0 14px;
+}
+
+.donut-layout {
+  display:flex;
+  align-items:center;
+  gap:25px;
+  justify-content:center;
+}
+.donut{
+width:150px;height:150px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(#073b13 0deg $ {
+  approvedAngle;
+}
+
+deg,#d33c35 $ {
+  approvedAngle;
+}
+deg 360deg)}
+.donut-inner {
+  width:100px;
+  height:100px;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.donut-inner strong {
+  font-size:30px;
+}
+
+.legend {
+  font-size:12px;
+}
+
+.legend div {
+  margin:12px 0;
+}
+
+.dot {
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  margin-right:7px;
+}
+
+.green {
+  background:#073b13;
+}
+
+.red {
+  background:#d33c35;
+}
+
+.progress {
+  text-align:center;
+  padding:15px 4px;
+}
+
+.progress strong {
+  font-size:38px;
+}
+
+.track {
+  height:11px;
+  background:#e7eeea;
+  border-radius:10px;
+  overflow:hidden;
+  margin:20px 0 9px;
+}
+
+.fill {
+  height:100%;
+  background:#073b13;
+}
+
+.muted {
+  color:#63736c;
+}
+
+.table-section {
+  margin-top:0;
+  min-width:0;
+}
+
+.table-section h2 {
+  border-bottom:1px solid #d8e2dd;
+  padding-bottom:9px;
+}
+
+.count {
+  font-size:12px;
+  background:#edf3ef;
+  padding:5px 10px;
+  border-radius:20px;
+  margin-left:6px;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+
+thead {
+  display:table-header-group;
+}
+
+tr {
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+th {
+  background:#0b5142;
+  color:white;
+  text-align:left;
+  font-size:10px;
+  padding:9px 10px;
+  border:1px solid #0b5142;
+}
+
+td {
+  padding:8px 10px;
+  border:1px solid #d9e2dd;
+  overflow-wrap:anywhere;
+}
+
+tbody tr:nth-child(even) {
+  background:#f7faf8;
+}
+
+.small {
+  width:13%;
+}
+
+.center {
+  text-align:center;
+}
+
+.right {
+  text-align:right;
+}
+
+.footer {
+  margin-top:28px;
+  padding-top:12px;
+  border-top:1px solid #d5dfda;
+  color:#60716b;
+  font-size:10px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.actions {
+  text-align:center;
+  margin:15px;
+}
+
+.print-btn {
+  border:0;
+  background:#075244;
+  color:#fff;
+  border-radius:7px;
+  padding:12px 18px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+/* Diseño compacto para una hoja A3 horizontal */
+.report {
+  max-width:1500px;
+  padding:18px 24px;
+  margin:12px auto;
+}
+
+.header {
+  justify-content:flex-start;
+  gap:18px;
+  padding-bottom:10px;
+}
+
+.logo {
+  width:110px;
+  max-height:66px;
+  flex:none;
+}
+
+.header-title {
+  flex:1;
+  min-width:0;
+}
+
+.header-title h1 {
+  font-size:23px;
+  margin:0 0 3px;
+}
+
+.header-title .subtitle {
+  font-size:15px;
+}
+
+.header-title .description {
+  font-size:10px;
+  margin:2px 0 0;
+}
+
+.meta {
+  max-width:230px;
+  flex:none;
+  font-size:9px;
+}
+
+.metrics {
+  gap:7px;
+}
+
+.metric {
+  min-height:70px;
+  padding:9px 10px;
+  gap:4px;
+}
+
+.metric-label {
+  font-size:9px;
+}
+
+.metric-value {
+  font-size:20px;
+  line-height:1.1;
+  white-space:nowrap;
+  letter-spacing:-.45px;
+  overflow-wrap:normal;
+}
+
+.metrics.five .metric-value {
+  font-size:clamp(12px,1.28vw,18px);
+  letter-spacing:-.55px;
+}
+
+.metric-detail {
+  font-size:9px;
+}
+
+h2 {
+  font-size:13px;
+  margin:12px 0 4px;
+}
+
+.muted {
+  margin:3px 0 6px;
+  font-size:10px;
+}
+
+.charts {
+  gap:10px;
+  margin-top:9px;
+}
+
+.panel {
+  padding:10px;
+}
+
+.panel h2 {
+  margin:0 0 6px;
+}
+
+.donut {
+  width:94px;
+  height:94px;
+}
+
+.donut-inner {
+  width:65px;
+  height:65px;
+}
+
+.donut-inner strong {
+  font-size:20px;
+}
+
+.legend {
+  font-size:10px;
+}
+
+.legend div {
+  margin:5px 0;
+}
+
+.donut-layout {
+  gap:18px;
+}
+
+.progress {
+  padding:2px;
+}
+
+.progress strong {
+  font-size:26px;
+}
+
+.progress p {
+  margin:2px;
+}
+
+.track {
+  height:7px;
+  margin:8px 0 4px;
+}
+
+.tables-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:9px;
+  align-items:start;
+}
+
+.table-section h2 {
+  margin:0 0 5px;
+  padding-bottom:5px;
+  font-size:12px;
+}
+
+.table-section table {
+  font-size:9px;
+}
+
+.table-section th {
+  font-size:8px;
+  padding:4px 5px;
+  text-align:center;
+}
+
+.table-section td {
+  padding:3px 5px;
+  line-height:1.12;
+}
+
+.table-section .small {
+  width:14%;
+}
+
+.footer {
+  margin-top:9px;
+  padding-top:5px;
+  font-size:8px;
+}
+
+@media print{
+.report {
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding:0;
+}
+
+.metrics.five .metric-value {
+  font-size:14px;
+}
+
+.tables-grid {
+  break-inside:avoid;
+}
+
+.charts {
+  break-inside:avoid;
+}
+
+.metric {
+  break-inside:avoid;
+}
+}
+@page {
+  size:A3 landscape;
+  margin:7mm;
+}
+@media print{
+body {
+  background:white;
+}
+
+.report {
+  max-width:none;
+  margin:0;
+  padding:0;
+  box-shadow:none;
+}
+
+.actions {
+  display:none;
+}
+
+.table-section {
+  break-before:auto;
+}
+
+.five .metric-value {
+  font-size:14px;
+}
+
+.footer {
+  break-inside:avoid;
+}
+}
 </style></head><body><div class="actions"><button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button></div><main class="report">
 <header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Panorama ejecutivo de las cuentas públicas evaluadas.</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
 <div class="metrics four">${card('Entidades Fiscalizadas',num(entities),'Entes únicos del catálogo')}${card('Ejercicios Fiscales Evaluados',num(years.length),years.map(esc).join(', ') || 'Sin ejercicios')}${card('Cuentas Aprobadas',num(approved.length),pct(approved.length,total)+' del total','ok')}${card('Cuentas No Aprobadas',num(rejected.length),pct(rejected.length,total)+' del total','bad')}</div>
