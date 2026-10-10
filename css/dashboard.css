@@ -1013,3 +1013,15 @@
     font-size: 24px;
   }
 }
+
+
+/* Tablas de entes: distribución compacta del Dashboard */
+.summary-account-grid {
+  margin-top: 12px;
+  align-items: stretch;
+}
+
+.summary-account-scroll {
+  max-height: clamp(180px, 28vh, 380px);
+  overflow-y: auto;
+}
