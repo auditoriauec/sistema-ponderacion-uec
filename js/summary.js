@@ -1821,53 +1821,6 @@ ${summaryKpiHtml({
     </div>
 
 
-    <!-- ==========================================
-         EVOLUCIÓN
-         ========================================== -->
-
-    <div class="card summary-evolution-card">
-
-      <div class="summary-evolution-head">
-
-        <div>
-
-          <div class="section-title">
-            Evolución Histórica de la Ponderación
-          </div>
-
-          <p>
-            ${
-              summaryFilters.entity !== 'all'
-                ? `
-                  Evolución de
-                  <b>
-                    ${
-                      summaryEscape(
-                        summaryFilters.entity
-                      )
-                    }
-                  </b>
-                  por ejercicio fiscal.
-                `
-                : `
-                  Ponderación promedio de las
-                  cuentas evaluadas por ejercicio fiscal.
-                `
-            }
-          </p>
-
-        </div>
-
-      </div>
-
-
-      ${
-        summaryEvolutionChart(
-          evolution
-        )
-      }
-
-    </div>
 
 
     <!-- ==========================================
