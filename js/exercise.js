@@ -26,6 +26,8 @@ function exerciseMoney(value) {
   return (Number(value) || 0).toLocaleString(
     'es-MX',
     {
+      style: 'currency',
+      currency: 'MXN',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }
