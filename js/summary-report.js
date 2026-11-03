@@ -123,14 +123,13 @@ h2 { font-size: 15px; margin: 22px 0 10px; color: #153c30; }
 .muted { color: #697973; margin: 0 0 10px; }
 .metrics { display: grid; gap: 10px; }
 .metrics.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.metrics.five { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.metrics.five .metric:last-child { grid-column: span 2; }
+.metrics.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .metric { min-width: 0; border: 1px solid #d9e4df; border-radius: 7px; padding: 12px; min-height: 80px; display: flex; flex-direction: column; gap: 7px; justify-content: space-between; }
 .metric.ok { border-top: 3px solid #075244; }
 .metric.bad { border-top: 3px solid #ba3a38; }
 .metric-label { font-size: 10px; color: #5e7169; font-weight: 700; }
 .metric-value { font-size: 22px; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
-.metrics.five .metric-value { font-size: 19px; }
+.metrics.three .metric-value { font-size: 15px; }
 .metric-detail { font-size: 9px; color: #687a72; }
 .charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
 .panel { min-width: 0; border: 1px solid #d9e4df; border-radius: 7px; padding: 13px; }
@@ -194,7 +193,7 @@ table.solv.tight td { font-size: 7.5px; padding: 2px 3px; }
 <header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Panorama ejecutivo de las cuentas públicas evaluadas.</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
 <div class="metrics four">${card('Entidades Fiscalizadas',num(entities),'Entes únicos del catálogo')}${card('Ejercicios Fiscales Evaluados',num(years.length),years.map(esc).join(', ') || 'Sin ejercicios')}${card('Cuentas Aprobadas',num(approved.length),pct(approved.length,total)+' del total','ok')}${card('Cuentas No Aprobadas',num(rejected.length),pct(rejected.length,total)+' del total','bad')}</div>
 <h2>Indicadores de Fiscalización</h2><p class="muted">Observaciones registradas en el apartado de Solventación.</p>
-<div class="metrics five">${card('Observaciones Fincadas',num(solv.countF),'100% del total fincado')}${card('Observaciones No Solventadas',num(solv.countNotSolved),pct(solv.countNotSolved,solv.countF)+' del total fincado')}${card('Monto de Observaciones Fincadas',summaryMoney(solv.amountF),'100% del monto fincado')}${card('Monto de Observaciones Solventadas',summaryMoney(solv.amountS),pct(solv.amountS,solv.amountF)+' del monto fincado')}${card('Monto de Observaciones No Solventadas',summaryMoney(solv.amountNotSolved),pct(solv.amountNotSolved,solv.amountF)+' del monto fincado')}</div>
+<div class="metrics three">${card('Observaciones Fincadas',num(solv.countF),'100% del total fincado')}${card('Observaciones Solventadas',num(solv.countS),pct(solv.countS,solv.countF)+' del total fincado')}${card('Observaciones No Solventadas',num(solv.countNotSolved),pct(solv.countNotSolved,solv.countF)+' del total fincado')}${card('Monto de Observaciones Fincadas',summaryMoney(solv.amountF),'100% del monto fincado')}${card('Monto de Observaciones Solventadas',summaryMoney(solv.amountS),pct(solv.amountS,solv.amountF)+' del monto fincado')}${card('Monto de Observaciones No Solventadas',summaryMoney(solv.amountNotSolved),pct(solv.amountNotSolved,solv.amountF)+' del monto fincado')}</div>
 <div class="charts"><section class="panel"><h2>Clasificación de Cuentas Públicas</h2><div class="donut-layout"><div class="donut"><div class="donut-inner"><strong>${num(total)}</strong><small>evaluadas</small></div></div><div class="legend"><div><i class="dot green"></i><b>Aprobadas</b><br>${approved.length} · ${pct(approved.length,total)}</div><div><i class="dot red"></i><b>No aprobadas</b><br>${rejected.length} · ${pct(rejected.length,total)}</div></div></div></section>
 <section class="panel"><h2>${summaryFilters.year === 'all' ? 'Ejercicios Evaluados' : 'Avance de Evaluación'}</h2>${summaryFilters.year === 'all' ? `<div class="progress"><strong>${years.map(esc).join(' · ') || '—'}</strong><p class="muted">Ejercicios fiscales con cuentas evaluadas</p></div>` : `<div class="progress"><strong>${progress.toFixed(1)}%</strong><p>${evaluated} de ${expected} cuentas</p><div class="track"><div class="fill" style="width:${progress.toFixed(1)}%"></div></div><small class="muted">${evaluated} evaluadas · ${progress.toFixed(1)}% del catálogo</small></div>`}</section></div>
 </section>

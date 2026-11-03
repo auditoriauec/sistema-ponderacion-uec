@@ -1691,6 +1691,24 @@ function summary() {
 
       ${summaryKpiHtml({
         label:
+          'Observaciones Solventadas',
+
+        value:
+          solvency.countS
+            .toLocaleString(
+              'es-MX'
+            ),
+
+        detail:
+          `${summaryPercent(
+            solvency.countS,
+            solvency.countF
+          )}% del total fincado`
+      })}
+
+
+      ${summaryKpiHtml({
+        label:
           'Observaciones No Solventadas',
 
         value:
