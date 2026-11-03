@@ -37,36 +37,60 @@ function summaryReportPreview() {
   const issueDate = new Date().toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'});
   const logo = new URL('assets/logo-uec.png', window.location.href).href;
   const card = (label,value,detail,kind='') => `<div class="metric ${kind}"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="metric-detail">${detail}</div></div>`;
-  // Tabla detallada: encabezados y ponderaciones centrados.
+  // Tabla por ente con datos de solventación del ejercicio de cada cuenta.
+  // Con un ejercicio seleccionado no se muestra la columna de ejercicio (el título ya lo indica).
+  // Con "Todos los ejercicios" se genera una tabla por cada ejercicio fiscal.
   const table = (title, items) => {
-    const rows = [...items]
-      .sort((a, b) => summaryScore(b) - summaryScore(a))
-      .map((item, index) => `
+    const byYear = summaryFilters.year === 'all';
+    const sorted = [...items].sort((a, b) => summaryScore(b) - summaryScore(a));
+    const groups = byYear
+      ? [...new Set(sorted.map(x => String(x.year)))].sort().map(y => ({ label: y, rows: sorted.filter(x => String(x.year) === y) }))
+      : [{ label: null, rows: sorted }];
+
+    // Densidad adaptable para que las tablas quepan en una sola hoja.
+    const units = sorted.length + (byYear ? groups.length * 2.5 : 0);
+    const density = units <= 20 ? '' : (units <= 30 ? 'compact' : 'tight');
+
+    const head = `
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Ente Fiscalizado</th>
+          <th>Número Fincado</th>
+          <th>Número Solventado</th>
+          <th>Número No Solventado</th>
+          <th>Monto Fincado</th>
+          <th>Monto Solventado</th>
+          <th>Monto No Solventado</th>
+        </tr>
+      </thead>`;
+    const cols = '<colgroup><col style="width:5%"><col style="width:23%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:16.5%"><col style="width:16.5%"><col style="width:16.5%"></colgroup>';
+
+    const rowsHtml = rows => rows.map((item, index) => {
+      const s = summarySolvencyTotals([item]);
+      return `
         <tr>
           <td class="center">${index + 1}</td>
-          <td>${esc(item.entity || '—')}</td>
-          <td class="center">${esc(item.year)}</td>
-          <td class="center">${summaryScore(item).toFixed(2)}</td>
-        </tr>
-      `)
-      .join('');
+          <td class="ente">${esc(item.entity || '—')}</td>
+          <td class="center">${num(s.countF)}</td>
+          <td class="center">${num(s.countS)}</td>
+          <td class="center">${num(s.countNotSolved)}</td>
+          <td class="money">${summaryMoney(s.amountF)}</td>
+          <td class="money">${summaryMoney(s.amountS)}</td>
+          <td class="money">${summaryMoney(s.amountNotSolved)}</td>
+        </tr>`;
+    }).join('');
+
+    const tables = items.length
+      ? groups.map(g => `
+        ${g.label ? `<h3 class="year-title">Ejercicio Fiscal ${esc(g.label)} <span class="count">${g.rows.length}</span></h3>` : ''}
+        <table class="solv ${density}">${cols}${head}<tbody>${rowsHtml(g.rows)}</tbody></table>`).join('')
+      : `<table class="solv">${cols}${head}<tbody><tr><td colspan="8" class="center">Sin cuentas para mostrar.</td></tr></tbody></table>`;
 
     return `
       <section class="table-section">
         <h2>${title} <span class="count">${items.length}</span></h2>
-        <table>
-          <thead>
-            <tr>
-              <th class="small">No.</th>
-              <th>Ente fiscalizado</th>
-              <th class="small">Ejercicio</th>
-              <th class="small">Ponderación</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || '<tr><td colspan="4">Sin cuentas para mostrar.</td></tr>'}
-          </tbody>
-        </table>
+        ${tables}
       </section>
     `;
   };
@@ -141,10 +165,20 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 th { background: #075244; color: white; font-size: 10.5px; padding: 10px 8px; border: 1px solid #075244; text-align: center; }
 td { font-size: 10.5px; padding: 9px 8px; border: 1px solid #d9e4df; overflow-wrap: anywhere; }
 tbody tr:nth-child(even) { background: #f7faf8; }
-.small { width: 15%; }
-th:nth-child(2) { width: 55%; }
 .table-page td:nth-child(2) { overflow-wrap: normal; word-break: normal; }
 .center { text-align: center; }
+table.solv th { font-size: 9px; line-height: 1.2; padding: 7px 4px; }
+table.solv td { font-size: 9px; padding: 6px 4px; vertical-align: middle; }
+table.solv td.ente { text-align: left; overflow-wrap: break-word; }
+table.solv td.money { text-align: right; white-space: nowrap; }
+table.solv.compact th { font-size: 8.5px; padding: 5px 3px; }
+table.solv.compact td { font-size: 8.5px; padding: 3.5px 4px; }
+table.solv.tight th { font-size: 8px; padding: 4px 3px; }
+table.solv.tight td { font-size: 7.5px; padding: 2px 3px; }
+.year-title { font-size: 12px; margin: 14px 0 6px; color: #153c30; }
+.year-title:first-of-type { margin-top: 4px; }
+.table-page.rejected-page .year-title { color: #98252a; }
+.table-page table.solv + .year-title { margin-top: 16px; }
 .footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 24px; padding-top: 10px; border-top: 1px solid #d9e4df; color: #62736b; font-size: 9px; }
 @media print {
   body { background: white; }
