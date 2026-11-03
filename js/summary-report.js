@@ -16,6 +16,97 @@ function bindSummaryReportButton() {
   topbar.appendChild(button);
 }
 
+/* Paginación del reporte (se ejecuta dentro de la ventana del reporte).
+   Reparte cada tabla en hojas A4: si no cabe, continúa en la siguiente hoja con
+   encabezado, título "(continuación)", encabezado de columnas, pie y numeración.
+   Los totales nunca quedan solos: viajan junto con la última fila de datos. */
+function summaryReportPaginate() {
+  var report = document.querySelector('main.report');
+  var tpl = document.getElementById('page-tpl');
+  var content, sec, tbody;
+
+  function fits() { return content.scrollHeight <= content.clientHeight + 1; }
+
+  function openPage(kind, title, count, contd) {
+    var page = tpl.content.firstElementChild.cloneNode(true);
+    page.classList.add(kind);
+    report.appendChild(page);
+    content = page.querySelector('.page-content');
+    sec = document.createElement('section');
+    sec.className = 'table-section';
+    sec.innerHTML = '<h2>' + title + ' <span class="count">' + count + '</span>' +
+      (contd ? ' <span class="contd">(continuación)</span>' : '') + '</h2>';
+    content.appendChild(sec);
+  }
+
+  function openTable(group, contd) {
+    var label = group.getAttribute('data-label');
+    var proto = group.querySelector('table');
+    var h3 = null;
+    if (label) {
+      h3 = document.createElement('h3');
+      h3.className = 'year-title';
+      h3.innerHTML = 'Ejercicio Fiscal ' + label + ' <span class="count">' + group.getAttribute('data-count') + '</span>' +
+        (contd ? ' <span class="contd">(continuación)</span>' : '');
+      sec.appendChild(h3);
+    }
+    var t = document.createElement('table');
+    t.className = proto.className;
+    t.innerHTML = proto.querySelector('colgroup').outerHTML + proto.querySelector('thead').outerHTML;
+    var tb = document.createElement('tbody');
+    t.appendChild(tb);
+    sec.appendChild(t);
+    return { tbody: tb, table: t, title: h3 };
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.src-section'), function (src) {
+    var kind = src.getAttribute('data-kind');
+    var title = src.getAttribute('data-title');
+    var count = src.getAttribute('data-count');
+    openPage(kind, title, count, false);
+
+    Array.prototype.forEach.call(src.querySelectorAll('.src-group'), function (group) {
+      var rows = Array.prototype.slice.call(group.querySelectorAll('tbody > tr'));
+      var current = openTable(group, false);
+      tbody = current.tbody;
+
+      // Si ni el título del ejercicio con su encabezado caben, pasar a la hoja siguiente.
+      if (!fits() && sec.querySelectorAll('table').length > 1) {
+        if (current.title) sec.removeChild(current.title);
+        sec.removeChild(current.table);
+        openPage(kind, title, count, true);
+        current = openTable(group, false);
+        tbody = current.tbody;
+      }
+
+      rows.forEach(function (row) {
+        tbody.appendChild(row);
+        if (fits()) return;
+        var move = [row];
+        tbody.removeChild(row);
+        if (row.classList.contains('total')) {
+          var prev = tbody.lastElementChild;
+          while (prev && prev.classList.contains('total')) {
+            move.unshift(prev); tbody.removeChild(prev); prev = tbody.lastElementChild;
+          }
+          if (prev && tbody.children.length > 1) { move.unshift(prev); tbody.removeChild(prev); }
+        }
+        openPage(kind, title, count, true);
+        current = openTable(group, true);
+        tbody = current.tbody;
+        move.forEach(function (m) { tbody.appendChild(m); });
+      });
+    });
+  });
+
+  var pages = document.querySelectorAll('.report-page');
+  Array.prototype.forEach.call(pages, function (page, i) {
+    Array.prototype.forEach.call(page.querySelectorAll('.pg'), function (el) {
+      el.textContent = 'Página ' + (i + 1) + ' de ' + pages.length;
+    });
+  });
+}
+
 function summaryReportPreview() {
   // Abrir la pestaña durante el clic para no activar bloqueadores de ventanas.
   const win = window.open('', '_blank');
@@ -40,16 +131,18 @@ function summaryReportPreview() {
   // Tabla por ente con datos de solventación del ejercicio de cada cuenta.
   // Con un ejercicio seleccionado no se muestra la columna de ejercicio (el título ya lo indica).
   // Con "Todos los ejercicios" se genera una tabla por cada ejercicio fiscal.
-  const table = (title, items, grand = null) => {
+  // Devuelve el contenido "fuente": summaryReportPaginate() lo reparte en hojas con encabezado,
+  // pie y numeración, continuando la tabla en otra hoja cuando no cabe.
+  const table = (title, items, kind, grand = null) => {
     const byYear = summaryFilters.year === 'all';
     const sorted = [...items].sort((a, b) => summaryScore(b) - summaryScore(a));
     const groups = byYear
       ? [...new Set(sorted.map(x => String(x.year)))].sort().map(y => ({ label: y, rows: sorted.filter(x => String(x.year) === y) }))
       : [{ label: null, rows: sorted }];
 
-    // Densidad adaptable para que las tablas quepan en una sola hoja.
-    const units = sorted.length + (byYear ? groups.length * 2.5 : 0) + (grand ? 2 : 1);
-    const density = units <= 24 ? '' : (units <= 34 ? 'compact' : 'tight');
+    // Densidad: normal si es poca información; compacta (nunca menor a 9px) si hay muchas filas.
+    const units = sorted.length + (byYear ? groups.length * 2.5 : 0) + 1 + (groups.length > 1 ? 1 : 0) + (grand ? 1 : 0);
+    const density = units <= 24 ? '' : 'compact';
 
     const head = `
       <thead>
@@ -82,10 +175,10 @@ function summaryReportPreview() {
     }).join('');
 
     // Fila de totales: suma de cada columna de las filas indicadas.
-    const totalRow = (label, rows, kind = '') => {
+    const totalRow = (label, rows, cls = '') => {
       const t = summarySolvencyTotals(rows);
       return `
-        <tr class="total ${kind}">
+        <tr class="total ${cls}">
           <td colspan="2" class="total-label">${label}</td>
           <td class="center">${num(t.countF)}</td>
           <td class="center">${num(t.countS)}</td>
@@ -95,23 +188,24 @@ function summaryReportPreview() {
           <td class="money">${summaryMoney(t.amountNotSolved)}</td>
         </tr>`;
     };
-    const totalTable = (label, rows, kind = '') => `<table class="solv ${density} ${kind === 'grand' ? 'grand-gap' : 'extra-total'}">${cols}<tbody>${totalRow(label, rows, kind)}</tbody></table>`;
 
-    const tables = items.length
-      ? groups.map(g => `
-        <div class="year-group">${g.label ? `<h3 class="year-title">Ejercicio Fiscal ${esc(g.label)} <span class="count">${g.rows.length}</span></h3>` : ''}
-        <table class="solv ${density}">${cols}${head}<tbody>${rowsHtml(g.rows)}${totalRow(g.label ? `Total ${esc(g.label)}` : 'Total', g.rows)}</tbody></table></div>`).join('')
-        + (groups.length > 1 ? totalTable(`Total ${title}`, sorted) : '')
-        + (grand ? totalTable(grand.label, grand.rows, 'grand') : '')
-      : `<table class="solv">${cols}${head}<tbody><tr><td colspan="8" class="center">Sin cuentas para mostrar.</td></tr></tbody></table>`;
+    const lastIndex = groups.length - 1;
+    const groupsHtml = items.length
+      ? groups.map((g, gi) => {
+          let body = rowsHtml(g.rows) + totalRow(g.label ? `Total ${esc(g.label)}` : 'Total', g.rows);
+          if (gi === lastIndex) {
+            if (groups.length > 1) body += totalRow(`Total ${esc(title)}`, sorted, 'section');
+            if (grand) body += totalRow(grand.label, grand.rows, 'grand');
+          }
+          return `<div class="src-group" data-label="${esc(g.label || '')}" data-count="${g.rows.length}"><table class="solv ${density}">${cols}${head}<tbody>${body}</tbody></table></div>`;
+        }).join('')
+      : `<div class="src-group" data-label="" data-count="0"><table class="solv">${cols}${head}<tbody><tr><td colspan="8" class="center">Sin cuentas para mostrar.</td></tr></tbody></table></div>`;
 
-    return `
-      <section class="table-section">
-        <h2>${title} <span class="count">${items.length}</span></h2>
-        ${tables}
-      </section>
-    `;
+    return `<div class="src-section" data-kind="${kind}" data-title="${esc(title)}" data-count="${items.length}">${groupsHtml}</div>`;
   };
+
+  const pageHeader = description => `<header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">${description}</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>`;
+  const pageFooter = `<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · <span class="pg"></span></span></footer>`;
 
   const expected = entities;
   const evaluated = expected ? new Set(exercises.map(x => String(x.entity||'').trim()).filter(name => catalog.some(row => row.name === name))).size : 0;
@@ -136,7 +230,7 @@ body { margin: 0; background: #edf1ef; color: #17342b; font: 12px/1.4 Arial, Hel
 .section-head .muted { margin: 0; }
 .report-page + .report-page { margin-top: 18mm; }
 .header { display: flex; align-items: center; gap: 15px; padding-bottom: 13px; border-bottom: 2px solid #075244; margin-bottom: 17px; }
-.logo { width: 92px; max-height: 76px; object-fit: contain; flex: none; }
+.logo { width: 92px; height: 76px; object-fit: contain; flex: none; }
 .header-title { flex: 1; min-width: 0; }
 h1 { margin: 0 0 4px; font-size: 23px; line-height: 1.1; }
 .subtitle { margin: 0; color: #33463f; font-size: 15px; }
@@ -174,14 +268,17 @@ h2 { font-size: 15px; margin: 22px 0 10px; color: #153c30; }
 .track { height: 9px; background: #e5eee9; border-radius: 9px; overflow: hidden; margin: 15px 0 8px; }
 .fill { height: 100%; background: #075244; }
 .tables-grid { display: block; }
-.table-page { min-height: 255mm; display: flex; flex-direction: column; }
-.table-page .table-section { flex: 1; }
-.table-page .footer { margin-top: auto; }
+.table-page { height: 273mm; min-height: 0; display: flex; flex-direction: column; }
+.page-content { flex: 1; min-height: 0; overflow: hidden; }
+.table-page .footer { margin-top: 8px; }
+.src-root { display: none; }
+.contd { font-size: 11px; font-weight: 400; color: #46574f; }
 .table-page.approved-page .table-section h2 { border-left: 3px solid #075244; padding-left: 10px; }
 .table-page.rejected-page .table-section h2 { border-left: 3px solid #b83232; padding-left: 10px; }
 .table-page.rejected-page th { background: #a8242b; border-color: #a8242b; }
 .table-page.rejected-page .count { color: #98252a; background: #fce9e9; }
-.table-section { margin-bottom: 22px; }
+.table-section { margin-bottom: 0; }
+.table-section h2 { margin-top: 4px; }
 .table-section h2 { border-bottom: 1px solid #d9e4df; padding-bottom: 8px; }
 .count { font-size: 11px; padding: 4px 8px; background: #edf4f0; border-radius: 12px; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -205,8 +302,9 @@ table.solv tbody tr.total td { font-weight: 700; color: #000; background: #d3e6d
 .rejected-page table.solv tbody tr.total td { background: #f4d6d7; border-top-color: #a8242b; }
 table.solv tbody tr.total.grand td { background: #e2e2e2; border: 1px solid #000; border-top: 2px solid #000; }
 table.solv td.total-label { text-align: left; padding-left: 8px; }
-table.solv.extra-total { margin-top: -1px; }
-table.solv.grand-gap { margin-top: 10px; }
+table.solv tbody tr.total.section td { background: #b7d6c8; }
+.rejected-page table.solv tbody tr.total.section td { background: #ecb9bb; }
+table.solv tbody tr.total.grand td { border-top: 2px solid #000; }
 .year-group { break-inside: avoid; page-break-inside: avoid; }
 .year-title { font-size: 12px; margin: 14px 0 6px; color: #0d2a21; }
 .year-title:first-of-type { margin-top: 4px; }
@@ -224,7 +322,7 @@ table.solv.grand-gap { margin-top: 10px; }
 }
 </style></head><body><div class="actions"><button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button></div><main class="report">
 <section class="report-page first-page">
-<header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Panorama ejecutivo de las cuentas públicas evaluadas.</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
+${pageHeader('Panorama ejecutivo de las cuentas públicas evaluadas.')}
 <div class="page-body">
 <div class="metrics four">${card('Entidades Fiscalizadas',num(entities),'Entes únicos del catálogo')}${card('Ejercicios Fiscales Evaluados',num(years.length),years.map(esc).join(', ') || 'Sin ejercicios')}${card('Cuentas Aprobadas',num(approved.length),pct(approved.length,total)+' del total','ok')}${card('Cuentas No Aprobadas',num(rejected.length),pct(rejected.length,total)+' del total','bad')}</div>
 <div class="section-head"><h2>Indicadores de Fiscalización</h2><p class="muted">Observaciones registradas en el apartado de Solventación.</p></div>
@@ -232,19 +330,12 @@ table.solv.grand-gap { margin-top: 10px; }
 <div class="charts"><section class="panel"><h2>Clasificación de Cuentas Públicas</h2><div class="donut-layout"><div class="donut">${donutSvg}<div class="donut-inner"><strong>${num(total)}</strong><small>evaluadas</small></div></div><div class="legend"><div><i class="dot green"></i><b>Aprobadas</b><br>${approved.length} · ${pct(approved.length,total)}</div><div><i class="dot red"></i><b>No aprobadas</b><br>${rejected.length} · ${pct(rejected.length,total)}</div></div></div></section>
 <section class="panel"><h2>${summaryFilters.year === 'all' ? 'Ejercicios Evaluados' : 'Avance de Evaluación'}</h2>${summaryFilters.year === 'all' ? `<div class="progress"><strong>${years.map(esc).join(' · ') || '—'}</strong><p class="muted">Ejercicios fiscales con cuentas evaluadas</p></div>` : `<div class="progress"><strong>${progress.toFixed(1)}%</strong><p>${evaluated} de ${expected} cuentas</p><div class="track"><div class="fill" style="width:${progress.toFixed(1)}%"></div></div><small class="muted">${evaluated} evaluadas · ${progress.toFixed(1)}% del catálogo</small></div>`}</section></div>
 </div>
-<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · Página 1 de 3</span></footer>
+${pageFooter}
 </section>
-<section class="report-page table-page approved-page">
-<header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Detalle por ente fiscalizado</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
-${table('Cuentas Aprobadas', approved)}
-<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · Página 2 de 3</span></footer>
-</section>
-<section class="report-page table-page rejected-page">
-<header class="header"><img class="logo" src="${logo}" alt="Logo institucional UEC"><div class="header-title"><h1>Resumen de Cuenta Pública</h1><p class="subtitle">${yearText}</p><p class="description">Detalle por ente fiscalizado</p></div><div class="meta"><b>UNIDAD DE EVALUACIÓN Y CONTROL</b><br>Fecha de emisión: ${esc(issueDate)}<br>${entityText}</div></header>
-${table('Cuentas No Aprobadas', rejected, { label: 'Total general · Aprobadas + No aprobadas', rows: exercises })}
-<footer class="footer"><span>Unidad de Evaluación y Control · Reporte ejecutivo</span><span>${yearText} · Página 3 de 3</span></footer>
-</section>
-</main><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),600));<\/script></body></html>`;
+</main>
+<div class="src-root">${table('Cuentas Aprobadas', approved, 'approved-page')}${table('Cuentas No Aprobadas', rejected, 'rejected-page', { label: 'Total general · Aprobadas + No aprobadas', rows: exercises })}</div>
+<template id="page-tpl"><section class="report-page table-page">${pageHeader('Detalle por ente fiscalizado')}<div class="page-content"></div>${pageFooter}</section></template>
+<script>window.addEventListener('load',()=>{(${summaryReportPaginate.toString()})();setTimeout(()=>window.print(),600)});<\/script></body></html>`;
   win.document.open();
   win.document.write(html);
   win.document.close();
